@@ -837,7 +837,7 @@ export const commands: Chat.ChatCommands = {
 
 	personalavatar: 'defaultavatar',
 	async defaultavatar(target, room, user) {
-		this.checkCan('bypassall');
+		this.checkCan('avatar');
 		if (!target) return this.parse(`/help defaultavatar`);
 		const [inputUsername, inputAvatar] = this.splitOne(target);
 		if (!Users.isUsername(inputUsername)) {
@@ -860,7 +860,7 @@ export const commands: Chat.ChatCommands = {
 	allowedavatar: 'allowavatar',
 	groupavatar: 'allowavatar',
 	async allowavatar(target, room, user) {
-		this.checkCan('bypassall');
+		this.checkCan('avatar');
 		if (!target) return this.parse(`/help defaultavatar`);
 		const [inputUsername, inputAvatar] = this.splitOne(target);
 		if (!Users.isUsername(inputUsername)) {
@@ -884,7 +884,7 @@ export const commands: Chat.ChatCommands = {
 	disallowavatar: 'removeavatar',
 	removeavatars: 'removeavatar',
 	removeavatar(target, room, user) {
-		this.checkCan('bypassall');
+		this.checkCan('avatar');
 		if (!target) return this.parse(`/help defaultavatar`);
 		const [inputUsername, inputAvatar] = this.splitOne(target);
 		if (!Users.isUsername(inputUsername)) {
@@ -949,7 +949,7 @@ export const commands: Chat.ChatCommands = {
 	},
 
 	moveavatars(target, room, user) {
-		this.checkCan('bypassall');
+		this.checkCan('avatar');
 		const [from, to] = target.split(',').map(toID);
 		if (!from || !to) {
 			return this.parse(`/help moveavatars`);
@@ -977,7 +977,7 @@ export const commands: Chat.ChatCommands = {
 	],
 
 	async masspavatar(target, room, user) {
-		this.checkCan('bypassall');
+		this.checkCan('avatar');
 
 		const usernames = target.trim().split(/\s*\n|,\s*/)
 			.map(username => username.endsWith('.png') ? username.slice(0, -4) : username);
@@ -1000,7 +1000,7 @@ export const commands: Chat.ChatCommands = {
 		</div>);
 	},
 	async massxmasavatar(target, room, user) {
-		this.checkCan('bypassall');
+		this.checkCan('avatar');
 
 		const usernames = target.trim().split(/\s*\n|,\s*/)
 			.map(username => username.endsWith('.png') ? username.slice(0, -4) : username)
@@ -1024,7 +1024,7 @@ export const commands: Chat.ChatCommands = {
 		</div>);
 	},
 	async massgavatar(target, room, user) {
-		this.checkCan('bypassall');
+		this.checkCan('avatar');
 
 		const args = target.trim().split(/\s*\n|,\s*/);
 		let curAvatar = '';
