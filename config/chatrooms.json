@@ -1,7 +1,7 @@
 [
 {"title":"Lobby","auth":{},"creationTime":1772070464884,"autojoin":true},
 {"title":"Staff","auth":{"yoshiblaze":"#","scoopapa":"#"},"creationTime":1772070464884,"isPrivate":"hidden","modjoin":"@","autojoin":true},
-{"title":"Development","auth":{"iforgetwhyimhere":"#"},"creationTime":1772070464884,"isPrivate":"hidden","autojoin":false},
-{"title":"SoloPL","auth":{"gekokeko":"#"},"creationTime":1772070464884,"modchat":"+"},
+{"title":"Development","auth":{"iforgetwhyimhere":"#","scoopapa":"#"},"creationTime":1772070464884,"isPrivate":"hidden"},
+{"title":"SoloPL","auth":{"gekokeso":"#"},"creationTime":1772070464884,"modchat":"+"},
 {"title":"Minigames","auth":{"iforgetwhyimhere":"#"},"creationTime":1772070464884}
 ]
