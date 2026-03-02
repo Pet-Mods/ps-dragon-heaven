@@ -1784,10 +1784,10 @@ export const commands: Chat.ChatCommands = {
 		if (!this.runBroadcast()) return;
 		this.sendReplyBox(
 			`New to Dragon Heaven?<br />` +
-			`- <a href="Link">Link Name</a><br />` +
 			`- <a href="https://play.pokemonshowdown.com/petmods">PS! Chatroom</a><br />` +
-			`- <a href="https://www.smogon.com/forums/forums/pet-mods.734/">Petmods Subforum on Smogon</a><br />` +
-			`- <a href="https://www.smogon.com/forums/threads/solomods-megathread.3711007/">Solomods Megathread</a><br />` +
+			`- <a href="https://docs.google.com/document/d/1P1Zgsh7L66ymVuZkejU2Za61QRmbY8opwpOap6AGxa8/edit?tab=t.0">Important Links and Discord Directory</a><br />` +
+			`- <a href="https://www.smogon.com/forums/forums/pet-mods.734/">Petmods on Smogon</a><br />` +
+			`- <a href="https://www.smogon.com/forums/forums/solomods.743/">Solomods Subforum</a><br />` +
 			`- <a href="https://github.com/Pet-Mods/ps-dragon-heaven/blob/master/CONTRIBUTING.md">Want to code a mod?</a><br />`
 		);
 		
