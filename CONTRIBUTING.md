@@ -11,10 +11,9 @@ We're pretty open to most feature additions or bug fixes. We ask that you indica
 
 You can open a PR on [this repository][1].
 
-	[1]: https://github.com/Pet-Mods/dragon-heaven/pulls
+	[1]: https://github.com/Pet-Mods/ps-dragon-heaven/pulls
 
-Showdown lacks intricate explanation/documentation for a lot of its code, so any questions you may have, PLEASE ask about instead of guessing!
-
+If you are unsure of anything, PLEASE ask about it instead of guessing!
 
 ========================================================================
 Contributing to Pokémon Showdown

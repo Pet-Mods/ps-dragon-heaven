@@ -1706,17 +1706,17 @@ export const commands: Chat.ChatCommands = {
 		this.sendReplyBox(
 			`Pok&eacute;mon Showdown (and by extension, Dragon Heaven) is open source:<br />` +
 			`- <a href="https://github.com/scoopapa/DH2/commits/main">What's new?</a><br />` +
-			'- <a href="https://github.com/Pet-Mods/dragon-heaven">DH server code</a><br />' +	
-			'- <a href="https://github.com/Pet-Mods/dragon-heaven-client">DH client code</a><br />' +
+			'- <a href="https://github.com/Pet-Mods/ps-dragon-heaven">DH server code</a><br />' +	
+			'- <a href="https://github.com/Pet-Mods/ps-dragon-heaven-client">DH client code</a><br />' +
 			`- <a href="https://github.com/Zarel/Pokemon-Showdown-Dex">Dex source</a><br />` +
 			`- <a href="https://github.com/smogon/pokemon-showdown-loginserver">Login server source</a>`
 		);
 	},
 	opensourcehelp: [
-		`/opensource - Links to PS's source code repository.`,
+		`/opensource - Links to DH's source code repositories.`,
 		`!opensource - Show everyone that information. Requires: + % @ # ~`,
 	],
-
+/*
 	staff(target, room, user) {
 		if (!this.runBroadcast()) return;
 		this.sendReplyBox(`<a href="https://www.smogon.com/forums/posts/10715136/">Pok&eacute;mon Showdown Staff List</a>`);
@@ -1778,8 +1778,9 @@ export const commands: Chat.ChatCommands = {
 		this.sendReplyBox(`<button name="openSounds" class="button"><i style="font-size: 16px; vertical-align: -1px" class="fa fa-volume-up"></i> Sound</button> (The Sound and Options buttons are at the top right, next to your username)`);
 	},
 	soundbuttonhelp: [`/soundbutton - Provides a button to the Sounds menu.`],
-
+*/
 	introduction: 'intro',
+	dh: 'intro',
 	intro(target, room, user) {
 		if (!this.runBroadcast()) return;
 		this.sendReplyBox(
@@ -1788,7 +1789,7 @@ export const commands: Chat.ChatCommands = {
 			`- <a href="https://docs.google.com/document/d/1P1Zgsh7L66ymVuZkejU2Za61QRmbY8opwpOap6AGxa8/edit?tab=t.0">Important Links and Discord Directory</a><br />` +
 			`- <a href="https://www.smogon.com/forums/forums/pet-mods.734/">Petmods on Smogon</a><br />` +
 			`- <a href="https://www.smogon.com/forums/forums/solomods.743/">Solomods Subforum</a><br />` +
-			`- <a href="https://github.com/Pet-Mods/ps-dragon-heaven/blob/master/CONTRIBUTING.md">Want to code a mod?</a><br />`
+			`- <a href="https://github.com/Pet-Mods/ps-dragon-heaven/blob/master/NEWMODS.md">Want to code a mod?</a><br />`
 		);
 		
 	},
@@ -1796,7 +1797,7 @@ export const commands: Chat.ChatCommands = {
 		`/intro - Provides an introduction to Dragon Heaven.`,
 		`!intro - Show everyone that information. Requires: + % @ # ~`,
 	],
-
+/*
 	mentoring: 'smogintro',
 	smogonintro: 'smogintro',
 	smogintro(target, room, user) {
@@ -1808,7 +1809,7 @@ export const commands: Chat.ChatCommands = {
 		);
 	},
 	smogintrohelp: [`/smogintro - Provides an introduction to Smogon.`],
-
+*/
 	bsscalc: 'calc',
 	calculator: 'calc',
 	cantsaycalc: 'calc',
