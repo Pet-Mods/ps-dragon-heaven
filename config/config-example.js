@@ -82,6 +82,50 @@ Main's SSL deploy script from Let's Encrypt looks like:
 	chown user:user ~user/Pokemon-Showdown/config/ssl/fullchain.pem
 */
 
+// subprocesses - the number of child processes to use for various tasks.
+//   Can be set to `0` instead of `{...}` to stop using subprocesses, if you're running out of RAM.
+exports.subprocesses = {
+	/**
+	 * network - the number of networking child processes to spawn
+	 *   This should be no greater than the number of threads available on your
+	 *   server's CPU. If you're not sure how many you have, you can check from a
+	 *   terminal by running:
+	 *
+	 *   $ node -e "console.log(require('os').cpus().length)"
+	 *
+	 *   Using more workers than there are available threads will cause performance
+	 *   issues. Keeping a couple threads available for use for OS-related work and
+	 *   other PS processes will likely give you the best performance, if your
+	 *   server's CPU is capable of multithreading. If you don't know what any of
+	 *   this means or you are unfamiliar with PS' networking code, leave this set
+	 *   to 1.
+	 */
+	network: 1,
+	/**
+	 * for simulating battles
+	 *   You should leave this at 1 unless your server has a very large
+	 *   amount of traffic (i.e. hundreds of concurrent battles).
+	 */
+	simulator: 1,
+
+	// beyond this point, it'd be very weird if you needed more than one of each of these
+
+	/** for validating teams */
+	validator: 1,
+	/** for user authentication */
+	verifier: 1,
+	localartemis: 0,
+	remoteartemis: 1,
+	friends: 0,
+	chatdb: 1,
+	modlog: 1,
+	pm: 1,
+	/** for the battlesearch chat plugin */
+	battlesearch: 1,
+	/** datasearch - for the datasearch chat plugin */
+	datasearch: 1,
+};
+
 /**
  * proxyip - proxy IPs with trusted X-Forwarded-For headers
  *   This can be either false (meaning not to trust any proxies) or an array
@@ -388,27 +432,18 @@ exports.watchconfig = true;
 /**
  * logchat - whether to log chat rooms.
  */
-exports.logchat = false;
+exports.logchat = true;
 
 /**
  * logchallenges - whether to log challenge battles. Useful for tournament servers.
  */
-exports.logchallenges = false;
+exports.logchallenges = true;
 
 /**
  * loguserstats - how often (in milliseconds) to write user stats to the
  * lobby log. This has no effect if `logchat` is disabled.
  */
 exports.loguserstats = 1000 * 60 * 10; // 10 minutes
-
-/**
- * validatorprocesses - the number of processes to use for validating teams
- * simulatorprocesses - the number of processes to use for handling battles
- * You should leave both of these at 1 unless your server has a very large
- * amount of traffic (i.e. hundreds of concurrent battles).
- */
-exports.validatorprocesses = 1;
-exports.simulatorprocesses = 1;
 
 /**
  * inactiveuserthreshold - how long a user must be inactive before being pruned
@@ -423,7 +458,7 @@ exports.inactiveuserthreshold = 1000 * 60 * 60;
  *
  * @type {boolean}
  */
-exports.autolockdown = true;
+exports.autolockdown = false;
 
 /**
  * noguestsecurity - purely for development servers: allows logging in without
@@ -500,7 +535,7 @@ exports.lastfmkey = '';
 exports.chatlogreader = 'fs';
 /**
  * permissions and groups:
- *   Each entry in `grouplist` is a seperate group. Some of the members are "special"
+ *   Each entry in `grouplist` is a separate group. Some of the members are "special"
  *     while the rest is just a normal permission.
  *   The order of the groups determines their ranking.
  *   The special members are as follows:
@@ -555,8 +590,18 @@ exports.chatlogreader = 'fs';
  *	   - avatar: control custom avatars.  
  */
 
+
+/** 
+ *	We are a registered server.
+ * 	Our token is kept out of the repo for security reasons
+ */
 //exports.serverid = 'dragonheaven';
 //exports.servertoken = '[KEY]';
+
+/** 
+ *	Enables modlog [uses SQL dependency]
+ *	
+ */
 exports.usesqlite = true
 exports.usesqlitemodlog = true
 
@@ -572,7 +617,7 @@ exports.grouplist = [
 		console: true,
 		bypassall: true,
 		lockdown: true,
-		promote: '&u',
+		promote: '~u',
 		roomowner: true,
 		roombot: true,
 		roommod: true,
@@ -660,7 +705,7 @@ exports.grouplist = [
 		timer: true,
 		modlog: true,
 		alts: '%u',
-		bypassblocks: 'u%@&~',
+		bypassblocks: 'u%@~',
 		receiveauthmessages: true,
 		gamemoderation: true,
 		jeopardy: true,
@@ -668,13 +713,6 @@ exports.grouplist = [
 		minigame: true,
 		modchat: true,
 		hiderank: true,
-	},
-	{
-		symbol: '\u00a7',
-		id: "sectionleader",
-		name: "Section Leader",
-		inherit: '+',
-		jurisdiction: 'u',
 	},
 	{
 		// Bots are ranked below Driver/Mod so that Global Bots can be kept out
