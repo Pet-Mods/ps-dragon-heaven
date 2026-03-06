@@ -1,4 +1,4 @@
-export const TypeChart: import('../sim/dex-data').TypeDataTable = {
+export const TypeChart: import('../../../sim/dex-data').TypeDataTable = {
 
 /*
  *	type: {

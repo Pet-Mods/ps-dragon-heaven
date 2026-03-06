@@ -1654,7 +1654,7 @@ export class GlobalRoomState {
 			if (typeof Config.reportbattles === 'string') {
 				Config.reportbattles = [Config.reportbattles];
 			} else if (Config.reportbattles === true) {
-				Config.reportbattles = ['lobby'];
+				Config.reportbattles = ['dragonsnest'];
 			}
 			for (const roomid of Config.reportbattles) {
 				const reportRoom = Rooms.get(roomid);
