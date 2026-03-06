@@ -511,8 +511,8 @@ export class Format extends BasicEffect implements Readonly<BasicEffect> {
 	}
 }
 
-/** merges format lists from config/formats and config/custom-formats */
-function mergeFormatLists(main: FormatList, custom: FormatList | undefined): FormatList {
+/** merges format lists from config/formats and config/official-formats */
+function mergeFormatLists(main: FormatList, official: FormatList | undefined): FormatList {
 	// interface for the builder.
 	interface FormatSection {
 		section: string;
@@ -541,8 +541,8 @@ function mergeFormatLists(main: FormatList, custom: FormatList | undefined): For
 	}
 
 	// merges the second list the hard way. Accounts for repeats.
-	if (custom !== undefined) {
-		for (const element of custom) {
+	if (official !== undefined) {
+		for (const element of official) {
 			// finds the section and makes it if it doesn't exist.
 			if (element.section) {
 				current = build.find(e => e.section === element.section);
@@ -585,11 +585,11 @@ export class DexFormats {
 		const formatsList = [];
 
 		// Load formats
-		let customFormats;
+		let officialFormats;
 		try {
-			customFormats = require(`${__dirname}/../config/custom-formats`).Formats;
-			if (!Array.isArray(customFormats)) {
-				throw new TypeError(`Exported property 'Formats' from "./config/custom-formats.ts" must be an array`);
+			officialFormats = require(`${__dirname}/../config/official-formats`).Formats;
+			if (!Array.isArray(officialFormats)) {
+				throw new TypeError(`Exported property 'Formats' from "./config/custom-official.ts" must be an array`);
 			}
 		} catch (e: any) {
 			if (e.code !== 'MODULE_NOT_FOUND' && e.code !== 'ENOENT') {
@@ -600,7 +600,7 @@ export class DexFormats {
 		if (!Array.isArray(Formats)) {
 			throw new TypeError(`Exported property 'Formats' from "./config/formats.ts" must be an array`);
 		}
-		if (customFormats) Formats = mergeFormatLists(Formats as any, customFormats);
+		if (officialFormats) Formats = mergeFormatLists(Formats as any, officialFormats);
 
 		let section = '';
 		let column = 1;
