@@ -241,14 +241,13 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 		banlist: ['DUber', 'Shadow Tag', 'Commander'],
 	},
 	{
+		// another CG but its doubles, really could be in either spot
 		name: "[Gen 9] Doubles Custom Game",
-
 		mod: 'gen9',
 		gameType: 'doubles',
 		searchShow: false,
 		battle: {trunc: Math.trunc},
 		debug: true,
-		// another CG but its doubles, really could be in either spot
 		ruleset: ['Team Preview', 'Cancel Mod', 'Max Team Size = 24', 'Max Move Count = 24', 'Max Level = 9999', 'Default Level = 100'],
 	},
 	{

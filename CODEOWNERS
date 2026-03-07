@@ -3,3 +3,4 @@ config/avatars/* @iforgetwhyimhere
 config/formats.ts @iforgetwhyimhere
 
 data/mods/* @yoshiblaze
+data/mods/.placeholder @iforgetwhyimhere
