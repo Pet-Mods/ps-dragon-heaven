@@ -95,10 +95,10 @@ Staff
 - Mia A [Mia] - Development
 
 Dragon Heaven is maintained by:
-- Yoshiblaze - Pet Mods eEader
+- Yoshiblaze - Pet Mods Leader
 - scoopapa - Server Host
-- iforgetwhyimhere - Head of Server work
-- CoruptedUsername - Head of Client work
+- iforgetwhyimhere - Server
+- CoruptedUsername - Client
 
 Contributors
 
