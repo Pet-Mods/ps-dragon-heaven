@@ -634,6 +634,7 @@ exports.grouplist = [
 		gamemanagement: true,
 		exportinputlog: true,
 		tournaments: true,
+		avatar: true,
 	},
 	{
 		symbol: '#',
@@ -684,7 +685,6 @@ exports.grouplist = [
 		ip: true,
 		alts: '@u',
 		game: true,
-		avatar: true,
 		declare: true,
 	},
 	// We do not use the Driver rank, just Moderator.
