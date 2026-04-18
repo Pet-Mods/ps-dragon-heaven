@@ -1,3 +1,21 @@
+Contributing to Dragon Heaven
+========================================================================
+
+New mods
+------------------------------------------------------------------------
+Generally, any new formats or fixes should be crash-free, especially for Random Battles tiers. Try to avoid "half-baked" or incomplete tiers as well. If you need something merged with an incomplete feature, please add /* comments */ to remove access to incomplete features. Follow our organization structure.
+
+General contribution
+------------------------------------------------------------------------
+We're pretty open to most feature additions or bug fixes. We ask that you indicate the completion of your contribution in the coding channel on the Pet Mods Discord. It increases the visibility of the PR so we can check it.
+
+You can open a PR on [this repository][1].
+
+	[1]: https://github.com/Pet-Mods/ps-dragon-heaven/pulls
+
+If you are unsure of anything, PLEASE ask about it instead of guessing!
+
+========================================================================
 Contributing to Pokémon Showdown
 ========================================================================
 

@@ -94,6 +94,12 @@ Staff
 - Mathieu Dias-Martins [Marty-D] - Research (game mechanics), Development
 - Mia A [Mia] - Development
 
+Dragon Heaven is maintained by:
+- Yoshiblaze - Pet Mods eEader
+- scoopapa - Server Host
+- iforgetwhyimhere - Head of Server work
+- CoruptedUsername - Head of Client work
+
 Contributors
 
 - See http://pokemonshowdown.com/credits

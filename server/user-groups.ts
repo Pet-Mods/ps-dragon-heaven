@@ -18,6 +18,8 @@ export const GLOBAL_PERMISSIONS = [
 	'bypassall', 'console', 'disableladder', 'lockdown', 'potd',
 	// other
 	'addhtml', 'alts', 'altsself', 'autotimer', 'globalban', 'bypassblocks', 'bypassafktimer', 'forcepromote', 'forcerename', 'forcewin', 'gdeclare', 'hiderank', 'ignorelimits', 'importinputlog', 'ip', 'ipself', 'lock', 'makeroom', 'modlog', 'rangeban', 'promote',
+	// avatar permission controls granting and editing custom avatars
+	'avatar',
 ] as const;
 
 export type RoomPermission = typeof ROOM_PERMISSIONS[number];

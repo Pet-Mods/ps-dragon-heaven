@@ -16,6 +16,23 @@ exports.port = 8000;
 exports.bindaddress = '0.0.0.0';
 
 /**
+ * workers - the number of networking child processes to spawn
+ *   This should be no greater than the number of threads available on your
+ *   server's CPU. If you're not sure how many you have, you can check from a
+ *   terminal by running:
+ *
+ *   $ node -e "console.log(require('os').cpus().length)"
+ *
+ *   Using more workers than there are available threads will cause performance
+ *   issues. Keeping a couple threads available for use for OS-related work and
+ *   other PS processes will likely give you the best performance, if your
+ *   server's CPU is capable of multithreading. If you don't know what any of
+ *   this means or you are unfamiliar with PS' networking code, leave this set
+ *   to 1.
+ */
+exports.workers = 1;
+
+/**
  * wsdeflate - compresses WebSocket messages
  *  Toggles use of the Sec-WebSocket-Extension permessage-deflate extension.
  *  This compresses messages sent and received over a WebSocket connection
@@ -24,15 +41,6 @@ exports.bindaddress = '0.0.0.0';
  * @type {AnyObject?}
  */
 exports.wsdeflate = null;
-
-/**
- * lazysockets - disables eager initialization of network services
- *  Turn this on if you'd prefer to manually connect Showdown to the network,
- *  or you intend to run it offline.
- *
- * @type {boolean}
- */
-exports.lazysockets = false;
 
 /*
 // example:
@@ -74,16 +82,6 @@ Main's SSL deploy script from Let's Encrypt looks like:
 	chown user:user ~user/Pokemon-Showdown/config/ssl/fullchain.pem
 */
 
-/**
- * proxyip - proxy IPs with trusted X-Forwarded-For headers
- *   This can be either false (meaning not to trust any proxies) or an array
- *   of strings. Each string should be either an IP address or a subnet given
- *   in CIDR notation. You should usually leave this as `false` unless you
- *   know what you are doing
- * @type {false | string[]}.
- */
-exports.proxyip = false;
-
 // subprocesses - the number of child processes to use for various tasks.
 //   Can be set to `0` instead of `{...}` to stop using subprocesses, if you're running out of RAM.
 exports.subprocesses = {
@@ -116,9 +114,9 @@ exports.subprocesses = {
 	validator: 1,
 	/** for user authentication */
 	verifier: 1,
-	localartemis: 1,
+	localartemis: 0,
 	remoteartemis: 1,
-	friends: 1,
+	friends: 0,
 	chatdb: 1,
 	modlog: 1,
 	pm: 1,
@@ -127,6 +125,16 @@ exports.subprocesses = {
 	/** datasearch - for the datasearch chat plugin */
 	datasearch: 1,
 };
+
+/**
+ * proxyip - proxy IPs with trusted X-Forwarded-For headers
+ *   This can be either false (meaning not to trust any proxies) or an array
+ *   of strings. Each string should be either an IP address or a subnet given
+ *   in CIDR notation. You should usually leave this as `false` unless you
+ *   know what you are doing
+ * @type {false | string[]}.
+ */
+exports.proxyip = false;
 
 /**
  * Various debug options
@@ -308,7 +316,7 @@ exports.nothrottle = false;
 /**
  * Removes all ip-based alt checking.
  */
-exports.noipchecks = false;
+exports.noipchecks = true;
 
 /**
  * controls the behavior of the /battlesearch command
@@ -339,7 +347,7 @@ exports.punishmentautolock = false;
  *   If this is set to `true`, only autoconfirmed users can send links to either chatrooms or other users, except for staff members.
  *   This option can be used if your server has trouble with spammers mass PMing links to users, or trolls sending malicious links.
  */
-exports.restrictLinks = false;
+exports.restrictLinks = true;
 
 /**
  * whitelist - prevent users below a certain group from doing things
@@ -424,12 +432,12 @@ exports.watchconfig = true;
 /**
  * logchat - whether to log chat rooms.
  */
-exports.logchat = false;
+exports.logchat = true;
 
 /**
  * logchallenges - whether to log challenge battles. Useful for tournament servers.
  */
-exports.logchallenges = false;
+exports.logchallenges = true;
 
 /**
  * loguserstats - how often (in milliseconds) to write user stats to the
@@ -450,7 +458,7 @@ exports.inactiveuserthreshold = 1000 * 60 * 60;
  *
  * @type {boolean}
  */
-exports.autolockdown = true;
+exports.autolockdown = false;
 
 /**
  * noguestsecurity - purely for development servers: allows logging in without
@@ -579,7 +587,24 @@ exports.chatlogreader = 'fs';
  *     - gamemanagement: enable/disable games, minigames, and tournaments.
  *     - minigame: make minigames (hangman, polls, etc.).
  *     - game: make games.
+ *	   - avatar: control custom avatars.  
  */
+
+
+/** 
+ *	We are a registered server.
+ * 	Our token is kept out of the repo for security reasons
+ */
+//exports.serverid = 'dragonheaven';
+//exports.servertoken = '[KEY]';
+
+/** 
+ *	Enables modlog [uses SQL dependency]
+ *	
+ */
+exports.usesqlite = true
+exports.usesqlitemodlog = true
+
 exports.grouplist = [
 	{
 		symbol: '~',
@@ -598,7 +623,6 @@ exports.grouplist = [
 		roommod: true,
 		roomdriver: true,
 		forcewin: true,
-		declare: true,
 		addhtml: true,
 		rangeban: true,
 		makeroom: true,
@@ -660,7 +684,10 @@ exports.grouplist = [
 		ip: true,
 		alts: '@u',
 		game: true,
+		avatar: true,
+		declare: true,
 	},
+	// We do not use the Driver rank, just Moderator.
 	{
 		symbol: '%',
 		id: "driver",
@@ -737,6 +764,9 @@ exports.grouplist = [
 		showmedia: true,
 		exportinputlog: true,
 		importinputlog: true,
+		tournaments: true,
+		minigame: true,
+		gamemoderation: true,
 	},
 	{
 		symbol: '^',
