@@ -587,20 +587,16 @@ exports.chatlogreader = 'fs';
  *     - gamemanagement: enable/disable games, minigames, and tournaments.
  *     - minigame: make minigames (hangman, polls, etc.).
  *     - game: make games.
- *	   - avatar: control custom avatars.  
+ *	   - DH3: avatar: control custom avatars.  
  */
 
 
 /** 
- *	We are a registered server.
- * 	Our token is kept out of the repo for security reasons
+ *	DH2 extra config settings
  */
-//exports.serverid = 'dragonheaven';
-//exports.servertoken = '[KEY]';
 
-/** 
- *	Enables modlog [uses SQL dependency]
- *	
+/* exports.serverid = '';
+ *exports.servertoken = '';
  */
 exports.usesqlite = true
 exports.usesqlitemodlog = true
@@ -687,7 +683,7 @@ exports.grouplist = [
 		game: true,
 		declare: true,
 	},
-	// We do not use the Driver rank, just Moderator.
+	// flat removing driver causes internal issues. just don't use it.
 	{
 		symbol: '%',
 		id: "driver",
