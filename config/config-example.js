@@ -16,23 +16,6 @@ exports.port = 8000;
 exports.bindaddress = '0.0.0.0';
 
 /**
- * workers - the number of networking child processes to spawn
- *   This should be no greater than the number of threads available on your
- *   server's CPU. If you're not sure how many you have, you can check from a
- *   terminal by running:
- *
- *   $ node -e "console.log(require('os').cpus().length)"
- *
- *   Using more workers than there are available threads will cause performance
- *   issues. Keeping a couple threads available for use for OS-related work and
- *   other PS processes will likely give you the best performance, if your
- *   server's CPU is capable of multithreading. If you don't know what any of
- *   this means or you are unfamiliar with PS' networking code, leave this set
- *   to 1.
- */
-exports.workers = 1;
-
-/**
  * wsdeflate - compresses WebSocket messages
  *  Toggles use of the Sec-WebSocket-Extension permessage-deflate extension.
  *  This compresses messages sent and received over a WebSocket connection
