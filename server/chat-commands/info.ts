@@ -2160,7 +2160,7 @@ export const commands: Chat.ChatCommands = {
 			buffer.push(`<a href="https://pokemonshowdown.com/${this.tr`pages/proxyhelp`}">${this.tr`Proxy lock help`}</a>`);
 		}
 		if (showAll || ['ca', 'customavatar', 'customavatars'].includes(target)) {
-			buffer.push(this.tr`Custom avatars are given to Global Staff members, contributors (coders and spriters) to Pokemon Showdown, and Smogon badgeholders at the discretion of the PS! Administrators. They are also sometimes given out as rewards for major events such as PSPL (Pokemon Showdown Premier League). If you're curious, you can view the entire list of <a href="https://www.smogon.com/smeargle/customs/">custom avatars</a>.`);
+			buffer.push(this.tr`Dragon Heaven's custom avatars are given to coders and our global staff. Pet Mods related avatars on the main server are also on the server. If you're curious, you can view the <a href="https://github.com/Pet-Mods/ps-dragon-heaven/blob/master/config/avatars/">collection of custom avatars</a>.`);
 		}
 		if (showAll || ['privacy', 'private'].includes(target)) {
 			buffer.push(`<a href="https://pokemonshowdown.com/${this.tr`pages/privacy`}">${this.tr`Pokémon Showdown privacy policy`}</a>`);
@@ -2168,8 +2168,8 @@ export const commands: Chat.ChatCommands = {
 		if (showAll || ['lostpassword', 'password', 'lostpass'].includes(target)) {
 			buffer.push(`Until an email server for Pokemon Showdown is set up, <b>it is no longer possible to reset the password for your account</b>`);
 		}
-		if (showAll || ['driver', 'perms'].includes(target)) {
-			buffer.push(`Dragon Heaven uses different permissions for some user groups, so the required auth level for some commands may be inaccurate.`);
+		if (showAll || ['driver', 'perms', 'auth'].includes(target)) {
+			buffer.push(`Dragon Heaven uses different permissions for some user groups, so the required auth level for some commands may be inaccurate. Namely, this impacts the Driver rank, which is no longer a staff rank.`);
 		}
 		if (!buffer.length && target) {
 			this.errorReply(`'${target}' is an invalid FAQ.`);
