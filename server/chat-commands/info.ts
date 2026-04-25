@@ -1627,21 +1627,19 @@ export const commands: Chat.ChatCommands = {
 
 		const roomRanks = [
 			`<strong>Room ranks</strong>`,
-			`^ <strong>Prize Winner</strong> - They don't have any powers beyond a symbol.`,
-			`+ <strong>Voice</strong> - They can use ! commands like !groups`,
-			`% <strong>Driver</strong> - The above, and they can mute and warn`,
-			`@ <strong>Moderator</strong> - The above, and they can room ban users`,
-			`* <strong>Bot</strong> - An automated account that can mute, warn, and use HTML`,
+			`+ <strong>Voice</strong> - They can broadcast chat commands and show media.`,
+			`% <strong>Driver</strong> - They can control tournaments and room minigames.`,
+			`@ <strong>Moderator</strong> - They can warn, mute, and ban users.`,
+			//`* <strong>Bot</strong> - An automated account that can mute, warn, and use HTML.`,
 			`# <strong>Room Owner</strong> - They are leaders of the room and can almost totally control it`,
 		];
 
 		const globalRanks = [
 			`<strong>Global ranks</strong>`,
-			`+ <strong>Global Voice</strong> - They can use ! commands like !groups`,
-			`% <strong>Global Driver</strong> - Like Voice, and they can lock users and check for alts`,
-			`@ <strong>Global Moderator</strong> - The above, and they can globally ban users`,
-			`* <strong>Global Bot</strong> - An automated account that can use HTML anywhere`,
-			`~ <strong>Global Administrator</strong> - They can do anything, like change what this message says and promote users globally`,
+			`+ <strong>Global Voice</strong> - They can broadcast chat commands, show media, and create group chats.`,
+			`@ <strong>Global Moderator</strong> - They can lock, ban, and namelock users.`,
+			//`* <strong>Global Bot</strong> - An automated account that can use HTML anywhere`,
+			`~ <strong>Global Administrator</strong> - They have full control over the site.`,
 		];
 
 		this.sendReplyBox(
@@ -2170,6 +2168,9 @@ export const commands: Chat.ChatCommands = {
 		if (showAll || ['lostpassword', 'password', 'lostpass'].includes(target)) {
 			buffer.push(`Until an email server for Pokemon Showdown is set up, <b>it is no longer possible to reset the password for your account</b>`);
 		}
+		if (showAll || ['driver', 'perms'].includes(target)) {
+			buffer.push(`Dragon Heaven uses different permissions for some user groups, so the required auth level for some commands may be inaccurate.`);
+		}
 		if (!buffer.length && target) {
 			this.errorReply(`'${target}' is an invalid FAQ.`);
 			return this.parse(`/help faq`);
@@ -2181,8 +2182,9 @@ export const commands: Chat.ChatCommands = {
 		this.sendReplyBox(buffer.join(`<br />`));
 	},
 	faqhelp: [
-		`/faq [topic] - Provides a link that answers the FAQ topic. List of FAQ topics: autoconfirmed, badges, customavatar, decay, ladder, lostpassword, privacy, proxy, rng, staff, tiers, tournaments.`,
-		`!faq [topic] - Shows to other users a link that answers the FAQ topic. List of FAQ topics: autoconfirmed, badges, customavatar, decay, ladder, lostpassword, privacy, proxy, rng, staff, tiers, tournaments. Requires: + % @ # ~`,
+		`/faq [topic] - Provides a link that answers the FAQ topic.`,
+		`!faq [topic] - Shows to other users a link that answers the FAQ topic.`,
+		`List of FAQ topics: autoconfirmed, badges, customavatar, decay, ladder, lostpassword, permissions, privacy, proxy, rng, staff, tiers, tournaments. Requires: + % @ # ~`,
 	],
 
 	analysis: 'smogdex',
