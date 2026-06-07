@@ -1,9 +1,9 @@
 // Note: This is the visual table of formats
 // The rules that formats use are stored in data/rulesets.ts
 
-
 // Imports
-
+import { Formats as mnmls                   } from '../data/mods/mnmlimitedsupply/formats';
+import { Formats as woomod                  } from '../data/mods/woomod/formats';
 
 export const Formats: import('../sim/dex-formats').FormatList = [
 
@@ -14,6 +14,7 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 	name: "New New New!",
 	column: 1,
 },
+...mnmls,
 
 //////////////////////////////////////////
 //////////////// Spotlight ///////////////
@@ -78,6 +79,7 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 	name: "Solomods",
 	column: 3,
 },
+...woomod,
 
 //////////////////////////////////////////
 //////////// Random Battles //////////////
