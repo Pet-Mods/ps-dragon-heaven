@@ -3,6 +3,7 @@
 
 // Imports
 import { Formats as MnMLS                   } from '../data/mods/mnmlimitedsupply/formats';
+import { Formats as xbell					} from '../data/mods/gen9xbell/formats';
 import { Formats as woomod                  } from '../data/mods/woomod/formats';
 	
 export const Formats: import('../sim/dex-formats').FormatList = [
@@ -15,11 +16,11 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 		column: 1,
 	},
 	...MnMLS,
+	...xbell,
 	
 	//////////////////////////////////////////
 	//////////////// Spotlight ///////////////
 	//////////////////////////////////////////
-	
 	{
 		name: "Spotlight",
 		column: 1,
