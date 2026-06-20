@@ -1,4 +1,4 @@
-export const Pokedex: {[k: string]: ModdedSpeciesData} = {
+export const Pokedex: import('../../../sim/dex-species').ModdedSpeciesDataTable = {
 
 /*	example : {
  *		num: -1,														// Can be positive or negative, but don't use multiple IDs if they are not the same baseSpecies

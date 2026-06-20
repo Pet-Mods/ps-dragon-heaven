@@ -1,4 +1,4 @@
-export const Moves: {[moveid: string]: ModdedMoveData} = {
+export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 
 /*
  *	placeholder: {
@@ -13,22 +13,10 @@ export const Moves: {[moveid: string]: ModdedMoveData} = {
  *		flags: {protect: 1, mirror: 1, metronome: 1},
  *		onPrepareHit(target, pokemon, move) { 			// Do not edit these lines.
  *			this.attrLastMove('[still]'); 				// ^
- *			this.add('-anim', pokemon, "", target);		// ^
+ *			this.add('-anim', pokemon, "", target);		// Use the name of a move in the quotes to copy its animation
  *		},
- *		secondary: null, // Secondary effects go here
- *		target: "normal", 
- *			 * "normal"		 	 	 : single target, can pick										(Tackle)
- 			 * "randomNormal"	 	 : single target, cannot pick									(Discharge)
-			 * "allAdjacent" 	 	 : all Pokemon next to the user									(Surf)
-			 * "all"		 	  	 : everyone														(Court Change)
-			 * "allAdjacentFoes"  	 : all Pokemon not on its team that is next to the user			(Muddy Water)
-			 * "self" 			     : the user														(Agility)
-			 * "any"			     : any Pokemon on the field, ignoring isAdjacent				(Acrobatics)
-			 * "adjacentAllyOrSelf"  : a Pokemon on your team that is adjacent to the user			(Acupressure)
-			 * "allyTeam"			 : all Pokemon on the user's party								(Aromatherapy)
-			 * "adjacentAlly"		 : an adjacent ally, but not the user, or opponent in Singles	(Heal Pulse)
-			 * "adjacentFoe"		 : normal, but can't hit allies									(Me First)
-			 * "foeSide"			 : no Pokemon in specific										(Stealth Rock)
+ *		secondary: null, 								// Secondary effects go here
+ *		target: "normal", 								// See dex-moves#5 for a full list of target options
  *	},
  */
 

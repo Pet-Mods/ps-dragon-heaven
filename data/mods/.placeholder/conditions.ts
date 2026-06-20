@@ -1,4 +1,4 @@
-export const Conditions: {[id: string]: ModdedConditionData} = {
+export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDataTable = {
  
 /*
  *	ex: {							// Shorthand name of the condition

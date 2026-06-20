@@ -1,12 +1,4 @@
-import {Dex} from '../../../sim/dex';
-export const Scripts: {[k: string]: ModdedBattleScriptsData} = {
+// @ts-expect-error vscode bullshittery
+export const Scripts: ModdedBattleScriptsData = {
 	gen: 9,
-	teambuilderConfig: {
-		excludeStandardTiers: true,		// for micrometas to only show fakemons / custom tiers
-		customTiers: [''], 				// only to specify the order of custom tiers
-	},	
-	
-	init() {
-	
-	},
 };
