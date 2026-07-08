@@ -16,7 +16,5 @@ export const Formats: FormatData[] = [
  *		gameType: '', 						  // Only include this line to choose the type of battle (valid values are 'doubles', 'triples', 'freeforall', and 'multi')
  *		team: 'random', 					  // Only include this line to declare a Random Battle format, which has extra steps (not documented)
  *	},
- */
-	// You can add more formats here.
-	
+ */	
 ];

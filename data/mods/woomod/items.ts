@@ -1,10 +1,10 @@
-export const Items: {[itemid: string]: ModdedItemData} = {
+export const Items: import('../../../sim/dex-items').ModdedItemDataTable = {
 	belliboltkeychain: {
 		name: "Bellibolt Keychain",
-		shortDesc: "Tadbulb: contact moves lower the target's SpD by 1.",
+		shortDesc: "Tadbulb: moves lower the target's SpD by 1.",
 		onSourceDamagingHit(damage, target, source, move) {
-			if (!source.baseSpecies.name === 'Tadbulb') return;
-			this.boost({spd: -1}, target, source, null, true);
+			if (source.baseSpecies.name !== 'Tadbulb') return;
+			this.boost({ spd: -1 }, target, source, null, true);
 		},
 		onTakeItem(item, source) {
 			if (source.baseSpecies.name === 'Tadbulb') return false;
@@ -83,4 +83,31 @@ export const Items: {[itemid: string]: ModdedItemData} = {
 		},
 		itemUser: ["Farfetch'd"],
 	},
-}
+	dragonairite: {
+		name: "Dragonairite",
+		megaStone: { "Dragonair": "Dragonair-Mega" },
+		itemUser: ["Dragonair"],
+		onTakeItem(item, source) {
+			return !item.megaStone?.[source.baseSpecies.baseSpecies];
+		},
+		shortDesc: "If held by a Dragonair, this item allows it to Mega Evolve in battle.",
+	},
+	amaurite: {
+		name: "Amaurite",
+		megaStone: { "Amaura": "Amaura-Mega" },
+		itemUser: ["Amaura"],
+		onTakeItem(item, source) {
+			return !item.megaStone?.[source.baseSpecies.baseSpecies];
+		},
+		shortDesc: "If held by an Amaura, this item allows it to Mega Evolve in battle.",
+	},
+	superpikachumegastone: {
+		name: "Super Pikachu Mega Stone",
+		megaStone: { "Pikachu": "Pikachu-Mega" },
+		itemUser: ["Pikachu"],
+		onTakeItem(item, source) {
+			return !item.megaStone?.[source.baseSpecies.baseSpecies];
+		},
+		shortDesc: "pikachu mega evolve",
+	},
+};

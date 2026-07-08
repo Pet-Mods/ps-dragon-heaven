@@ -3,6 +3,7 @@
 
 // Imports
 import { Formats as MnMLS                   } from '../data/mods/mnmlimitedsupply/formats';
+import { Formats as RandTand				} from '../data/mods/randomtandem/formats';
 import { Formats as xbell					} from '../data/mods/gen9xbell/formats';
 import { Formats as woomod                  } from '../data/mods/woomod/formats';
 	
@@ -16,7 +17,7 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 		column: 1,
 	},
 	...MnMLS,
-	...xbell,
+	//...xbell,
 	
 	//////////////////////////////////////////
 	//////////////// Spotlight ///////////////
@@ -25,6 +26,7 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 		name: "Spotlight",
 		column: 1,
 	},
+	...RandTand,
 	
 	//////////////////////////////////////////
 	///////////// Auth Spotlight /////////////
@@ -75,7 +77,7 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 	},
 	
 	//////////////////////////////////////////
-	/////////////// Solomods ////////////////
+	/////////////// Solomods /////////////////
 	//////////////////////////////////////////
 	{
 		name: "Solomods",
