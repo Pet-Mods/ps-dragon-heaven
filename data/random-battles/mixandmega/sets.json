@@ -1,6 +1,6 @@
 {
 	"dragonite": {
-			"level": 85,
+			"level": 87,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -30,7 +30,7 @@
 			]
 		},
 	"heatran": {
-			"level": 85,
+			"level": 88,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -60,7 +60,7 @@
 			]
 		},
 	"annihilape": {
-			"level": 85,
+			"level": 81,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -70,7 +70,7 @@
 			]
 		},
 	"archaludon": {
-			"level": 85,
+			"level": 84,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -90,7 +90,7 @@
 			]
 		},
 	"gholdengo": {
-			"level": 85,
+			"level": 84,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -100,7 +100,7 @@
 			]
 		},
 	"gougingfire": {
-			"level": 85,
+			"level": 84,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -110,7 +110,7 @@
 			]
 		},
 	"magearna": {
-			"level": 85,
+			"level": 87,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -120,7 +120,7 @@
 			]
 		},
 	"roaringmoon": {
-			"level": 85,
+			"level": 84,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -130,7 +130,7 @@
 			]
 		},
 	"walkingwake": {
-			"level": 85,
+			"level": 84,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -140,7 +140,7 @@
 			]
 		},
 	"darkrai": {
-			"level": 85,
+			"level": 81,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -150,7 +150,7 @@
 			]
 		},
 	"dragapult": {
-			"level": 85,
+			"level": 84,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -170,7 +170,7 @@
 			]
 		},
 	"ironboulder": {
-			"level": 85,
+			"level": 81,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -180,7 +180,7 @@
 			]
 		},
 	"regieleki": {
-			"level": 85,
+			"level": 84,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -200,7 +200,7 @@
 			]
 		},
 	"weavile": {
-			"level": 85,
+			"level": 88,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -210,7 +210,7 @@
 			]
 		},
 	"zamazenta": {
-			"level": 85,
+			"level": 81,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -240,7 +240,7 @@
 			]
 		},
 	"salazzle": {
-			"level": 85,
+			"level": 81,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -280,7 +280,7 @@
 			]
 		},
 	"hippowdon": {
-			"level": 85,
+			"level": 87,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -290,7 +290,7 @@
 			]
 		},
 	"drifblim": {
-			"level": 85,
+			"level": 88,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -350,7 +350,7 @@
 			]
 		},
 	"regigigas": {
-			"level": 85,
+			"level": 88,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -360,7 +360,7 @@
 			]
 		},
 	"palossand": {
-			"level": 85,
+			"level": 81,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -370,7 +370,7 @@
 			]
 		},
 	"revavroom": {
-			"level": 85,
+			"level": 84,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -410,7 +410,7 @@
 			]
 		},
 	"fluttermane": {
-			"level": 85,
+			"level": 84,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -430,7 +430,7 @@
 			]
 		},
 	"flygon": {
-			"level": 85,
+			"level": 87,
 			"sets": [
 				{
 					"role": "Fast Attacker",
@@ -440,7 +440,7 @@
 			]
 		},
 	"hariyama": {
-			"level": 85,
+			"level": 88,
 			"sets": [
 				{
 					"role": "Fast Attacker",
