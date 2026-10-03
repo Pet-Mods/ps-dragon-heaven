@@ -9,7 +9,7 @@ interface SpeciesAbility {
 	S?: string;
 }
 
-type SpeciesTag = "Mythical" | "Restricted Legendary" | "Sub-Legendary" | "Ultra Beast" | "Paradox";
+type SpeciesTag = "Mythical" | "Restricted Legendary" | "Sub-Legendary" | "Ultra Beast" | "Paradox" | string;
 
 export interface SpeciesData extends Partial<Species> {
 	name: string;
@@ -282,10 +282,17 @@ export class Species extends BasicEffect implements Readonly<BasicEffect & Speci
 	 * National Dex Tier. The Pokemon's location in the Smogon National Dex tier system.
 	 */
 	readonly natDexTier: TierTypes.Singles | TierTypes.Other;
+	/** 
+	 * Untyped mod data
+	 */
+	m: {
+		[k: string]: any,
+	};
 
 	constructor(data: AnyObject) {
 		super(data);
 
+		this.m = data.m || '';
 		this.fullname = `pokemon: ${data.name}`;
 		this.effectType = 'Pokemon';
 		this.baseSpecies = data.baseSpecies || this.name;
