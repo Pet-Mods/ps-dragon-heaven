@@ -7,8 +7,8 @@ export const Formats: FormatData[] = [
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3778874/">Smogon Thread</a>`,
 		],
-		mod: 'mixandmega',
-		team: 'random',
+		mod: 'mnmlimitedsupply',
+		team: 'randomMnMLS',
 		ruleset: ['Obtainable', 'Species Clause', 'HP Percentage Mod', 'Cancel Mod', 'Sleep Clause Mod', 'Illusion Level Mod', 'Terastal Clause', 'Overflow Stat Mod'],
 		onBegin() {
 			for (const pokemon of this.getAllPokemon()) {

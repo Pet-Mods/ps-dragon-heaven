@@ -3,7 +3,7 @@
 
 // Imports
 import { Formats as MnMLS                   } from '../data/mods/mnmlimitedsupply/formats';
-import { Formats as RandTand				} from '../data/mods/randomtandem/formats';
+import { Formats as RandTand				} from '../data/mods/gen9randomtandem/formats';
 import { Formats as xbell					} from '../data/mods/gen9xbell/formats';
 import { Formats as woomod                  } from '../data/mods/woomod/formats';
 	
