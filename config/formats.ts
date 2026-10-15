@@ -3,6 +3,7 @@
 
 // Imports
 import { Formats as MnMLS                   } from '../data/mods/mnmlimitedsupply/formats';
+import { Formats as CheatCodes              } from '../data/mods/gen9cheatcodes/formats';
 import { Formats as RandTand				} from '../data/mods/gen9randomtandem/formats';
 import { Formats as xbell					} from '../data/mods/gen9xbell/formats';
 import { Formats as woomod                  } from '../data/mods/woomod/formats';
@@ -13,74 +14,75 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 	//////////////// New Mods ////////////////
 	//////////////////////////////////////////
 	{
-		name: "New New New!",
+		section: "New Pet Mods",
 		column: 1,
 	},
-	...MnMLS,
+	...CheatCodes,
 	//...xbell,
 	
 	//////////////////////////////////////////
 	//////////////// Spotlight ///////////////
 	//////////////////////////////////////////
 	{
-		name: "Spotlight",
+		section: "Spotlight",
 		column: 1,
 	},
 	...RandTand,
+	...MnMLS,
 	
 	//////////////////////////////////////////
 	///////////// Auth Spotlight /////////////
 	//////////////////////////////////////////
-	{
-		name: "Auth Spotlight",
+	/*{
+		section: "Auth Spotlight",
 		column: 1,
-	},
+	},*/
 	
 	//////////////////////////////////////////
 	///////////////// PMOTM //////////////////
 	//////////////////////////////////////////
-	{
-		name: "Pet Mod of the Month",
+	/*{
+		section: "Pet Mod of the Month",
 		column: 1,
-	},
+	},*/
 	
 	//////////////////////////////////////////
 	/////////// Fusion Evolution /////////////
 	//////////////////////////////////////////
-	{
-		name: "Fusion Evolution",
+	/*{
+		section: "Fusion Evolution",
 		column: 2,
-	},
+	},*/
 	
 	//////////////////////////////////////////
 	/////////// Megas For All ////////////////
 	//////////////////////////////////////////
-	{
-		name: "Megas For All",
+	/*{
+		section: "Megas For All",
 		column: 2,
-	},
+	},*/
 	
 	//////////////////////////////////////////
 	/////////// Micrometa Mafia //////////////
 	//////////////////////////////////////////
-	{
-		name: "Micrometa Mafia",
+	/*{
+		section: "Micrometa Mafia",
 		column: 2,
-	},
+	},*/
 	
 	//////////////////////////////////////////
 	////////////// Modern Gen ////////////////
 	//////////////////////////////////////////
-	{
-		name: "Modern Gen",
+	/*{
+		section: "Modern Gen",
 		column: 2,
-	},
+	},*/
 	
 	//////////////////////////////////////////
 	/////////////// Solomods /////////////////
 	//////////////////////////////////////////
 	{
-		name: "Solomods",
+		section: "Solomods",
 		column: 3,
 	},
 	...woomod,
@@ -89,10 +91,10 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 	//////////// Random Battles //////////////
 	//////////////////////////////////////////
 	
-	{
-		name: "Randomized Metas",
+	/*{
+		section: "Randomized Metas",
 		column: 3,
-	},
+	},*/
 	
 ];
 	
