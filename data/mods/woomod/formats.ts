@@ -8,7 +8,7 @@ export const Formats: FormatData[] = [
 			`&bullet; <a href="https://docs.google.com/spreadsheets/d/1YJXE8wUNJijWSfNKIUqgObN5uEVgTliewTluGe0w4Y4/edit?usp=sharing">Spreadsheet for the mod</a>`,
 		],
 		mod: 'woomod',
-		ruleset: ['Standard NatDex', 'Terastal Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Species Clause', 'Sleep Clause Mod', 'Data Mod', 'Mega Data Mod', 'Z-Move Clause'],
+		ruleset: ['Standard NatDex', 'Terastal Clause', 'Data Preview', 'Mega Data Mod', 'Z-Move Clause'],
 		banlist: ['Eviolite', 'Light Ball', 'Baton Pass', 'Ditto'],
 		onValidateTeam(team, format) {
 			let allowedTiers = ['woo'];
@@ -28,6 +28,6 @@ export const Formats: FormatData[] = [
 		],
 		mod: 'woomod',
 		team: "random",
-		ruleset: ['Standard NatDex', 'Terastal Clause', 'Species Clause', 'Sleep Clause Mod', 'Data Mod', 'Mega Data Mod'],
+		ruleset: ['Standard NatDex', 'Terastal Clause', 'Data Preview', 'Mega Data Mod'],
 	},
 ];
