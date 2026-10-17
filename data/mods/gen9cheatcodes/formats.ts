@@ -1,0 +1,20 @@
+import { FormatData } from '../../../sim/dex-formats';
+
+export const Formats: FormatData[] = [
+	{
+		name: "[Gen 9] Cheat Codes",
+		desc: `cheating in a kids game`,
+		threads: [
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3789229/">Smogon Thread</a>`,
+		],
+		mod: 'gen9cheatcodes',
+		debug: true,
+		ruleset: ['Obtainable', 'Species Clause', 'HP Percentage Mod', 'Cancel Mod', 'Sleep Clause Mod', 'Illusion Level Mod', 'Terastal Clause', 'Overflow Stat Mod', 'Team Preview'],
+		onSwitchIn(pokemon) {
+			const code = pokemon.m;
+			// DO NOT EVER SET THESE TO INVALID CONDITIONS
+			if (code.teamCode && !pokemon.volatiles[code.teamCode]) pokemon.addVolatile(code.teamCode);
+			if (code.setCode && !pokemon.volatiles[code.setCode]) pokemon.addVolatile(code.setCode);
+		},
+	},
+];
