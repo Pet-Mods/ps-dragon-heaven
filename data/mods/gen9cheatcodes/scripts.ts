@@ -1,3 +1,6 @@
+export const TEAM_CODES = ['spooky'];
+export const SET_CODES = ['stab'];
+		
 export const Scripts: ModdedBattleScriptsData = {
 	gen: 9,
 	inherit: 'gen9',
@@ -68,10 +71,10 @@ export const Scripts: ModdedBattleScriptsData = {
 		if (!this.requestState) this.turnLoop();
 
 		// code bs starts here
-		const TEAM_CODES = ['spooky'];
-		const SET_CODES = ['stab'];
 
-		// gather team codes
+		// codes are internally all lowercase, but
+		// should be capitalized when shown to a user
+
 		for (const side of this.sides) {
 			const maybeCode = side.pokemon.map(p => p.name.charAt(0).toLowerCase()).join('');
 			const code = TEAM_CODES.includes(maybeCode) ? maybeCode : null;
@@ -79,19 +82,19 @@ export const Scripts: ModdedBattleScriptsData = {
 				for (const pokemon of side.pokemon) {
 					pokemon.m.teamCode = code;
 				};
+				this.add(`raw|<div class="broadcast-blue"><b>${side.name}'s team code: ${code.toUpperCase()}</b></div>`);
+				this.hint(`${code.toUpperCase()}: ${this.dex.conditions.get(code).desc}`);
+			} else {
+				this.add(`raw|<div class="broadcast-red"><b>${side.name} has no team code.</b></div>`);
 			};
+			this.debug(`TEAM code for ${side.name}: '${maybeCode.toUpperCase()}' (${code ? '' : 'in'}valid)`);
 
-			// DEBUG HANDLER: Prints the team's code, with validity.
-			this.debug(`TEAM code for ${side.name}: ${maybeCode} (${code ? '' : 'in'}valid)`);
-		};
-		// gather set codes
-		for (const pokemon of this.getAllPokemon()) {
-			const maybeCode = pokemon.moveSlots.map(m => m.id.charAt(0)).join('');
-			const code = SET_CODES.includes(maybeCode) ? maybeCode : null;
-			if (code) pokemon.m.setCode = code;
-
-			// DEBUG HANDLER
-			this.debug(`SET code for ${pokemon}: ${maybeCode} (${code ? '' : 'in'}valid)`);
+			for (const pokemon of side.pokemon) {
+				const maybeCode = pokemon.moveSlots.map(m => m.id.charAt(0)).join('');
+				const code = SET_CODES.includes(maybeCode) ? maybeCode : null;
+				if (code) pokemon.m.setCode = code;
+				this.debug(`SET code for ${side.name}'s ${pokemon.name}: '${maybeCode.toUpperCase()}' (${code ? '' : 'in'}valid)`);
+			};
 		};
 	},
 };
