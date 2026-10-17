@@ -9,7 +9,7 @@ export const Formats: FormatData[] = [
  *			`&bullet; <a href=" "> </a>`,     // Fill with URL and displayed name respectively. You can add multiple threads.
  *		],
  *		mod: '', 							  // Fill this with the name of the mod folder
- *		ruleset: [ 'Standard', 'Data Mod' ],  // Use names (not ids) from data/rulesets.ts and your mod's rulesets.ts files. Additionally, by putting in the name of another format, you can inherit all rules and bans of that format.
+ *		ruleset: [ 'Standard', 'Data Preview' ],  // Use names (not ids) from data/rulesets.ts and your mod's rulesets.ts files. Additionally, by putting in the name of another format, you can inherit all rules and bans of that format.
  *		banlist: [ '' ],				  // Use names (not ids) to ban Mons, moves, etc. here. Can use 'All Pokemon' or similar to blanket ban.
  *											  // For a Pokemon with multiple formes, putting just the name bans them all. Use '<poke>-base' to ban only the base forme.
  *		unbanlist: [], 						  // Specific unbans if using 'All Pokemon', etc., or if unbanning from an inherited ruleset.
