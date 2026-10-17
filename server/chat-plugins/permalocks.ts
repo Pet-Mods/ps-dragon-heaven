@@ -96,7 +96,7 @@ export const Nominations = new class {
 		FS('config/chat-plugins/permas.json').writeUpdate(() => JSON.stringify({ noms: this.noms, icons: this.icons }));
 	}
 	notifyStaff() {
-		const usRoom = Rooms.get('upperstaff');
+		const usRoom = Rooms.get('staff');
 		if (!usRoom) return;
 		usRoom.send(`|uhtml|permanoms|${this.getDisplayButton()}`);
 		Chat.refreshPageFor('permalocks', usRoom);

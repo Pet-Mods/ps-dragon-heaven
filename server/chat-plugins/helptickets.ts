@@ -721,8 +721,8 @@ export class HelpTicket extends Rooms.SimpleRoomGame {
 
 const NOTIFY_ALL_TIMEOUT = 5 * 60 * 1000;
 const NOTIFY_ASSIST_TIMEOUT = 60 * 1000;
-const unclaimedTicketTimer: { [k: string]: NodeJS.Timeout | null } = { upperstaff: null, staff: null };
-const timerEnds: { [k: string]: number } = { upperstaff: 0, staff: 0 };
+const unclaimedTicketTimer: { [k: string]: NodeJS.Timeout | null } = { staff: null };
+const timerEnds: { [k: string]: number } = { staff: 0 };
 function pokeUnclaimedTicketTimer(hasUnclaimed: boolean, hasAssistRequest: boolean) {
 	const room = Rooms.get('staff');
 	if (!room) return;
@@ -2934,7 +2934,7 @@ export const commands: Chat.ChatCommands = {
 			this.privateGlobalModAction(`${user.name} set the ticket logs for '${userid}' on '${date}' to be private.`);
 		},
 		privatehelp: [
-			`/helpticket private [user], [date] - Makes the ticket logs for a user on a date private to upperstaff. Requires: ~`,
+			`/helpticket private [user], [date] - Makes the ticket logs for a user on a date private to staff. Requires: ~`,
 		],
 		async public(target, room, user) {
 			this.checkCan('bypassall');
@@ -2980,7 +2980,7 @@ export const commands: Chat.ChatCommands = {
 		`/helpticket delete [user] - Deletes a user's ticket. Requires: ~`,
 		`/helpticket logs [userid][, month] - View logs of the [userid]'s text tickets. Requires: % @ ~`,
 		`/helpticket note [ticket userid], [note] - Adds a note to the [ticket], to be displayed in the hover text. Requires: % @ ~`,
-		`/helpticket private [user], [date] - Makes the ticket logs for a user on a date private to upperstaff. Requires: ~`,
+		`/helpticket private [user], [date] - Makes the ticket logs for a user on a date private to staff. Requires: ~`,
 		`/helpticket public [user], [date] - Makes the ticket logs for the [user] on the [date] public to staff. Requires: ~`,
 	],
 };

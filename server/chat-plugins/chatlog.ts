@@ -13,7 +13,7 @@ const DAY = 24 * 60 * 60 * 1000;
 const MAX_MEMORY = 67108864; // 64MB
 const MAX_TOPUSERS = 100;
 
-const UPPER_STAFF_ROOMS = ['upperstaff', 'adminlog', 'slowlog'];
+const UPPER_STAFF_ROOMS = ['staff', 'adminlog', 'slowlog'];
 
 interface ChatlogSearch {
 	raw?: boolean;

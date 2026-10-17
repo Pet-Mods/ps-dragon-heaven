@@ -1790,7 +1790,7 @@ export class GlobalRoomState {
 		this.lastReportedCrash = Date.now();
 	}
 	automaticKillRequest() {
-		const notifyPlaces: RoomID[] = ['development', 'staff', 'upperstaff'];
+		const notifyPlaces: RoomID[] = ['development', 'staff', 'staff'];
 		if (Config.autolockdown === undefined) Config.autolockdown = true; // on by default
 
 		if (Config.autolockdown && Rooms.global.lockdown === true && Rooms.global.battleCount === 0) {
@@ -1846,7 +1846,7 @@ export class GlobalRoomState {
 		let crashMessage = `|html|<div class="broadcast-red">${fullStack}</div>`;
 		let privateCrashMessage = null;
 
-		const upperStaffRoom = Rooms.get('upperstaff');
+		const upperStaffRoom = Rooms.get('staff');
 
 		let hasPrivateTerm = stack.includes('private');
 		for (const term of (Config.privatecrashterms || [])) {
@@ -1859,7 +1859,7 @@ export class GlobalRoomState {
 		if (hasPrivateTerm) {
 			if (upperStaffRoom) {
 				privateCrashMessage = crashMessage;
-				crashMessage = `|html|<div class="broadcast-red"><b>${crasher} crashed in private code</b> <a href="/upperstaff">Read more</a></div>`;
+				crashMessage = `|html|<div class="broadcast-red"><b>${crasher} crashed in private code</b> <a href="/staff">Read more</a></div>`;
 			} else {
 				crashMessage = `|html|<div class="broadcast-red"><b>${crasher} crashed in private code</b></div>`;
 			}

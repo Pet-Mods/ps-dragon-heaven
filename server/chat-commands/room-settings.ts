@@ -805,7 +805,7 @@ export const commands: Chat.ChatCommands = {
 		if (cmd === 'makeprivatechatroom') {
 			if (!targetRoom.persist) throw new Error(`Private chat room created without settings.`);
 			targetRoom.setPrivate(true);
-			const upperStaffRoom = Rooms.get('upperstaff');
+			const upperStaffRoom = Rooms.get('staff');
 			if (upperStaffRoom) {
 				upperStaffRoom.add(`|raw|<div class="broadcast-green">Private chat room created: <b>${Utils.escapeHTML(target)}</b></div>`).update();
 			}
@@ -815,7 +815,7 @@ export const commands: Chat.ChatCommands = {
 			if (staffRoom) {
 				staffRoom.add(`|raw|<div class="broadcast-green">Public chat room created: <b>${Utils.escapeHTML(target)}</b></div>`).update();
 			}
-			const upperStaffRoom = Rooms.get('upperstaff');
+			const upperStaffRoom = Rooms.get('staff');
 			if (upperStaffRoom) {
 				upperStaffRoom.add(`|raw|<div class="broadcast-green">Public chat room created: <b>${Utils.escapeHTML(target)}</b></div>`).update();
 			}
@@ -941,7 +941,7 @@ export const commands: Chat.ChatCommands = {
 		target = targetRoom.title || targetRoom.roomid;
 		const isPrivate = targetRoom.settings.isPrivate;
 		const staffRoom = Rooms.get('staff');
-		const upperStaffRoom = Rooms.get('upperstaff');
+		const upperStaffRoom = Rooms.get('staff');
 		if (Rooms.global.deregisterChatRoom(id)) {
 			this.sendReply(`The room '${target}' was deregistered.`);
 			this.sendReply("It will be deleted as of the next server restart.");
@@ -994,7 +994,7 @@ export const commands: Chat.ChatCommands = {
 
 		if (room.persist) {
 			if (room.settings.isPrivate) {
-				const upperStaffRoom = Rooms.get('upperstaff');
+				const upperStaffRoom = Rooms.get('staff');
 				if (upperStaffRoom) {
 					upperStaffRoom.add(
 						Utils.html`|raw|<div class="broadcast-red">Private chat room ` +
@@ -1006,7 +1006,7 @@ export const commands: Chat.ChatCommands = {
 				if (staffRoom) {
 					staffRoom.add(Utils.html`|raw|<div class="broadcast-red">Public chat room deleted: <b>${title}</b></div>`).update();
 				}
-				const upperStaffRoom = Rooms.get('upperstaff');
+				const upperStaffRoom = Rooms.get('staff');
 				if (upperStaffRoom) {
 					upperStaffRoom.add(
 						Utils.html`|raw|<div class="broadcast-red">Public chat ` +
@@ -1076,7 +1076,7 @@ export const commands: Chat.ChatCommands = {
 			`${room.settings.isPrivate.charAt(0).toUpperCase()}${room.settings.isPrivate.slice(1)}`;
 		if (!isGroupchat) {
 			Rooms.global.notifyRooms(
-				room.settings.isPrivate === true ? ['upperstaff'] : ['upperstaff', 'staff'],
+				room.settings.isPrivate === true ? ['staff'] : ['staff', 'staff'],
 				Utils.html`|raw|<div class="broadcast-green">${privacy} chat room <b>${oldTitle}</b> renamed to <b>${target}</b></div>`
 			);
 		}
@@ -1340,16 +1340,6 @@ export const commands: Chat.ChatCommands = {
 			throw new Chat.ErrorMessage(`Error: Room description is too long (must be at most 80 characters).`);
 		}
 		const normalizedTarget = ' ' + target.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim() + ' ';
-
-		if (normalizedTarget.includes(' welcome ')) {
-			throw new Chat.ErrorMessage(`Error: Room description must not contain the word "welcome".`);
-		}
-		if (normalizedTarget.startsWith(' discuss ')) {
-			throw new Chat.ErrorMessage(`Error: Room description must not start with the word "discuss".`);
-		}
-		if (normalizedTarget.startsWith(' talk about ') || normalizedTarget.startsWith(' talk here about ')) {
-			throw new Chat.ErrorMessage(`Error: Room description must not start with the phrase "talk about".`);
-		}
 
 		room.settings.desc = target;
 		this.sendReply(`(The room description is now: ${target})`);

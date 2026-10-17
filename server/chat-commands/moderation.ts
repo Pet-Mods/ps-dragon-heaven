@@ -157,7 +157,7 @@ export const commands: Chat.ChatCommands = {
 		const message = `${targetUsername} was appointed Room Owner by ${user.name}.`;
 		if (room.settings.isPrivate === true) {
 			this.addModAction(message);
-			Rooms.get(`upperstaff`)?.addByUser(user, `<<${room.roomid}>> ${message}`).update();
+			Rooms.get(`staff`)?.addByUser(user, `<<${room.roomid}>> ${message}`).update();
 		} else {
 			this.addGlobalModAction(message);
 		}
@@ -247,7 +247,7 @@ export const commands: Chat.ChatCommands = {
 				shouldPopup?.popup(`You were demoted to Room ${nextGroupName} by ${user.name} in ${room.roomid}.`);
 			} else if (nextSymbol === '#') {
 				this.addModAction(`${name} was promoted to ${nextGroupName} by ${user.name}.`);
-				const logRoom = Rooms.get(room.settings.isPrivate === true ? 'upperstaff' : 'staff');
+				const logRoom = Rooms.get(room.settings.isPrivate === true ? 'staff' : 'staff');
 				logRoom?.addByUser(user, `<<${room.roomid}>> ${name} was appointed Room Owner by ${user.name}.`);
 				this.modlog('ROOM OWNER', userid);
 				shouldPopup?.popup(`You were promoted to ${nextGroupName} by ${user.name} in ${room.roomid}.`);
@@ -1419,7 +1419,7 @@ export const commands: Chat.ChatCommands = {
 			}
 		}
 		if (
-			['staff', 'upperstaff'].includes(room.roomid) ||
+			['staff', 'staff'].includes(room.roomid) ||
 			(Rooms.Modlog.getSharedID(room.roomid) && user.can('modlog'))
 		) {
 			this.globalModlog('NOTE', targetUserid || null, target, targetIP);

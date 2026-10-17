@@ -906,7 +906,7 @@ export const commands: Chat.ChatCommands = {
 			this.sendReply(`You have disabled hot-patching ${hotpatch}.`);
 		}
 		Rooms.global.notifyRooms(
-			['development', 'staff', 'upperstaff'] as RoomID[],
+			['development', 'staff', 'staff'] as RoomID[],
 			`|c|${user.getIdentity()}|/log ${user.name} has ${enable ? 'enabled' : 'disabled'} hot-patching ${hotpatch}. Reason: ${reason}`
 		);
 	},
@@ -1479,7 +1479,7 @@ export const commands: Chat.ChatCommands = {
 	async eval(target, room, user, connection) {
 		this.canUseConsole();
 		if (!this.runBroadcast(true)) return;
-		const logRoom = Rooms.get('upperstaff') || Rooms.get('staff');
+		const logRoom = Rooms.get('staff') || Rooms.get('staff');
 
 		if (this.message.startsWith('>>') && room) {
 			this.broadcasting = true;
@@ -1526,7 +1526,7 @@ export const commands: Chat.ChatCommands = {
 		this.canUseConsole();
 		this.runBroadcast(true);
 		if (!Config.usesqlite) throw new Chat.ErrorMessage(`SQLite is disabled.`);
-		const logRoom = Rooms.get('upperstaff') || Rooms.get('staff');
+		const logRoom = Rooms.get('staff') || Rooms.get('staff');
 		if (!target) throw new Chat.ErrorMessage(`Specify a database to access and a query.`);
 		const [db, query] = Utils.splitFirst(target, ',').map(item => item.trim());
 		if (!FS('./databases').readdirSync().includes(`${db}.db`)) {

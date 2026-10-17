@@ -115,7 +115,7 @@ export const Monitor = new class {
 
 	adminlog(text: string) {
 		this.notice(text);
-		const upperstaffRoom = Rooms.get('upperstaff');
+		const upperstaffRoom = Rooms.get('staff');
 		if (upperstaffRoom) {
 			upperstaffRoom.add(`|c|~|${text}`).update();
 		}

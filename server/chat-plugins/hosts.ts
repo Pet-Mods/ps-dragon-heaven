@@ -60,7 +60,7 @@ export const pages: Chat.PageTable = {
 		Utils.sortBy(openProxies, ip => {
 			const number = IPTools.ipToNumber(ip);
 			if (number === null) {
-				Rooms.get('upperstaff')?.add(`|error|Invalid IP address in IPTools.singleIPOpenProxies: '${ip}'`);
+				Rooms.get('staff')?.add(`|error|Invalid IP address in IPTools.singleIPOpenProxies: '${ip}'`);
 				return -1;
 			}
 			return number;
@@ -265,7 +265,7 @@ export const commands: Chat.ChatCommands = {
 			}
 			IPTools.addRange(range as AddressRange & { host: string });
 
-			(Rooms.get('upperstaff') || Rooms.get('staff'))?.addByUser(user,
+			(Rooms.get('staff') || Rooms.get('staff'))?.addByUser(user,
 				`${user.name} added the IP range ${formatRange(range)} to the list of ${type} ranges.`
 			).update();
 			this.sendReply(`Added ${formatRange(range)}.`);
@@ -288,7 +288,7 @@ export const commands: Chat.ChatCommands = {
 
 			void IPTools.removeRange(range.minIP, range.maxIP);
 
-			(Rooms.get('upperstaff') || Rooms.get('staff'))?.addByUser(user,
+			(Rooms.get('staff') || Rooms.get('staff'))?.addByUser(user,
 				`${user.name} removed the IP range ${formatRange(range)}.`
 			).update();
 			this.sendReply(`Removed ${formatRange(range)}.`);
@@ -318,7 +318,7 @@ export const commands: Chat.ChatCommands = {
 			};
 			void IPTools.addRange(range);
 
-			(Rooms.get('upperstaff') || Rooms.get('staff'))?.addByUser(user,
+			(Rooms.get('staff') || Rooms.get('staff'))?.addByUser(user,
 				`${user.name} renamed the IP range ${formatRange(toRename)} to ${range.host}.`
 			).update();
 			this.sendReply(`Renamed ${formatRange(toRename)} to ${range.host}.`);

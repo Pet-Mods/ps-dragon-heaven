@@ -658,8 +658,8 @@ export const commands: Chat.ChatCommands = {
 				this.globalModlog(`ADDFILTER`, null, `'${filterWord.word}' to ${list} list${reason}`);
 			}
 			const output = `'${filterWord.word}' was added to the ${list} list.`;
-			Rooms.get('upperstaff')?.add(output).update();
-			if (room?.roomid !== 'upperstaff') this.sendReply(output);
+			Rooms.get('staff')?.add(output).update();
+			if (room?.roomid !== 'staff') this.sendReply(output);
 		},
 		remove(target, room, user) {
 			this.checkCan('rangeban');
@@ -682,8 +682,8 @@ export const commands: Chat.ChatCommands = {
 			this.globalModlog(`REMOVEFILTER`, null, `'${words.join(', ')}' from ${list} list`);
 			Filters.save(true);
 			const output = `'${words.join(', ')}' ${Chat.plural(words, "were", "was")} removed from the ${list} list.`;
-			Rooms.get('upperstaff')?.add(output).update();
-			if (room?.roomid !== 'upperstaff') this.sendReply(output);
+			Rooms.get('staff')?.add(output).update();
+			if (room?.roomid !== 'staff') this.sendReply(output);
 		},
 		'': 'view',
 		list: 'view',
@@ -695,7 +695,7 @@ export const commands: Chat.ChatCommands = {
 		},
 		test(target, room, user) {
 			this.checkCan('lock');
-			if (room && ['staff', 'upperstaff'].includes(room.roomid)) {
+			if (room && ['staff', 'staff'].includes(room.roomid)) {
 				this.runBroadcast(true, `!filter test ${target}`);
 			}
 
@@ -757,7 +757,7 @@ export const commands: Chat.ChatCommands = {
 		}
 
 		const msg = `${target} was allowed as a username by ${user.name}.`;
-		const toNotify: RoomID[] = ['staff', 'upperstaff'];
+		const toNotify: RoomID[] = ['staff', 'staff'];
 		Rooms.global.notifyRooms(toNotify, `|c|${user.getIdentity()}|/log ${msg}`);
 		if (!room || !toNotify.includes(room.roomid)) {
 			this.sendReply(msg);
