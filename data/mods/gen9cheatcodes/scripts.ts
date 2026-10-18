@@ -1,6 +1,30 @@
-export const TEAM_CODES = ['spooky'];
-export const SET_CODES = ['stab'];
-		
+export const TEAM_CODES = ['four', 'spooky'];
+export const SET_CODES = ['alt', 'stab'];
+
+// battle, code name
+export function announceCode(b: Battle, n: string, p: Pokemon) {
+	const c = b.dex.conditions.get(n);
+	b.add('-ability', p, `code: ${c.name}`);
+	b.hint(`${c.name}: ${c.desc}`);
+}
+// battle, code name, player name, pokemon name (for set codes)
+export function activateCode(b: Battle, n: string, p: string, s?: Pokemon) {
+	const c = b.dex.conditions.get(n);
+	b.debug(`${p}'s ${s ? `${s.name}'s set` : `team`} code activated: ${c.name}: ${c.shortDesc || c.desc}`);
+}
+// remove all instances of a team code, for activation capped codes
+export function clearCode(s?: Side, p?: Pokemon) {
+	if (s) {
+		for (const pokemon of s.pokemon) {
+			delete pokemon.m.teamCode;
+		}
+	} else if (p) {
+		delete p.m.setCode;
+	} else {
+		throw new Error('clearing code without any team or pokemon to clear');
+	}
+}
+
 export const Scripts: ModdedBattleScriptsData = {
 	gen: 9,
 	inherit: 'gen9',
@@ -65,16 +89,16 @@ export const Scripts: ModdedBattleScriptsData = {
 			this.add(`raw|<div class="infobox"><details class="readmore"${open}><summary><strong>${format.customRules.length} custom rule${plural}:</strong></summary> ${format.customRules.join(', ')}</details></div>`);
 		}
 
-		this.runPickTeam();
-		this.queue.addChoice({ choice: 'start' });
-		this.midTurn = true;
-		if (!this.requestState) this.turnLoop();
+		/** CHEAT CODES
+		 * 
+		 * Each code is lowercase alphabetical and set to
+		 * either setCode or teamCode in each Pokemon's
+		 * .m properties. Some codes trigger on battle
+		 * start, and take place immediately after preparing
+		 * each side's codes.
+		 */
 
-		// code bs starts here
-
-		// codes are internally all lowercase, but
-		// should be capitalized when shown to a user
-
+		// Gather and activate codes
 		for (const side of this.sides) {
 			const maybeCode = side.pokemon.map(p => p.name.charAt(0).toLowerCase()).join('');
 			const code = TEAM_CODES.includes(maybeCode) ? maybeCode : null;
@@ -96,5 +120,20 @@ export const Scripts: ModdedBattleScriptsData = {
 				this.debug(`SET code for ${side.name}'s ${pokemon.name}: '${maybeCode.toUpperCase()}' (${code ? '' : 'in'}valid)`);
 			};
 		};
+
+		// Run script-reliant codes. Alphabetized.
+		// FOUR
+		if (this.sides.some(s => s.pokemon.some(p => p.m.teamCode === 'four'))) {
+			for (const s of this.sides) {
+				if (s.pokemon.length > 4) s.pokemon.splice(4, s.pokemon.length - 4);
+				if (s.pokemon.some(p => p.m.teamCode === 'four')) clearCode(s);
+			}
+		}
+
+		// Wrap up and begin battle
+		this.runPickTeam();
+		this.queue.addChoice({ choice: 'start' });
+		this.midTurn = true;
+		if (!this.requestState) this.turnLoop();
 	},
 };

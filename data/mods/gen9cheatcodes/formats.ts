@@ -2,7 +2,7 @@ import { FormatData } from '../../../sim/dex-formats';
 
 export const Formats: FormatData[] = [
 	{
-		name: "[Gen 9] Cheat Codes",
+		name: "[Gen 9] Ch34t C0d3z",
 		desc: `cheating in a kids game`,
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3789229/">Smogon Thread</a>`,

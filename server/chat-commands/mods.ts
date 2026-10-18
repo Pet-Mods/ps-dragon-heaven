@@ -19,8 +19,6 @@ export const commands: Chat.ChatCommands = {
 		const team = cmd.includes('team');
 		if (cmd === 'codes') return this.parse('/help codes');
 		if (!this.runBroadcast()) return;
-		this.sendReplyBox((team ? TEAM_CODES : SET_CODES).join(', ').toUpperCase())
+		this.sendReplyBox((team ? TEAM_CODES : SET_CODES).join(', ').toUpperCase());
 	},
-
-
 };

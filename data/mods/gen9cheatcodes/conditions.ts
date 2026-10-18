@@ -1,29 +1,12 @@
-// battle, code name
-function announceCode(b: Battle, n: string, p: Pokemon) {
-	const c = b.dex.conditions.get(n);
-	b.add('-ability', p, `code: ${c.name}`);
-	b.hint(`${c.name}: ${c.desc}`);
-}
-// battle, code name, player name, pokemon name (for set codes)
-function activateCode(b: Battle, n: string, p: string, s?: Pokemon) {
-	const c = b.dex.conditions.get(n);
-	b.debug(`${p}'s ${s ? `${s.name}'s set` : `team`} code activated: ${c.name}: ${c.shortDesc || c.desc}`);
-}
-// remove all instances of a team code, for activation capped codes
-function clearCode(s?: Side, p?: Pokemon) {
-	if (s) {
-		for (const pokemon of s.pokemon) {
-			delete pokemon.m.teamCode;
-		}
-	} else if (p) {
-		delete p.m.setCode;
-	} else {
-		throw new Error('clearing code without any team or pokemon to clear');
-	}
-}
+import { announceCode, activateCode, clearCode } from "./scripts";
 
 export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDataTable = {
 	// team codes. KEEP THIS ALPHABETIZED
+	four: {
+		name: "FOUR",
+		desc: "The opponent's team is trimmed to 4 Pokemon. Does not break their code.",
+		// hardcoded in scripts.ts
+	},
 	spooky: {
 		name: "SPOOKY",
 		shortDesc: "Ghost and Dark moves: 0.75x power, 0.5x if Ghost type",
@@ -39,7 +22,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 
 	// set codes. KEEP THIS ALPHABETIZED
 	alt: {
-		name: 'alt',
+		name: "ALT",
 		shortDesc: "Spawns Trick Room while on the field.",
 		desc: "Trick Room is permanently active while this Pokemon is on the field. It cannot be replaced or suppressed.",
 		effectType: 'Condition',
