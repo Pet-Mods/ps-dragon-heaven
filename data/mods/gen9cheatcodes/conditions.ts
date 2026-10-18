@@ -9,6 +9,18 @@ function activateCode(b: Battle, n: string, p: string, s?: Pokemon) {
 	const c = b.dex.conditions.get(n);
 	b.debug(`${p}'s ${s ? `${s.name}'s set` : `team`} code activated: ${c.name}: ${c.shortDesc || c.desc}`);
 }
+// remove all instances of a team code, for activation capped codes
+function clearCode(s?: Side, p?: Pokemon) {
+	if (s) {
+		for (const pokemon of s.pokemon) {
+			delete pokemon.m.teamCode;
+		}
+	} else if (p) {
+		delete p.m.setCode;
+	} else {
+		throw new Error('clearing code without any team or pokemon to clear');
+	}
+}
 
 export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDataTable = {
 	// team codes. KEEP THIS ALPHABETIZED
@@ -31,8 +43,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		shortDesc: "Spawns Trick Room while on the field.",
 		desc: "Trick Room is permanently active while this Pokemon is on the field. It cannot be replaced or suppressed.",
 		effectType: 'Condition',
-		onStart(target, source, sourceEffect) {
+		onStart(pokemon, source, sourceEffect) {
 			// permanence implemented in move data
+			announceCode(this, pokemon.m.setCode, pokemon);
 			this.field.addPseudoWeather('Trick Room', source, this.dex.formats.get('gen9cheatcodes'));
 		},
 		onEnd(target) {
