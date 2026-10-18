@@ -26,6 +26,19 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 
 	// set codes. KEEP THIS ALPHABETIZED
+	alt: {
+		name: 'alt',
+		shortDesc: "Spawns Trick Room while on the field.",
+		desc: "Trick Room is permanently active while this Pokemon is on the field. It cannot be replaced or suppressed.",
+		effectType: 'Condition',
+		onStart(target, source, sourceEffect) {
+			// permanence implemented in move data
+			this.field.addPseudoWeather('Trick Room', source, this.dex.formats.get('gen9cheatcodes'));
+		},
+		onEnd(target) {
+			this.field.removePseudoWeather('Trick Room');
+		},
+	},
 	stab: {
 		name: 'STAB',
 		desc: "This Pokemon's STAB is 2.0x",
