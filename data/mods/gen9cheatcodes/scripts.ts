@@ -1,18 +1,74 @@
-export const TEAM_CODES = ['four', 'spooky'];
-export const SET_CODES = ['alt', 'stab'];
+export const TEAM_CODES = [
+	// A
+	// B
+	// C
+	// D
+	// E
+	'four',
+	// G
+	// H
+	// I
+	// J
+	// K
+	// L
+	// M
+	// N
+	// O
+	// P
+	// Q
+	// R
+	'spooky',
+	// T
+	// U
+	// V
+	// W
+	// X
+	// Y
+	// Z
+];
+export const SET_CODES = [
+	'alt',
+	'burn',
+	'chip',
+	'debt',
+	// E
+	'fast', 'fest',
+	'go',
+	// H
+	// I
+	// J
+	// K
+	// L
+	// M
+	// N
+	// O
+	'paid', 'pika',
+	// Q
+	// R
+	'stab',
+	// T
+	// U
+	// V
+	// W
+	// X
+	// Y
+	// Z
+];
 
-// battle, code name
+/** battle, code name */
 export function announceCode(b: Battle, n: string, p: Pokemon) {
 	const c = b.dex.conditions.get(n);
 	b.add('-ability', p, `code: ${c.name}`);
 	b.hint(`${c.name}: ${c.desc}`);
 }
-// battle, code name, player name, pokemon name (for set codes)
+
+/** battle, code name, player name, pokemon name (for set codes) */
 export function activateCode(b: Battle, n: string, p: string, s?: Pokemon) {
 	const c = b.dex.conditions.get(n);
 	b.debug(`${p}'s ${s ? `${s.name}'s set` : `team`} code activated: ${c.name}: ${c.shortDesc || c.desc}`);
 }
-// remove all instances of a team code, for activation capped codes
+
+/** remove all instances of a team code, for activation capped codes */
 export function clearCode(s?: Side, p?: Pokemon) {
 	if (s) {
 		for (const pokemon of s.pokemon) {
@@ -122,12 +178,37 @@ export const Scripts: ModdedBattleScriptsData = {
 		};
 
 		// Run script-reliant codes. Alphabetized.
+
+		// Team codes
 		// FOUR
 		if (this.sides.some(s => s.pokemon.some(p => p.m.teamCode === 'four'))) {
 			for (const s of this.sides) {
 				if (s.pokemon.length > 4) s.pokemon.splice(4, s.pokemon.length - 4);
 				if (s.pokemon.some(p => p.m.teamCode === 'four')) clearCode(s);
 			}
+		}
+		// Set codes
+
+		// Codes that give you an extra move
+		for (const pokemon of this.getAllPokemon()) {
+			pokemon.m.innate
+			const BONUS_MOVE_CODES: { [k: string]: string } = {
+				'eggs': 'softboiled',
+				'fest': 'celebrate',
+				'paid': 'makeitrain',
+				'pika': 'volttackle',
+			};
+			if (BONUS_MOVE_CODES[pokemon.m.setCode]) {
+				const move = this.dex.moves.get(BONUS_MOVE_CODES[pokemon.m.setCode]);
+				pokemon.moveSlots[4] = pokemon.baseMoveSlots[4] = {
+					id: move.id,
+					move: move.name,
+					pp: move.pp,
+					maxpp: move.pp * 8 / 5,
+					disabled: false,
+					used: false,
+				};
+			};
 		}
 
 		// Wrap up and begin battle

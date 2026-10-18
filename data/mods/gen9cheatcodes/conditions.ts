@@ -28,20 +28,94 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		effectType: 'Condition',
 		onStart(pokemon, source, sourceEffect) {
 			// permanence implemented in move data
-			announceCode(this, pokemon.m.setCode, pokemon);
 			this.field.addPseudoWeather('Trick Room', source, this.dex.formats.get('gen9cheatcodes'));
 		},
 		onEnd(target) {
 			this.field.removePseudoWeather('Trick Room');
 		},
 	},
+	burn: {
+		name: "BURN",
+		desc: "This Pokemon's attacks have a 100% chance to burn the target.",
+		effectType: 'Condition',
+		onAfterMove(source, target, move) {
+			activateCode(this, 'burn', source.side.name, source);
+			target.trySetStatus('brn', source, source.m.setCode);
+		},
+	},
+	chip: {
+		name: "CHIP",
+		shortDesc: "Moves deal an additional 1/16 max HP.",
+		desc: "Attacking moves cause the target to lose an additional 1/16th of their max HP. Multi-hit moves only activate this effect once.",
+		onAfterMove(source, target, move) {
+			activateCode(this, 'chip', source.side.name, source);
+			target.damage(target.maxhp / 16, source, this.dex.conditions.get('chip'));
+		},
+	},
+	debt: {
+		name: "DEBT",
+		desc: "This Pokemon gains Neutralizing Gas",
+	},
+	eggs: {
+		name: "EGGS",
+		desc: "This Pokemon gains Soft-Boiled as a 5th move.",
+		// this is in scripts.ts
+		onStart(pokemon) {
+			clearCode(undefined, pokemon);
+		}
+	},
+
+	fast: {
+		name: "FAST",
+		desc: "This Pokemon cannot lose a speed tie.",
+		// this will not work well in non-singles formats
+		onBeforeMove(source, target, move) {
+			if (source.getStat('spe') === target.getStat('spe'))
+				activateCode(this, 'fast', source.side.name, source)
+				source.speed = source.speed + 1;
+		},
+	},
+	fest: {
+		name: "FEST",
+		desc: "This Pokemon gains Celebrate as a 5th move.",
+		// this is in scripts.ts
+		onStart(pokemon) {
+			clearCode(undefined, pokemon);
+		}
+	},
+	go: {
+		name: "GO",
+		desc: "This Pokemon's attacks have +2 priority and scatter coins.",
+		onModifyPriority(priority, source, target, move) {
+			activateCode(this, 'go', source.side.name, source);
+			return priority + 2;
+		},
+		onAfterMove(source, target, move) {
+			this.add('-message', 'Coins were scattered everywhere!');
+		},
+	},
+
+	paid: {
+		name: "PAID",
+		desc: "This Pokemon gains Steel type, and Make it Rain as a 5th move.",
+		// move is in scripts.ts
+		onStart(pokemon) {
+			pokemon.addType('Steel');
+		},
+	},
+	pika: {
+		name: "PIKA",
+		desc: "This Pokemon gains Volt Tackle as a 5th move.",
+		// this is in scripts.ts
+		onStart(pokemon) {
+			clearCode(undefined, pokemon);
+		}
+	},
+
 	stab: {
 		name: 'STAB',
 		desc: "This Pokemon's STAB is 2.0x",
 		effectType: "Condition",
-		onStart(pokemon) {
-			announceCode(this, 'stab', pokemon);
-		},
 		onModifySTAB(relayVar, source, target, move) {
 			if (move.forceSTAB || source.hasType(move.type)) {
 				activateCode(this, 'stab', source.side.name, source);
