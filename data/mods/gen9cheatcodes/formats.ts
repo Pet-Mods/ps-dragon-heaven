@@ -14,12 +14,34 @@ export const Formats: FormatData[] = [
 			const code = pokemon.m;
 			// DO NOT EVER SET THESE TO INVALID CONDITIONS
 			if (code.teamCode && !pokemon.volatiles[code.teamCode]) pokemon.addVolatile(code.teamCode);
-			if (code.setCode && !pokemon.volatiles[code.setCode]) pokemon.addVolatile(code.setCode);
-
-			// copy of announceCode so it doesn't have to run in onStart every time
-			const c = this.dex.conditions.get(code.setCode);
-			this.add('-ability', pokemon, `code: ${c.name}`);
-			this.hint(`${c.name}: ${c.desc}`);
+			if (code.setCode && !pokemon.volatiles[code.setCode]) {
+				pokemon.addVolatile(code.setCode);
+				// copy of announceCode so it doesn't have to run in onStart every time
+				const c = this.dex.conditions.get(code.setCode);
+				this.add('-ability', pokemon, `code: ${c.name}`);
+				this.hint(`${c.name}: ${c.desc}`);
+			};
+		},
+		// pokebilities adjacent bs, for codes that add abilities
+		onBeforeSwitchIn(pokemon) {
+			if (pokemon.m.innates) {
+				for (const innates of pokemon.m.innates) {
+					if (pokemon.hasAbility(innates)) continue;
+					const effect = 'ability:' + this.toID(innates);
+					pokemon.volatiles[effect] = this.initEffectState({ id: effect, target: pokemon });
+				}
+			}
+		},
+		onSwitchOut(pokemon) {
+			for (const innates of Object.keys(pokemon.volatiles).filter(i => i.startsWith('ability:'))) {
+				pokemon.removeVolatile(innates);
+			}
+		},
+		onFaint(pokemon) {
+			for (const innates of Object.keys(pokemon.volatiles).filter(i => i.startsWith('ability:'))) {
+				const innateEffect = this.dex.conditions.get(innates) as Effect;
+				this.singleEvent('End', innateEffect, null, pokemon);
+			}
 		},
 	},
 ];

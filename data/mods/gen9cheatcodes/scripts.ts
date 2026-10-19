@@ -32,7 +32,7 @@ export const SET_CODES = [
 	'chip',
 	'debt',
 	// E
-	'fast', 'fest',
+	'fast', 'fest', 'fish',
 	'go',
 	// H
 	// I
@@ -54,6 +54,34 @@ export const SET_CODES = [
 	// Y
 	// Z
 ];
+const BONUS_POKEMON_CODES: { [k: string]: PokemonSet } = {
+	'apples': {
+		name: "Appletunfan's Child",
+		species: 'Appletun',
+		item: '',
+		ability: 'Parental Bond',
+		moves: [
+			'Apple Acid',
+			'Dragon Pulse',
+			'Leech Seed',
+			'Recover',
+		],
+		nature: 'Bold',
+		gender: 'M',
+		evs: { hp: 248, atk: 0, def: 252, spa: 0, spd: 8, spe: 0 },
+		ivs: { hp: 31, atk: 0, def: 31, spa: 31, spd: 31, spe: 31 },
+		level: 100,
+	},
+};
+const BONUS_MOVE_CODES: { [k: string]: string } = {
+	'eggs': 'softboiled',
+	'fest': 'celebrate',
+	'paid': 'makeitrain',
+	'pika': 'volttackle',
+};
+const BONUS_ABILITY_CODES: { [k: string]: string } = {
+	'debt': 'neutralizinggas',
+};
 
 /** battle, code name */
 export function announceCode(b: Battle, n: string, p: Pokemon) {
@@ -68,22 +96,51 @@ export function activateCode(b: Battle, n: string, p: string, s?: Pokemon) {
 	b.debug(`${p}'s ${s ? `${s.name}'s set` : `team`} code activated: ${c.name}: ${c.shortDesc || c.desc}`);
 }
 
-/** remove all instances of a team code, for activation capped codes */
-export function clearCode(s?: Side, p?: Pokemon) {
-	if (s) {
-		for (const pokemon of s.pokemon) {
-			delete pokemon.m.teamCode;
-		}
-	} else if (p) {
-		delete p.m.setCode;
-	} else {
-		throw new Error('clearing code without any team or pokemon to clear');
-	}
-}
-
 export const Scripts: ModdedBattleScriptsData = {
 	gen: 9,
 	inherit: 'gen9',
+	pokemon: {
+		ignoringAbility() {
+			if (this.battle.gen >= 5 && !this.isActive) return true;
+
+			// Certain Abilities won't activate while Transformed, even if they ordinarily couldn't be suppressed (e.g. Disguise)
+			if (this.getAbility().flags['notransform'] && this.transformed) return true;
+			if (this.getAbility().flags['cantsuppress']) return false;
+			if (this.volatiles['gastroacid']) return true;
+
+			// Check if any active pokemon have the ability Neutralizing Gas
+			if (this.hasItem('Ability Shield') || this.m.innates?.includes('neutralizinggas') ||
+				this.ability === ('neutralizinggas' as ID)) return false;
+			for (const pokemon of this.battle.getAllActive()) {
+				// can't use hasAbility because it would lead to infinite recursion
+				if ((pokemon.m.innates?.includes('neutralizinggas') || pokemon.ability === ('neutralizinggas' as ID)) &&
+					!pokemon.volatiles['gastroacid'] && !pokemon.transformed &&
+					!pokemon.abilityState.ending && !this.volatiles['commanding']) {
+					return true;
+				}
+			}
+
+			return false;
+		},
+		hasAbility(ability) {
+			if (this.ignoringAbility()) return false;
+			if (Array.isArray(ability)) return ability.some(abil => this.hasAbility(abil));
+			ability = this.battle.toID(ability);
+			return this.ability === ability || !!this.volatiles['ability:' + ability];
+		},
+	},
+	field: {
+		suppressingWeather() {
+			for (const pokemon of this.battle.getAllActive()) {
+				if (pokemon && !pokemon.fainted && !pokemon.ignoringAbility() &&
+					(pokemon.getAbility().suppressWeather ||
+						pokemon.m.innates?.some((k: string) => this.battle.dex.abilities.get(k).suppressWeather))) {
+					return true;
+				}
+			}
+			return false;
+		},
+	},
 
 	start() {
 		// Deserialized games should use restart()
@@ -145,7 +202,8 @@ export const Scripts: ModdedBattleScriptsData = {
 			this.add(`raw|<div class="infobox"><details class="readmore"${open}><summary><strong>${format.customRules.length} custom rule${plural}:</strong></summary> ${format.customRules.join(', ')}</details></div>`);
 		}
 
-		/** CHEAT CODES
+		/** 
+		 * CHEAT CODES
 		 * 
 		 * Each code is lowercase alphabetical and set to
 		 * either setCode or teamCode in each Pokemon's
@@ -179,25 +237,25 @@ export const Scripts: ModdedBattleScriptsData = {
 
 		// Run script-reliant codes. Alphabetized.
 
-		// Team codes
-		// FOUR
-		if (this.sides.some(s => s.pokemon.some(p => p.m.teamCode === 'four'))) {
-			for (const s of this.sides) {
-				if (s.pokemon.length > 4) s.pokemon.splice(4, s.pokemon.length - 4);
-				if (s.pokemon.some(p => p.m.teamCode === 'four')) clearCode(s);
+		// Team codes (read from slot 0)
+
+		for (const side of this.sides) {
+			const teamCode = side.pokemon[0].m.teamCode;
+
+			// Codes that give you an extra Pokemon
+			if (BONUS_POKEMON_CODES[teamCode]) {
+				side.addPokemon(BONUS_POKEMON_CODES[teamCode]);
+			}
+			if (teamCode === 'four') {
+				if (side.foe.pokemon.length > 4) side.pokemon.splice(4, side.pokemon.length - 4);
 			}
 		}
+
 		// Set codes
 
-		// Codes that give you an extra move
+		// Codes that give you an extra Ability or move
 		for (const pokemon of this.getAllPokemon()) {
-			pokemon.m.innate
-			const BONUS_MOVE_CODES: { [k: string]: string } = {
-				'eggs': 'softboiled',
-				'fest': 'celebrate',
-				'paid': 'makeitrain',
-				'pika': 'volttackle',
-			};
+			pokemon.m.innates = [];
 			if (BONUS_MOVE_CODES[pokemon.m.setCode]) {
 				const move = this.dex.moves.get(BONUS_MOVE_CODES[pokemon.m.setCode]);
 				pokemon.moveSlots[4] = pokemon.baseMoveSlots[4] = {
@@ -208,6 +266,9 @@ export const Scripts: ModdedBattleScriptsData = {
 					disabled: false,
 					used: false,
 				};
+			};
+			if (BONUS_ABILITY_CODES[pokemon.m.setCode]) {
+				pokemon.m.innates.push(BONUS_ABILITY_CODES[pokemon.m.setCode]);
 			};
 		}
 

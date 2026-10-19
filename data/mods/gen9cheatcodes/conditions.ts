@@ -1,12 +1,40 @@
-import { announceCode, activateCode, clearCode } from "./scripts";
+import { announceCode, activateCode } from "./scripts";
 
 export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDataTable = {
 	// team codes. KEEP THIS ALPHABETIZED
+	aaaaaa: {},
+	ablaze: {},
+	apples: {},
+	aurora: {},
+	absent: {},
+	block: {},
+	bootie: {},
+	bounty: {},
+	coffee: {},
+	crash: {},
+	drake: {},
+	enby: {},
+	espeon: {},
+	exequy: {},
+	fluffy: {},
 	four: {
 		name: "FOUR",
 		desc: "The opponent's team is trimmed to 4 Pokemon. Does not break their code.",
 		// hardcoded in scripts.ts
 	},
+	i: {},
+	iron: {},
+	lmfao: {},
+	neuter: {},
+	noclip: {},
+	pride: {},
+	quetta: {},
+	return: {},
+	rubber: {},
+	screen: {},
+	shower: {},
+	sleuth: {},
+	spikes: {},
 	spooky: {
 		name: "SPOOKY",
 		shortDesc: "Ghost and Dark moves: 0.75x power, 0.5x if Ghost type",
@@ -19,6 +47,13 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			}
 		},
 	},
+	survey: {},
+	tear: {},
+	victor: {},
+	wizard: {},
+	zekrom: {},
+	zigzag: {},
+	
 
 	// set codes. KEEP THIS ALPHABETIZED
 	alt: {
@@ -60,11 +95,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "EGGS",
 		desc: "This Pokemon gains Soft-Boiled as a 5th move.",
 		// this is in scripts.ts
-		onStart(pokemon) {
-			clearCode(undefined, pokemon);
-		}
 	},
-
 	fast: {
 		name: "FAST",
 		desc: "This Pokemon cannot lose a speed tie.",
@@ -79,10 +110,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "FEST",
 		desc: "This Pokemon gains Celebrate as a 5th move.",
 		// this is in scripts.ts
-		onStart(pokemon) {
-			clearCode(undefined, pokemon);
-		}
 	},
+	fish: {},
+	gitgud: {},
 	go: {
 		name: "GO",
 		desc: "This Pokemon's attacks have +2 priority and scatter coins.",
@@ -94,7 +124,16 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			this.add('-message', 'Coins were scattered everywhere!');
 		},
 	},
-
+	gold: {},
+	heal: {},
+	lazy: {},
+	lets: {},
+	life: {},
+	luck: {},
+	mega: {},
+	monk: {},
+	nuke: {},
+	okay: {},
 	paid: {
 		name: "PAID",
 		desc: "This Pokemon gains Steel type, and Make it Rain as a 5th move.",
@@ -107,11 +146,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "PIKA",
 		desc: "This Pokemon gains Volt Tackle as a 5th move.",
 		// this is in scripts.ts
-		onStart(pokemon) {
-			clearCode(undefined, pokemon);
-		}
 	},
-
+	rise: {},
+	sips: {},
 	stab: {
 		name: 'STAB',
 		desc: "This Pokemon's STAB is 2.0x",
@@ -123,4 +160,8 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			}
 		},
 	},
+	true: {},
+	warp: {},
+	what: {},
+	x: {},
 };
