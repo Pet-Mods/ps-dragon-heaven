@@ -1,6 +1,6 @@
 export const Aliases: import('../sim/dex').AliasesTable = {
 	// formats
-	cheatcodes: "[Gen 9] Ch34t C0d3z",
+	cheatcodes: "[Gen 9 NatDex] Ch34t C0d3z",
 	zaou: "[Gen 9] Legends Z-A OU",
 	legendsou: "[Gen 9] Legends Z-A OU",
 	plzaou: "[Gen 9] Legends Z-A OU",

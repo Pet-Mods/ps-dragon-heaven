@@ -1,5 +1,5 @@
 export const TEAM_CODES = [
-	// A
+	'apples',
 	// B
 	// C
 	// D
@@ -31,8 +31,8 @@ export const SET_CODES = [
 	'burn',
 	'chip',
 	'debt',
-	// E
-	'fast', 'fest', 'fish',
+	'eggs',
+	'fast', 'fest',
 	'go',
 	// H
 	// I
@@ -56,9 +56,9 @@ export const SET_CODES = [
 ];
 const BONUS_POKEMON_CODES: { [k: string]: PokemonSet } = {
 	'apples': {
-		name: "Appletunfan's Child",
+		name: "Appletunfans Child",
 		species: 'Appletun',
-		item: '',
+		item: 'Leftovers',
 		ability: 'Parental Bond',
 		moves: [
 			'Apple Acid',
@@ -80,11 +80,14 @@ const BONUS_MOVE_CODES: { [k: string]: string } = {
 	'pika': 'volttackle',
 };
 const BONUS_ABILITY_CODES: { [k: string]: string } = {
+	// team
+
+	// set
 	'debt': 'neutralizinggas',
 	'monk': 'gorillatactics',
 };
 
-/** battle, code name */
+/** battle, code name, code owner */
 export function announceCode(b: Battle, n: string, p: Pokemon) {
 	const c = b.dex.conditions.get(n);
 	b.add('-ability', p, `code: ${c.name}`);
@@ -233,6 +236,9 @@ export const Scripts: ModdedBattleScriptsData = {
 				const code = SET_CODES.includes(maybeCode) ? maybeCode : null;
 				if (code) pokemon.m.setCode = code;
 				this.debug(`SET code for ${side.name}'s ${pokemon.name}: '${maybeCode.toUpperCase()}' (${code ? '' : 'in'}valid)`);
+
+				// prepare innates as string[] so we can .push()
+				pokemon.m.innates = [];
 			};
 		};
 
@@ -240,6 +246,7 @@ export const Scripts: ModdedBattleScriptsData = {
 
 		// Team codes (read from slot 0)
 
+		let FOUR_TRIM_FLAG;
 		for (const side of this.sides) {
 			const teamCode = side.pokemon[0].m.teamCode;
 
@@ -247,23 +254,31 @@ export const Scripts: ModdedBattleScriptsData = {
 			if (BONUS_POKEMON_CODES[teamCode]) {
 				side.addPokemon(BONUS_POKEMON_CODES[teamCode]);
 			}
-			if (teamCode === 'four') {
-				if (side.foe.pokemon.length > 4) side.pokemon.splice(4, side.pokemon.length - 4);
+			// Codes that apply a bonus Ability to the enture team
+			if (BONUS_ABILITY_CODES[teamCode]) {
+				for (const pokemon of side.pokemon) {
+					pokemon.m.innates.push(BONUS_ABILITY_CODES[teamCode]);
+				};
 			}
+			if (teamCode === 'four') {
+				FOUR_TRIM_FLAG = true;
+			}
+		}
+		for (const s of this.sides) {
+			if (FOUR_TRIM_FLAG && s.foe.pokemon.length > 4) s.foe.pokemon.splice(4, s.foe.pokemon.length - 4);
 		}
 
 		// Set codes
 
 		// Codes that give you an extra Ability or move
 		for (const pokemon of this.getAllPokemon()) {
-			pokemon.m.innates = [];
 			if (BONUS_MOVE_CODES[pokemon.m.setCode]) {
 				const move = this.dex.moves.get(BONUS_MOVE_CODES[pokemon.m.setCode]);
 				pokemon.moveSlots[4] = pokemon.baseMoveSlots[4] = {
 					id: move.id,
 					move: move.name,
-					pp: move.pp,
-					maxpp: move.pp * 8 / 5,
+					pp: this.calculatePP(move),
+					maxpp: this.calculatePP(move),
 					disabled: false,
 					used: false,
 				};

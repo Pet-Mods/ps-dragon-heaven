@@ -19,7 +19,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 		condition: {
 			duration: 5,
 			durationCallback(target, source, effect) {
-				if (source.m.setCode === 'alt') return 0;
+				if (source?.m.setCode === 'alt') return 0;
 				if (source?.hasAbility('persistent')) {
 					this.add('-activate', source, 'ability: Persistent', '[move] Trick Room');
 					return 7;
@@ -27,6 +27,9 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				return 5;
 			},
 			onFieldStart(target, source) {
+				if (source?.m.code === 'alt') {
+					this.effectState.cantReplace = true;
+				};
 				if (source?.hasAbility('persistent')) {
 					this.add('-fieldstart', 'move: Trick Room', `[of] ${source}`, '[persistent]');
 				} else {
@@ -34,7 +37,10 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				}
 			},
 			onFieldRestart(target, source) {
-				this.field.removePseudoWeather('trickroom');
+				if (!this.effectState.cantReplace) this.field.removePseudoWeather('trickroom');
+			},
+			onEnd(target) {
+				this.effectState.cantReplace = undefined;
 			},
 			// Speed modification is changed in Pokemon.getActionSpeed() in sim/pokemon.js
 			onFieldResidualOrder: 27,

@@ -4,7 +4,11 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	// team codes. KEEP THIS ALPHABETIZED
 	aaaaaa: {},
 	ablaze: {},
-	apples: {},
+	apples: {
+		name: "APPLES",
+		desc: "An Appletun is added to the team.",
+		// hardcoded in scripts
+	},
 	aurora: {},
 	absent: {},
 	block: {},
@@ -20,7 +24,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	four: {
 		name: "FOUR",
 		desc: "The opponent's team is trimmed to 4 Pokemon. Does not break their code.",
-		// hardcoded in scripts.ts
+		// hardcoded in scripts
 	},
 	i: {},
 	iron: {},
@@ -68,6 +72,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		onEnd(target) {
 			this.field.removePseudoWeather('Trick Room');
 		},
+		onFaint(target, source, effect) {
+			this.field.removePseudoWeather('Trick Room');
+		},
 	},
 	burn: {
 		name: "BURN",
@@ -83,8 +90,10 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		shortDesc: "Moves deal an additional 1/16 max HP.",
 		desc: "Attacking moves cause the target to lose an additional 1/16th of their max HP. Multi-hit moves only activate this effect once.",
 		onAfterMove(source, target, move) {
-			activateCode(this, 'chip', source.side.name, source);
-			target.damage(target.maxhp / 16, source, this.dex.conditions.get('chip'));
+			if (target.hp) {
+				activateCode(this, 'chip', source.side.name, source);
+				this.damage(target.maxhp / 16, target, source, this.dex.conditions.get('chip'));
+			};
 		},
 	},
 	debt: {
@@ -94,7 +103,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	eggs: {
 		name: "EGGS",
 		desc: "This Pokemon gains Soft-Boiled as a 5th move.",
-		// this is in scripts.ts
+		// this is in scripts
 	},
 	fast: {
 		name: "FAST",
@@ -109,7 +118,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	fest: {
 		name: "FEST",
 		desc: "This Pokemon gains Celebrate as a 5th move.",
-		// this is in scripts.ts
+		// this is in scripts
 	},
 	fish: {},
 	gitgud: {},
@@ -134,14 +143,14 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	monk: {
 		name: "MONK",
 		desc: "This Pokemon has Gorilla Tactics",
-		// ability in scripts.ts
+		// ability in scripts
 	},
 	nuke: {},
 	okay: {},
 	paid: {
 		name: "PAID",
 		desc: "This Pokemon gains Steel type, and Make it Rain as a 5th move.",
-		// move is in scripts.ts
+		// move is in scripts
 		onStart(pokemon) {
 			pokemon.addType('Steel');
 		},
@@ -149,7 +158,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	pika: {
 		name: "PIKA",
 		desc: "This Pokemon gains Volt Tackle as a 5th move.",
-		// this is in scripts.ts
+		// this is in scripts
 	},
 	rise: {},
 	sips: {},
