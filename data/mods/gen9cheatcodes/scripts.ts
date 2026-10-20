@@ -39,7 +39,7 @@ export const SET_CODES = [
 	// J
 	// K
 	// L
-	// M
+	'monk',
 	// N
 	// O
 	'paid', 'pika',
@@ -81,6 +81,7 @@ const BONUS_MOVE_CODES: { [k: string]: string } = {
 };
 const BONUS_ABILITY_CODES: { [k: string]: string } = {
 	'debt': 'neutralizinggas',
+	'monk': 'gorillatactics',
 };
 
 /** battle, code name */

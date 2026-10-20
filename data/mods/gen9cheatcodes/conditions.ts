@@ -131,7 +131,11 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	life: {},
 	luck: {},
 	mega: {},
-	monk: {},
+	monk: {
+		name: "MONK",
+		desc: "This Pokemon has Gorilla Tactics",
+		// ability in scripts.ts
+	},
 	nuke: {},
 	okay: {},
 	paid: {
