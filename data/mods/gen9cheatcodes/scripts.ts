@@ -87,14 +87,7 @@ const BONUS_ABILITY_CODES: { [k: string]: string } = {
 	'monk': 'gorillatactics',
 };
 
-/** battle, code name, code owner */
-export function announceCode(b: Battle, n: string, p: Pokemon) {
-	const c = b.dex.conditions.get(n);
-	b.add('-ability', p, `code: ${c.name}`);
-	b.hint(`${c.name}: ${c.desc}`);
-}
-
-/** battle, code name, player name, pokemon name (for set codes) */
+/** Takes a battle, code, and Pokemon, and prints to the log that it activated. */
 export function activateCode(b: Battle, n: string, p: string, s?: Pokemon) {
 	const c = b.dex.conditions.get(n);
 	b.debug(`${p}'s ${s ? `${s.name}'s set` : `team`} code activated: ${c.name}: ${c.shortDesc || c.desc}`);

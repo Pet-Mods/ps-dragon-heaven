@@ -1,4 +1,4 @@
-import { announceCode, activateCode } from "./scripts";
+import { activateCode } from "./scripts";
 
 export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDataTable = {
 	// team codes. KEEP THIS ALPHABETIZED
