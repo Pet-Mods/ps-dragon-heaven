@@ -1,3 +1,5 @@
+export const cheatCodes = Dex.formats.get('gen9natdexch34tc0d3z');
+
 export const TEAM_CODES = [
 	'apples',
 	// B
@@ -32,25 +34,25 @@ export const SET_CODES = [
 	'chip',
 	'debt',
 	'eggs',
-	'fast', 'fest',
-	'go',
-	// H
+	'fast', 'fest', 'fish',
+	'gene', 'go', 'gold',
+	'heal',
 	// I
 	// J
 	// K
-	// L
-	'monk',
-	// N
-	// O
+	'lazy', 'lets', 'life', 'luck',
+	'moms', 'monk',
+	'nuke',
+	'okay',
 	'paid', 'pika',
 	// Q
-	// R
-	'stab',
-	// T
+	'rise',
+	'stab', 'star',
+	'tune',
 	// U
 	// V
-	// W
-	// X
+	'warp', 'waxy', 'wind', 'what',
+	'x',
 	// Y
 	// Z
 ];
@@ -84,6 +86,9 @@ const BONUS_ABILITY_CODES: { [k: string]: string } = {
 
 	// set
 	'debt': 'neutralizinggas',
+	'gene': 'goodasgold',
+	'lets': 'levitate',
+	'moms': 'parentalbond',
 	'monk': 'gorillatactics',
 };
 
@@ -209,7 +214,7 @@ export const Scripts: ModdedBattleScriptsData = {
 		 * each side's codes.
 		 */
 
-		// Gather and activate codes
+		// Prepare codes
 		for (const side of this.sides) {
 			const maybeCode = side.pokemon.map(p => p.name.charAt(0).toLowerCase()).join('');
 			const code = TEAM_CODES.includes(maybeCode) ? maybeCode : null;
@@ -238,27 +243,24 @@ export const Scripts: ModdedBattleScriptsData = {
 		// Run script-reliant codes. Alphabetized.
 
 		// Team codes (read from slot 0)
-
-		let FOUR_TRIM_FLAG;
 		for (const side of this.sides) {
 			const teamCode = side.pokemon[0].m.teamCode;
+			const foeTeamCode = side.foe.pokemon[0].m.teamCode;
 
+			// Check FOUR on foe
+			if (foeTeamCode === 'four') {
+				if (side.pokemon.length > 4) side.pokemon.splice(4, side.pokemon.length - 4);
+			}
 			// Codes that give you an extra Pokemon
 			if (BONUS_POKEMON_CODES[teamCode]) {
 				side.addPokemon(BONUS_POKEMON_CODES[teamCode]);
 			}
-			// Codes that apply a bonus Ability to the enture team
+			// Codes that apply a bonus Ability to the entire team
 			if (BONUS_ABILITY_CODES[teamCode]) {
 				for (const pokemon of side.pokemon) {
 					pokemon.m.innates.push(BONUS_ABILITY_CODES[teamCode]);
 				};
 			}
-			if (teamCode === 'four') {
-				FOUR_TRIM_FLAG = true;
-			}
-		}
-		for (const s of this.sides) {
-			if (FOUR_TRIM_FLAG && s.foe.pokemon.length > 4) s.foe.pokemon.splice(4, s.foe.pokemon.length - 4);
 		}
 
 		// Set codes

@@ -16,7 +16,7 @@ export const Formats: FormatData[] = [
 			if (code.teamCode && !pokemon.volatiles[code.teamCode]) pokemon.addVolatile(code.teamCode);
 			if (code.setCode && !pokemon.volatiles[code.setCode]) {
 				pokemon.addVolatile(code.setCode);
-				// copy of announceCode so it doesn't have to run in onStart every time
+				
 				const c = this.dex.conditions.get(code.setCode);
 				this.add('-ability', pokemon, `code: ${c.name}`);
 				this.hint(`${c.name}: ${c.desc}`);
