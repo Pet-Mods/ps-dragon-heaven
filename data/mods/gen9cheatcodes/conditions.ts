@@ -7,7 +7,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	apples: {
 		name: "APPLES",
 		desc: "An Appletun is added to the team.",
-		},
+	},
 	aurora: {},
 	absent: {},
 	block: {},
@@ -23,7 +23,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	four: {
 		name: "FOUR",
 		desc: "The opponent's team is trimmed to 4 Pokemon. Does not break their code.",
-		},
+	},
 	i: {},
 	iron: {},
 	lmfao: {},
@@ -64,7 +64,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		effectType: 'Condition',
 		onStart(pokemon) {
 			// permanence implemented in move data
-			this.field.addPseudoWeather('Trick Room', pokemon, cheatCodes);
+			this.field.addPseudoWeather('Trick Room', pokemon, CheatCodes);
 		},
 		onSwitchOut(pokemon) {
 			this.field.removePseudoWeather('Trick Room');
@@ -130,7 +130,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		onStart(pokemon) {
 			if (!pokemon.item) {
 				activateCode(this, 'gene', pokemon.side.name, pokemon)
-				this.boost({'atk': 2}, pokemon, pokemon, cheatCodes, false, true);
+				this.boost({'atk': 2}, pokemon, pokemon, CheatCodes, false, true);
 			}
 		},
 	},
@@ -174,7 +174,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		onDamagingHit(damage, source, target, move) {
 			if (source.hp) {
 				activateCode(this, 'life', source.side.name, source);
-				this.heal(source.maxhp / 8, source, source, cheatCodes);
+				this.heal(source.maxhp / 8, source, source, CheatCodes);
 			};
 		},
 	},
@@ -334,7 +334,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		onDamagingHit(damage, target, source, move) {
 			activateCode(this, 'tune', source.side.name, source);
 			for (const pokemon of this.getAllActive()) {
-				pokemon.addVolatile('perishsong', source, cheatCodes, `[silent]`);
+				pokemon.addVolatile('perishsong', source, CheatCodes, `[silent]`);
 			}
 		},
 	},
@@ -373,7 +373,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "WIND",
 		desc: "On switch-in, this Pokemon sets Tailwind",
 		onStart(pokemon) {
-			pokemon.side.addSideCondition('Tailwind', pokemon, cheatCodes);
+			pokemon.side.addSideCondition('Tailwind', pokemon, CheatCodes);
 		}
 	},
 	// oh god
