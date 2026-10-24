@@ -359,15 +359,13 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		onTryAddVolatile(status, target, source, sourceEffect) {
 			if (status.id === 'mustrecharge') return false;
 		},
-		onModifyAtk(relayVar, source, target, move) {
-			if (source.getStat('spa') > source.getStat('atk')) {
-				return source.getStat('spa');
-			}
+		onModifyAtk(atk, source, target, move) {
+			const spa = source.getStat('spa');
+			return spa > atk ? spa : atk;
 		},
-		onModifySpA(relayVar, source, target, move) {
-			if (source.getStat('spa') < source.getStat('atk')) {
-				return source.getStat('atk');
-			}
+		onModifySpA(spa, source, target, move) {
+			const atk = source.getStat('atk');
+			return atk > spa ? atk : spa;
 		},
 	},
 	wind: {
