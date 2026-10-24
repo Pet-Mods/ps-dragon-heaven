@@ -1,4 +1,4 @@
-import { activateCode, cheatCodes } from "./scripts";
+import { activateCode, CheatCodes } from "./scripts";
 
 export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDataTable = {
 	// team codes. KEEP THIS ALPHABETIZED
@@ -259,7 +259,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	pika: {
 		name: "PIKA",
 		desc: "This Pokemon gains Volt Tackle as a 5th move.",
-		},
+	},
 	rise: {
 		name: "RISE",
 		desc: "When this Pokemon KOs another Pokemon, its highest stat is raised by 1.",
@@ -332,8 +332,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "TUNE",
 		desc: "This Pokemon starts Perish Song on all Pokemon after landing an attack.",
 		onDamagingHit(damage, target, source, move) {
+			activateCode(this, 'tune', source.side.name, source);
 			for (const pokemon of this.getAllActive()) {
-				pokemon.addVolatile('perishsong', source, cheatCodes);
+				pokemon.addVolatile('perishsong', source, cheatCodes, `[silent]`);
 			}
 		},
 	},

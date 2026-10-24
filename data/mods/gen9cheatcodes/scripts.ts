@@ -1,4 +1,4 @@
-export const cheatCodes = Dex.formats.get('gen9natdexch34tc0d3z');
+export const CheatCodes = Dex.formats.get('gen9natdexch34tc0d3z');
 
 export const TEAM_CODES = [
 	'apples',
