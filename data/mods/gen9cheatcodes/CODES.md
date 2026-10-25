@@ -17,3 +17,8 @@ If you have a shortDesc, it will prefer it to the desc when printing.
 When activating a team code's effect, do not add a fourth argument.
 
 A team and set code are stored in each Pokemon as `pokemon.m.teamCode` and `pokemon.m.setCode`. Do not ever change them.
+
+Useful debugging codes when in-battle:
+`>>> Object.keys(p1.active[0].volatiles)` <- Check if codes are active
+`>>> p1.active[0].m.<property>` <- Read a pokemon's .m property
+.m properties: `innates` (extra abilities), `setCode` and `teamCode` (codes), `codeGenerated` (species from a code)

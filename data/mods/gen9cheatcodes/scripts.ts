@@ -1,8 +1,8 @@
 export const CheatCodes = Dex.formats.get('gen9natdexch34tc0d3z');
 
 export const TEAM_CODES = [
-	'apples',
-	// B
+	'aaaaaa', 'apples',
+	'bugsy',
 	// C
 	// D
 	// E
@@ -41,7 +41,7 @@ export const SET_CODES = [
 	// J
 	// K
 	'lazy', 'lets', 'life', 'luck',
-	'moms', 'monk',
+	'mega', 'moms', 'monk',
 	'nuke',
 	'okay',
 	'paid', 'pika',
@@ -71,6 +71,23 @@ const BONUS_POKEMON_CODES: { [k: string]: PokemonSet } = {
 		nature: 'Bold',
 		gender: 'M',
 		evs: { hp: 248, atk: 0, def: 252, spa: 0, spd: 8, spe: 0 },
+		ivs: { hp: 31, atk: 0, def: 31, spa: 31, spd: 31, spe: 31 },
+		level: 100,
+	},
+	'bugsy': {
+		name: "Bugsy",
+		species: "Ledian",
+		item: 'Life Orb',
+		ability: 'Iron Fist',
+		moves: [
+			'U-turn',
+			'Drain Punch',
+			'Ice Punch',
+			'Thunder Punch',
+		],
+		nature: 'Jolly',
+		gender: 'M',
+		evs: { hp: 0, atk: 252, def: 0, spa: 0, spd: 4, spe: 252 },
 		ivs: { hp: 31, atk: 0, def: 31, spa: 31, spd: 31, spe: 31 },
 		level: 100,
 	},
@@ -240,21 +257,63 @@ export const Scripts: ModdedBattleScriptsData = {
 			};
 		};
 
-		// Run script-reliant codes. Alphabetized.
+		// Run script-reliant codes. I wish this was alphabetized, but the code order is important
 
 		// Team codes (read from slot 0)
 		for (const side of this.sides) {
 			const teamCode = side.pokemon[0].m.teamCode;
 			const foeTeamCode = side.foe.pokemon[0].m.teamCode;
 
-			// Check FOUR on foe
+			// begin FOUR
 			if (foeTeamCode === 'four') {
 				if (side.pokemon.length > 4) side.pokemon.splice(4, side.pokemon.length - 4);
 			}
+			// end FOUR
+
 			// Codes that give you an extra Pokemon
 			if (BONUS_POKEMON_CODES[teamCode]) {
-				side.addPokemon(BONUS_POKEMON_CODES[teamCode]);
+				const codePkmn = side.addPokemon(BONUS_POKEMON_CODES[teamCode]);
+				// for codes that act on generated pokemon
+				if (codePkmn) codePkmn.m.codeGenerated = true;
 			}
+
+			// begin BUGSY
+			if (teamCode === 'bugsy') {
+				const ledian = side.pokemon.find(p => p.m.codeGenerated);
+				const [atkMon, defMon, spaMon, spdMon, hpSpeMon] = side.pokemon;
+				if (!ledian || !atkMon || !defMon || !spaMon || !spdMon || !hpSpeMon) {
+					// well shit
+					throw new Error(`BUGSY code team generation failed:`);
+				};
+
+				const stats = {
+					atk: atkMon.baseStoredStats.atk,
+					def: defMon.baseStoredStats.def,
+					spa: spaMon.baseStoredStats.spa,
+					spd: spdMon.baseStoredStats.spd,
+					spe: hpSpeMon.baseStoredStats.spe,
+				};
+			
+				let stat: StatIDExceptHP;
+				for (stat in stats) {
+					ledian.baseStoredStats[stat] = stats[stat];
+					ledian.storedStats[stat] = stats[stat];
+					if (ledian.modifiedStats) ledian.modifiedStats[stat] = stats[stat];
+				}
+				ledian.speed = ledian.storedStats.spe;
+			
+				// split hp since its qUIrkY
+				ledian.baseMaxhp = hpSpeMon.baseMaxhp;
+				ledian.maxhp = hpSpeMon.baseMaxhp;
+				ledian.hp = ledian.maxhp;
+
+				ledian.baseTypes = ['Bug', 'Fighting'];
+
+				this.debug(ledian.side.name + ledian.name + `'s stats: ` +
+					[ledian.hp, stats.atk, stats.def, stats.spa, stats.spd, stats.spe].join(', '))
+			}
+			// end BUGSY
+
 			// Codes that apply a bonus Ability to the entire team
 			if (BONUS_ABILITY_CODES[teamCode]) {
 				for (const pokemon of side.pokemon) {
