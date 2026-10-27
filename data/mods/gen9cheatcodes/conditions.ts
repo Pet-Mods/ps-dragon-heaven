@@ -1,54 +1,364 @@
-import { activateCode, CheatCodes } from "./scripts";
+import { activateCode, disableCode, CheatCodes } from "./scripts";
 
 export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDataTable = {
 	// team codes. KEEP THIS ALPHABETIZED
 	aaaaaa: {
 		name: "AAAAAA",
 		desc: "Sound moves always result in a critical hit.",
-		
+		onModifyMove(move, pokemon, target) {
+			activateCode(this, 'aaaaaa', pokemon.side.name);
+			if (move.flags['sound']) move.willCrit = true;
+		},
 	},
-	ablaze: {},
+	ablaze: {
+		name: 'ABLAZE',
+		desc: "When any Pokemon on this team is at 33% or less HP, its STAB moves have 1.5x power.",
+		onModifyAtkPriority: 5,
+		onModifyAtk(atk, source, target, move) {
+			const boostTypes = source.getTypes();
+			if (boostTypes.includes(move.type) && source.hp <= source.maxhp / 3) {
+				activateCode(this, 'ablaze', source.side.name);
+				return this.chainModify(1.5);
+			}
+		},
+		onModifySpAPriority: 5,
+		onModifySpA(atk, source, target, move) {
+			const boostTypes = source.getTypes();
+			if (boostTypes.includes(move.type) && source.hp <= source.maxhp / 3) {
+				activateCode(this, 'ablaze', source.side.name);
+				return this.chainModify(1.5);
+			}
+		},
+	},
+	absent: {
+		name: "ABSENT",
+		desc: "Pokemon on this team cannot have their stats lowered.",
+		onTryBoost(boost, target, source, effect) {
+			if (source && target === source) return;
+			let activated = false;
+			let i: BoostID;
+			for (i in boost) {
+				if (boost[i]! < 0) {
+					delete boost[i];
+					activated = true;
+				}
+			}
+			if (activated) {
+				activateCode(this, 'absent', target.side.name);
+				this.add("-fail", target, "unboost", "[from] ability: Clear Body", `[of] ${target}`, '[silent]');
+			};
+		},
+	},
 	apples: {
 		name: "APPLES",
 		desc: "An Appletun is added to the team.",
 	},
-	aurora: {},
-	absent: {},
-	block: {},
-	bootie: {},
-	bounty: {},
+	aurora: {
+		name: "AURORA",
+		desc: "Rotates the active weather every turn, Snow -> Rain -> Sun -> Sand.",
+		onResidual(target, source, effect) {
+			let count;
+			if (!count || count > 4) count = 0;
+			const weathers: { [k: number]: string } = {
+				1: 'snowscape',
+				2: 'raindance',
+				3: 'sunnyday',
+				4: 'sandstorm',
+			};
+			count++;
+			activateCode(this, 'aurora', target.side.name);
+			this.field.setWeather(weathers[count], target, CheatCodes);
+		},
+	},
+	bees: {
+		name: "BEES",
+		desc: "Pokemon use either Attack Order or Heal Order at the end of the turn.",
+		onResidual(target, source, effect) {
+			const move = this.dex.moves.get(this.sample(['Attack Order', 'Heal Order']));
+			activateCode(this, 'bees', source.side.name);
+			this.actions.useMove(move, move.id === 'attackorder' ? target.foes()[0] : target);
+		},
+	},
+	block: {
+		name: "BLOCK",
+		desc: "This team's active Pokemon gains immunity to foe's pivot moves.",
+		onFoeTryMove(source, target, move) {
+			if (target.isAlly(source) || !move.selfSwitch) return;
+			activateCode(this, 'block', target.side.name);
+			this.add('cant', target, 'code: BLOCK', move, `[of] ${target}`);
+			return false;
+		},
+	},
+	bootie: {
+		name: "BOOTIE",
+		desc: "All Pokemon on this team are immune to entry hazards.",
+		// hardcoded in each hazard
+	},
+	bounty: {
+		name: "BOUNTY",
+		desc: "When a Pokemon KOs another Pokemon, its highest stat is raised by 1.",
+		onSourceAfterFaint(length, target, source, effect) {
+			if (effect?.effectType === 'Move') {
+				const bestStat = source.getBestStat(true, true);
+				this.boost({ [bestStat]: length }, source);
+			}
+		},
+	},
 	bugsy: {
 		name: "BUGSY",
 		desc: "A Ledian is added to the team. It has the base stats of the other Pokemon in the team",
 	},
-	coffee: {},
-	crash: {},
-	drake: {},
-	enby: {},
-	espeon: {},
-	exequy: {},
-	fluffy: {},
+	coffee: {
+		name: "COFFEE",
+		desc: "Pokemon on this team skip recharge turns at the cost of 20% of the move's power.",
+		onSourceTryAddVolatile(status, target, source, sourceEffect) {
+			if (status.id !== 'mustrecharge') return;
+			activateCode(this, 'coffee', source.side.name)
+			return false;
+		},
+		onModifyDamage(dmg, source, target, move) {
+			if (
+				(move.volatileStatus && move.volatileStatus === 'mustrecharge') ||
+				(move.self?.volatileStatus && move.self.volatileStatus === 'mustrecharge')
+			) {
+				return this.chainModify(0.8);
+			}
+		},
+	},
+	crash: {
+		name: "CRASH",
+		desc: "The opponent's first Pokemon also has Slow Start.",
+		onStart(pokemon) {
+			pokemon.foes()[0].m.innates.push('slowstart');
+			// hack to instantly activate
+			pokemon.foes()[0].addVolatile('slowstart');
+			activateCode(this, 'crash', pokemon.side.name);
+			disableCode(this, 'team', pokemon.side);
+		},
+	},
+	drake: {
+		name: "DRAKE",
+		desc: "This team's Dragon type moves ignore Fairy type immunity.",
+		onModifyMove(move, pokemon, target) {
+			if (move.type === 'Dragon') move.ignoreImmunity = { 'Fairy': true };
+		},
+	},
+	enby: {
+		name: "ENBY",
+		desc: "Genderless Pokemon on this team deal 1.5x damage.",
+		onModifyDamage(dmg, source, target, move) {
+			if (source.gender === 'N') return this.chainModify(1.5);
+		},
+	},
+	espeon: {
+		name: "ESPEON",
+		desc: "Pokemon on this team gain the Psychic type and Synchronize.",
+		onStart(pokemon) {
+			if (pokemon.hasType('Psychic')) return;
+			pokemon.setType([...pokemon.getTypes(true, true), 'Psychic'], true);
+			this.add('-start', pokemon, 'typechange', [...pokemon.getTypes(true, true), 'Psychic'].join('/'), '[silent]', '[from] format: Cheat Codes');
+		}
+	},
+	exequy: {
+		name: "EXEQUY",
+		desc: "Pokemon on this team gain Supreme Overlord",
+	},
+	fluffy: {
+		name: "FLUFFY",
+		desc: "All Pokemon on this team gain Fluffy.",
+	},
 	four: {
 		name: "FOUR",
 		desc: "The opponent's team is trimmed to 4 Pokemon. Does not break their code.",
 	},
+	gitgud: {
+		name: "GITGUD",
+		desc: "Pokemon on this team heal 1/8th max HP and raise their lowest stat by 1(counting stat changes)if it attacks and KOes another Pokemon.",
+		onSourceAfterFaint(length, target, source, effect) {
+			if (effect?.effectType !== 'Move') return;
+			// copy of getBestStat but rotated for worst
+			let statName: StatIDExceptHP = 'atk';
+			let worstStat = 0;
+			const stats: StatIDExceptHP[] = ['atk', 'def', 'spa', 'spd', 'spe'];
+			for (const i of stats) {
+				if (source.getStat(i, true, true) < worstStat) {
+					statName = i;
+					worstStat = source.getStat(i, true, true);
+				}
+			}
+			this.boost({ [worstStat]: length }, source);
+			this.heal(target.maxhp / 8, target, target, source.m.teamCode);
+		},
+	},
+	gofish: {
+		name: "GOFISH",
+		// hell no
+	},
 	i: {},
-	iron: {},
-	lmfao: {},
-	neuter: {},
-	noclip: {},
-	pride: {},
-	quetta: {},
-	return: {},
-	rubber: {},
-	screen: {},
-	shower: {},
+	iron: {
+		name: "IRON",
+		shortDesc: "Team gains Quark Drive boost. Steels: immune to indirect damage, use Def if higher than Atk",
+		desc: "All Pokemon gain a Quark Drive boost that can stack with Quark Drive. Steel types: immune to indirect damage, use Defense when attacking if higher than Attack.",
+		onStart(pokemon) {
+			this.add('-activate', pokemon, 'code: IRON');
+			this.effectState.bestStat = pokemon.getBestStat(false, true);
+			this.add('-start', pokemon, 'quarkdrive' + this.effectState.bestStat);
+		},
+		onModifyAtkPriority: 5,
+		onModifyAtk(atk, pokemon) {
+			if (this.effectState.bestStat !== 'atk' || pokemon.ignoringAbility()) return;
+			this.debug('code: IRON atk boost');
+			return this.chainModify([5325, 4096]);
+		},
+		onModifyDefPriority: 6,
+		onModifyDef(def, pokemon) {
+			if (this.effectState.bestStat !== 'def' || pokemon.ignoringAbility()) return;
+			this.debug('code: IRON def boost');
+			return this.chainModify([5325, 4096]);
+		},
+		onModifySpAPriority: 5,
+		onModifySpA(spa, pokemon) {
+			if (this.effectState.bestStat !== 'spa' || pokemon.ignoringAbility()) return;
+			this.debug('code: IRON spa boost');
+			return this.chainModify([5325, 4096]);
+		},
+		onModifySpDPriority: 6,
+		onModifySpD(spd, pokemon) {
+			if (this.effectState.bestStat !== 'spd' || pokemon.ignoringAbility()) return;
+			this.debug('code: IRON spd boost');
+			return this.chainModify([5325, 4096]);
+		},
+		onModifySpe(spe, pokemon) {
+			if (this.effectState.bestStat !== 'spe' || pokemon.ignoringAbility()) return;
+			this.debug('code: IRON spe boost');
+			return this.chainModify(1.5);
+		},
+		onSwitchOut(pokemon) {
+			this.add('-end', pokemon, 'IRON');
+		},
+		onFaint(pokemon) {
+			this.add('-end', pokemon, 'IRON');
+		},
+		onModifyMove(move, pokemon, target) {
+			if (!(pokemon.getStat('def', true, true) > pokemon.getStat('atk', true, true)) || !pokemon.hasType('Steel')) return;
+			activateCode(this, 'iron', pokemon.side.name)
+			move.overrideOffensiveStat = 'def';
+		},
+		onDamage(damage, target, source, effect) {
+			if (effect.effectType !== 'Move' && target.hasType('Steel')) {
+				activateCode(this, 'iron', target.side.name);
+				return false;
+			}
+		},
+	},
+	lmfao: {
+		name: "LMFAO",
+		desc: "All weather- and terrain-setting moves switch the user out on this team.",
+		onModifyMove(move, pokemon, target) {
+			if (!move.terrain || !move.weather) return;
+			activateCode(this, 'lmfao', pokemon.side.name);
+			move.selfSwitch = true;
+		},
+	},
+	martyr: {},
+	neuter: {
+		name: "NEUTER",
+		desc: "All Pokemon on this team have Neutralizing Gas.",
+	},
+	noclip: {
+		name: "NOCLIP",
+		desc: "Terrains have no effect. All Pokemon gain immunity to hazards, and all moves bypass Substitute and screens.",
+		onAnyModifyMove(move) {
+			move.infiltrates = true;
+		},
+		onAnyTerrain(pokemon) {
+			return false;
+		},
+		// hazard immunity effect hardcoded in each hazard
+	},
+	pride: {
+		name: "PRIDE",
+		desc: "This team gains a Mega Pyroar. Each Pokemon on this team that is of the majority gender, or is Pyroar, gains a damage bonus equal to 10% times the number of Pokemon of that gender, plus 10%.",
+		onModifyDamage(dmg, source, target, move) {
+			if (!source.m.prideBoost) return;
+			activateCode(this, 'pride', source.side.name);
+			return this.chainModify(source.m.prideBoost);
+		},
+	},
+	quetta: {
+		name: "QUETTA",
+		desc: "All team members lose their held item and gain +20 in all of their base stats.",
+		// implemented in the scripts
+	},
+	return: {
+		name: "RETURN",
+		desc: "After three Pokemon on this side faint, the next Pokemon that switches in uses Revival Blessing.",
+		onStart(pokemon) {
+			if (pokemon.side.pokemonLeft > 3) return;
+			activateCode(this, 'return', pokemon.side.name);
+			this.actions.useMove('revivalblessing', pokemon);
+			disableCode(this, 'team', pokemon.side);
+		},
+	},
+	rubber: {
+		name: "RUBBER",
+		desc: "This team is immune to Electric-type moves, and gains the Magic Bounce effect on switch-in.",
+		onTryHit(target, source, move) {
+			if (move.type === 'Electric') return false;
+			// TODO: debug for single trigger on switch
+			if (target === source || move.hasBounced || !move.flags['reflectable'] || target.isSemiInvulnerable()) {
+				return;
+			}
+			const newMove = this.dex.getActiveMove(move.id);
+			newMove.hasBounced = true;
+			newMove.pranksterBoosted = false;
+			this.actions.useMove(newMove, target, { target: source });
+			return null;
+		},
+	},
+	screen: {
+		name: "SCREEN",
+		shortDesc: "On switch-in, based on highest stat, summon a screen. (Def: Reflect, SpD: Light Screen, HP: Aurora Veil)",
+		desc: "When a team member switches in, if its highest stat is Defense, it will summon Reflect, and Light Screen if SpD is the highest stat. If HP is the highest stat, it will use Aurora Veil. These screens cannot be extended by Light Clay.",
+		onSwitchIn(pokemon) {
+			let move = null;
+			const stat = pokemon.getBestStat();
+			if (pokemon.maxhp > pokemon.getStat(stat)) {
+				move = 'Aurora Veil';
+			} else {
+				switch (stat) {
+					case "def":
+						move = "Reflect";
+						break;
+					case "spd":
+						move = 'Light Screen';
+						break;
+				}
+			}
+			if (move) {
+				activateCode(this, 'screen', pokemon.side.name);
+				this.actions.useMove(move, pokemon, { sourceEffect: CheatCodes });
+			};
+		},
+	},
+	shower: {
+		name: "SHOWER",
+		desc: "The last Pokemon on this team has Drizzle on top of its regular Ability.",
+	},
 	sleuth: {},
-	spikes: {},
+	spikes: {
+		name: "SPIKES",
+		desc: "The opposing team starts with 1 layer of Spikes.",
+		onStart(pokemon) {
+			activateCode(this, 'spikes', pokemon.side.name);
+			pokemon.side.foe.addSideCondition('spikes', pokemon, CheatCodes);
+			disableCode(this, 'team', pokemon.side);
+		}
+	},
 	spooky: {
 		name: "SPOOKY",
 		shortDesc: "Ghost and Dark moves: 0.75x power, 0.5x if Ghost type",
-		desc: "All Pokemon take 0.75x damage from Dark and Ghost type moves. Ghost types take halved damage from these types",
+		desc: "All Pokemon take 0.75x damage from Dark and Ghost type moves. Ghost types take halved damage from these types.",
 		onSourceModifyDamage(relayVar, source, target, move) {
 			if (move.type === 'Dark' || move.type === 'Ghost') {
 				activateCode(this, 'spooky', target.side.name);
@@ -90,12 +400,30 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			target.trySetStatus('brn', source, source.m.setCode);
 		},
 	},
+	card: {
+		name: "CARD",
+		desc: "This Pokemon gains a damage boost based on its usage tier.",
+		onModifyDamage(dmg, source, target, move) {
+			const tier = source.species.natDexTier;
+			const boost: { [k: number]: string[] } = {
+				1.1: ['OU', 'Uber', 'AG'],
+				1.2: ['UU', 'UUBL'],
+				1.3: ['RU', 'RUBL'],
+				1.4: ['NFE', 'LC'],
+			};
+			const key = Object.entries(boost).find(([, tiers]) => tiers.includes(tier));
+			// fallback should never trigger, but i dont feel like crashing the battle when it does
+			const multiplier = key ? Number(key[0]) : 1;
+			this.debug(`${source}'s damage multipler from ${tier}: ${multiplier}`)
+			return this.chainModify(multiplier);
+		},
+	},
 	chip: {
 		name: "CHIP",
 		shortDesc: "Moves deal an additional 1/16 max HP.",
 		desc: "Attacking moves cause the target to lose an additional 1/16th of their max HP. Multi-hit moves only activate this effect once.",
 		onAfterMove(source, target, move) {
-			if (!target.hp || move.category === 'Status' || source.alliesAndSelf().includes(target)) return;
+			if (!target.hp || move.category === 'Status' || !source.foes().includes(target)) return;
 			activateCode(this, 'chip', source.side.name, source);
 			this.damage(target.maxhp / 16, target, source, this.effect);
 		},
@@ -181,7 +509,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		onSourceDamagingHit(damage, source, target, move) {
 			if (!target.hp) return;
 			activateCode(this, 'life', target.side.name, target);
-			this.heal(target.maxhp / 8, target, target, 'cheat code' as unknown as Effect);
+			this.heal(target.maxhp / 8, target, target, target.m.teamCode);
 		},
 	},
 	luck: {
@@ -288,7 +616,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	stab: {
 		name: 'STAB',
-		desc: "This Pokemon's STAB is 2.0x",
+		desc: "This Pokemon's STAB is 2.0x.",
 		onModifySTAB(stab, source, target, move) {
 			if (move.forceSTAB || source.hasType(move.type)) {
 				activateCode(this, 'stab', source.side.name, source);
@@ -363,7 +691,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "WHAT",
 		shortDesc: "This Pokemon skips recharge turns and uses the higher attacking stat for all moves.",
 		desc: "This Pokemon skips recharge turns after attacks, and uses their highest Attack or Special Attack for all their damaging moves.",
-		onTryAddVolatile(status, target, source, sourceEffect) {
+		onSourceTryAddVolatile(status, target, source, sourceEffect) {
 			if (status.id === 'mustrecharge') return false;
 		},
 		onModifyAtk(atk, source, target, move) {
