@@ -6,10 +6,15 @@ export const Formats: FormatData[] = [
 		desc: `The first letter of each Pokemon on your team, and each of their moves, form Codes that give your Pokemon and Team special effects.`,
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3789229/">Smogon Thread</a>`,
+			`&bullet; <a href="https://docs.google.com/spreadsheets/d/1x1Nz2d2M9EwlcvDzFvzSOKVo_mKHxP8p35a_h7zr-Os/">Codes Sheet</a>`,
 		],
 		mod: 'gen9cheatcodes',
 		debug: true,
-		ruleset: ['Obtainable', 'NatDex Mod', 'Species Clause', 'HP Percentage Mod', 'Cancel Mod', 'Sleep Clause Mod', 'Illusion Level Mod', 'Terastal Clause', 'Overflow Stat Mod', 'Team Preview'],
+		ruleset: ['Standard NatDex', 'Terastal Clause'],
+		banlist: [
+			'ND Uber', 'ND AG', 'Arena Trap', 'Moody', 'Power Construct', 'Shadow Tag', 'King\'s Rock',
+			'Quick Claw', 'Razor Fang', 'Assist', 'Baton Pass', 'Last Respects', 'Shed Tail'
+		],
 		onSwitchIn(pokemon) {
 			const code = pokemon.m;
 			// DO NOT EVER SET THESE TO INVALID CONDITIONS
@@ -21,16 +26,10 @@ export const Formats: FormatData[] = [
 				this.add('-ability', pokemon, `code: ${c.name}`);
 				this.hint(`${c.name}: ${c.desc}`);
 			};
-			// effect of team code SURVEY
-			if (code.surveyed) {
-				const name = pokemon.species.name;
-				const item = pokemon.set.item ? this.dex.items.get(pokemon.set.item).name : `No Item ${code.teamCode === 'quetta' ? '(Removed by QUETTA)' : ''}`;
-				const moves = pokemon.set.moves
-					.map(m => `- ${this.dex.moves.get(m).name}`)
-					.join('<br />');
-
-				this.add('html',`<details><summary>Set for ${name}:</summary>Item: ${item}<br />Moves:<br />${moves}</details>`);
-			};
+			let effect: string;
+			for (effect in code.effects) { 
+				pokemon.addVolatile(effect);
+			}
 		},
 		// pokebilities adjacent bs, for codes that add abilities
 		onBeforeSwitchIn(pokemon) {

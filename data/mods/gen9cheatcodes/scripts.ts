@@ -20,9 +20,9 @@ export const TEAM_CODES = [
 	'quetta',
 	// R
 	'spikes', 'shower', 'spooky', 'survey',
-	// T
+	'tear', 'tracks',
 	// U
-	// V
+	'victor',
 	// W
 	// X
 	// Y
@@ -48,7 +48,7 @@ export const SET_CODES = [
 	// Q
 	'rise',
 	'stab', 'star',
-	'tune',
+	'trap', 'tune',
 	// U
 	// V
 	'warp', 'waxy', 'wind', 'what',
@@ -130,6 +130,47 @@ const BONUS_ABILITY_CODES: { [k: string]: string } = {
 	'monk': 'gorillatactics',
 }
 
+/** Prevents duplicated moves/abilities/species based on codes and brought team. */
+export function validateCodes(team: PokemonSet[], dex: ModdedDex): string[] {
+	const problems: string[] = [];
+
+	const teamCode = team.map(set => (set.name || set.species).charAt(0).toLowerCase()).join();
+	const activeTeamCode = TEAM_CODES.includes(teamCode) ? teamCode : null;
+	const givenSpecies = activeTeamCode && BONUS_POKEMON_CODES[activeTeamCode]?.species;
+
+	for (const set of team) {
+		const name = set.name || set.species;
+		const setCode = set.moves.map(m => dex.toID(m).charAt(0)).join();
+		const activeSetCode = SET_CODES.includes(setCode) ? setCode : null;
+
+		// Pokemon granted by team code
+		if (givenSpecies && dex.species.get(set.species).id === dex.species.get(givenSpecies).id) {
+			problems.push(`${name} is ${dex.species.get(givenSpecies).name}, which is granted by the team code ${activeTeamCode!.toUpperCase()}.`);
+		}
+
+		// Moves via set code and abilities via set or team code
+		for (const [kind, code] of [['team', activeTeamCode], ['set', activeSetCode]] as const) {
+			if (!code) continue;
+
+			const move = dex.moves.get(BONUS_MOVE_CODES[code]);
+			if (move && set.moves.some(m => dex.toID(m) === move.id)) {
+				problems.push(`${name} has ${move.name}, which is granted by the ${kind} code ${code.toUpperCase()}.`);
+			}
+			// hardcodes WHEEE
+			if (set.moves.some(m => dex.toID(m) === 'vcreate') && code === 'victory') {
+				problems.push(`${name} has V-Create, which is granted by the team code VICTORY.`);
+			}
+
+			const ability = dex.abilities.get(BONUS_ABILITY_CODES[code]);
+			if (ability && toID(set.ability) === ability.id) {
+				problems.push(`${name} has ${ability.name}, which is granted by the ${kind} code ${code.toUpperCase()}.`);
+			}
+		}
+	}
+
+	return problems;
+}
+
 /** Debugging function: A cheat code has activated. */
 export function activateCode(b: Battle, n: string, p: string, s?: Pokemon) {
 	const c = b.dex.conditions.get(n);
@@ -137,7 +178,7 @@ export function activateCode(b: Battle, n: string, p: string, s?: Pokemon) {
 }
 
 /** Disable a set or team code */
-export function disableCode(b: Battle, t: 'side' | 'team', s?: Side, p?: Pokemon) {
+export function disableCode(b: Battle, t: 'set' | 'team', s?: Side, p?: Pokemon) {
 	switch (t) {
 		case 'team':
 			if (!s) throw new Error(`'team' disableCode passed no Side`);
@@ -146,9 +187,9 @@ export function disableCode(b: Battle, t: 'side' | 'team', s?: Side, p?: Pokemon
 			};
 			b.debug(`${s.name}'s team code ${s.pokemon[0].m.teamCode.toUpperCase()} cleared.`);
 			break;
-		case 'side':
+		case 'set':
 			if (!p) throw new Error(`'set' disableCode passed no Pokemon`);
-			delete p.m.sideCode;
+			delete p.m.setCode;
 			b.debug(`${p.name}'s set code ${p.m.setCode.toUpperCase()} cleared.`);
 			break;
 		default:
@@ -289,8 +330,9 @@ export const Scripts: ModdedBattleScriptsData = {
 				if (code) pokemon.m.setCode = code;
 				this.debug(`SET code for ${side.name}'s ${pokemon.name}: '${maybeCode.toUpperCase()}' (${code ? '' : 'in'}valid)`);
 
-				// prepare innates as string[] so we can .push()
+				// prepare innates and effects as string[] so we can .push()
 				pokemon.m.innates = [];
+				pokemon.m.effects = [];
 			};
 		};
 
@@ -304,13 +346,20 @@ export const Scripts: ModdedBattleScriptsData = {
 				case 'four':
 					if (side.pokemon.length > 4) side.pokemon.splice(4, side.pokemon.length - 4);
 					break;
+				case 'noclip':
+					for (const p of side.pokemon) {
+						p.m.effects.push('noclip');
+					}
+					break;
 				case 'survey':
 					for (const p of side.pokemon) {
-						// this is in onSwitchIn in the format data
-						p.m.surveyed = true;
+						p.m.effects.push('survey');
 					}
-					for (const p of side.foe.pokemon) {
-						delete p.m.teamCode;
+					disableCode(this, 'team', side.foe);
+					break;
+				case 'tracks':
+					for (const p of side.pokemon) {
+						p.m.effects.push('tracks');
 					}
 					break;
 			}

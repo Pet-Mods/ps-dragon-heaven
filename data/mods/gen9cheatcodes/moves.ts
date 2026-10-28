@@ -25,7 +25,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				}
 			},
 			onFieldRestart(target, source) {
-				if (this.effectState.noninteruptable) return false;
+				if (this.effectState.noninteruptable) return;
 				this.field.removePseudoWeather('trickroom');
 			},
 			// Speed modification is changed in Pokemon.getActionSpeed() in sim/pokemon.js
@@ -42,18 +42,9 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 	toxicspikes: {
 		inherit: true,
 		condition: {
-			// this is a side condition
-			onSideStart(side) {
-				this.add('-sidestart', side, 'move: Toxic Spikes');
-				this.effectState.layers = 1;
-			},
-			onSideRestart(side) {
-				if (this.effectState.layers >= 2) return false;
-				this.add('-sidestart', side, 'move: Toxic Spikes');
-				this.effectState.layers++;
-			},
+			inherit: true,
 			onSwitchIn(pokemon) {
-				const ignoreByCode = pokemon.m.teamCode === 'bootie' || pokemon.m.teamCode === 'noclip' || pokemon.foes()[0].m.teamCode === 'noclip';
+				const ignoreByCode = pokemon.volatiles['bootie'] || pokemon.volatiles['noclip'];
 				if (!pokemon.isGrounded()) return;
 				if (pokemon.hasType('Poison')) {
 					this.add('-sideend', pokemon.side, 'move: Toxic Spikes', `[of] ${pokemon}`);
@@ -71,18 +62,9 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 	spikes: {
 		inherit: true,
 		condition: {
-			// this is a side condition
-			onSideStart(side) {
-				this.add('-sidestart', side, 'Spikes');
-				this.effectState.layers = 1;
-			},
-			onSideRestart(side) {
-				if (this.effectState.layers >= 3) return false;
-				this.add('-sidestart', side, 'Spikes');
-				this.effectState.layers++;
-			},
+			inherit: true,
 			onSwitchIn(pokemon) {
-				const ignoreByCode = pokemon.m.teamCode === 'bootie' || pokemon.m.teamCode === 'noclip' || pokemon.foes()[0].m.teamCode === 'noclip';
+				const ignoreByCode = pokemon.volatiles['bootie'] || pokemon.volatiles['noclip'];
 				if (!pokemon.isGrounded() || pokemon.hasItem('heavydutyboots') || ignoreByCode) return;
 				const damageAmounts = [0, 3, 4, 6]; // 1/8, 1/6, 1/4
 				this.damage(damageAmounts[this.effectState.layers] * pokemon.maxhp / 24);
@@ -92,12 +74,9 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 	stealthrock: {
 		inherit: true,
 		condition: {
-			// this is a side condition
-			onSideStart(side) {
-				this.add('-sidestart', side, 'move: Stealth Rock');
-			},
+			inherit: true,
 			onSwitchIn(pokemon) {
-				const ignoreByCode = pokemon.m.teamCode === 'bootie' || pokemon.m.teamCode === 'noclip' || pokemon.foes()[0].m.teamCode === 'noclip';
+				const ignoreByCode = pokemon.volatiles['bootie'] || pokemon.volatiles['noclip'];
 				if (pokemon.hasItem('heavydutyboots') || ignoreByCode) return;
 				const typeMod = this.clampIntRange(pokemon.runEffectiveness(this.dex.getActiveMove('stealthrock')), -6, 6);
 				this.damage(pokemon.maxhp * (2 ** typeMod) / 8);
@@ -107,11 +86,9 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 	stickyweb: {
 		inherit: true,
 		condition: {
-			onSideStart(side) {
-				this.add('-sidestart', side, 'move: Sticky Web');
-			},
+			inherit: true,
 			onSwitchIn(pokemon) {
-				const ignoreByCode = pokemon.m.teamCode === 'bootie' || pokemon.m.teamCode === 'noclip' || pokemon.foes()[0].m.teamCode === 'noclip';
+				const ignoreByCode = pokemon.volatiles['bootie'] || pokemon.volatiles['noclip'];
 				if (!pokemon.isGrounded() || pokemon.hasItem('heavydutyboots') || ignoreByCode) return;
 				this.add('-activate', pokemon, 'move: Sticky Web');
 				this.boost({ spe: -1 }, pokemon, pokemon.side.foe.active[0], this.dex.getActiveMove('stickyweb'));
@@ -121,9 +98,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 	gmaxsteelsurge: {
 		inherit: true,
 		condition: {
-			onSideStart(side) {
-				this.add('-sidestart', side, 'move: G-Max Steelsurge');
-			},
+			inherit: true,
 			onSwitchIn(pokemon) {
 				const ignoreByCode = pokemon.m.teamCode === 'bootie' || pokemon.m.teamCode === 'noclip' || pokemon.foes()[0].m.teamCode === 'noclip';
 				if (pokemon.hasItem('heavydutyboots') || ignoreByCode) return;

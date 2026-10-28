@@ -1,4 +1,5 @@
 import { activateCode, disableCode, CheatCodes } from "./scripts";
+import { Utils } from '../../../lib';
 
 export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDataTable = {
 	// team codes. KEEP THIS ALPHABETIZED
@@ -287,7 +288,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	quetta: {
 		name: "QUETTA",
-		desc: "All team members lose their held item and gain +20 in all of their base stats.",
+		desc: "All team members lose their held item and gain +20 in all of their base stats, except HP.",
 		// implemented in the scripts
 	},
 	return: {
@@ -366,9 +367,57 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			}
 		},
 	},
-	survey: {},
-	tear: {},
-	victor: {},
+	survey: {
+		name: "SURVEY",
+		desc: "The opponent's Item and Moves are revealed on switch-in.",
+		onSwitchIn(pokemon) {
+			const name = Utils.escapeHTML(pokemon.species.name);
+			const item = pokemon.set.item ? this.dex.items.get(pokemon.set.item).name : `No Item ${pokemon.m.teamCode === 'quetta' ? '(Removed by QUETTA)' : ''}`;
+			const moves = pokemon.set.moves
+				.map(m => `- ${this.dex.moves.get(m).name}`)
+				.join('<br />');
+
+			this.add('html',`<details><summary>Set for ${name}:</summary>Item: ${item}<br />Moves:<br />${moves}</details>`);
+		},
+	},
+	tear: {
+		name: "TEAR",
+		desc: "On switch-in, lowers a random stat of the foe by 1.",
+		onSwitchIn(pokemon) {
+			const target = pokemon.foes()[0];
+			if (!target) return;
+			const stat = this.sample(['atk', 'def', 'spa', 'spd', 'spe']) as StatIDExceptHP;
+			this.boost({ [stat]: -1 }, target, pokemon, CheatCodes);
+		},
+	},
+	tracks: {
+		name: "TRACKS",
+		desc: "No moves can miss.",
+		onAnyAccuracy(accuracy, target, source, move) {
+			return true;
+		},
+	},
+	victor: {
+		name: "VICTOR",
+		desc: "This team gains one use of V-Create across the whole team.",
+		onStart(pokemon) {
+			if (!pokemon.m.effects.includes('victor')) return;
+			pokemon.moveSlots.push({
+				id: 'vcreate' as ID,
+				move: 'V-Create',
+				pp: 1,
+				maxpp: 1,
+				target: 'normal',
+				disabled: false,
+				used: false,
+				virtual: true,
+			});
+		},
+		onAfterMove(source, target, move) {
+			if (!source.m.effects.includes('victor') || move.id !== 'vcreate') return;
+			disableCode(this, 'team', source.side);
+		},
+	},
 	wizard: {},
 	zekrom: {},
 	zigzag: {},
@@ -584,9 +633,11 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	paid: {
 		name: "PAID",
-		desc: "This Pokemon gains Steel type, and Make it Rain as a 5th move.",
+		desc: "This Pokemon gains the Steel type, and Make it Rain as a 5th move.",
 		onStart(pokemon) {
-			pokemon.addType('Steel');
+			if (pokemon.hasType('Steel')) return;
+			pokemon.setType([...pokemon.getTypes(true, true), 'Steel'], true);
+			this.add('-start', pokemon, 'typechange', [...pokemon.getTypes(true, true), 'Steel'].join('/'), '[silent]', '[from] format: Cheat Codes');
 		},
 	},
 	pika: {
