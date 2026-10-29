@@ -7,9 +7,9 @@ export const TEAM_CODES = [
 	'drake',
 	'enby', 'espeon', 'exequy',
 	'fluffy', 'four',
-	'gitgud', /* 'gofish', */
+	'gitgud',
 	// H
-	/* 'i', */ 'iron',
+	'iron',
 	// J
 	// K
 	// L
@@ -23,10 +23,10 @@ export const TEAM_CODES = [
 	'tear', 'tracks',
 	// U
 	'victor',
-	// W
+	'wizard',
 	// X
 	// Y
-	// Z
+	'zekrom', 'zigzag',
 ]
 export const SET_CODES = [
 	'alt',
@@ -137,6 +137,10 @@ export function validateCodes(team: PokemonSet[], dex: ModdedDex): string[] {
 	const teamCode = team.map(set => (set.name || set.species).charAt(0).toLowerCase()).join();
 	const activeTeamCode = TEAM_CODES.includes(teamCode) ? teamCode : null;
 	const givenSpecies = activeTeamCode && BONUS_POKEMON_CODES[activeTeamCode]?.species;
+	const otherMoveEffect: { [k: string]: string[] } = {
+		'victor': ['vcreate'],
+		'wizard': ['magiccoat', 'magicpowder', 'magicroom'],
+	};
 
 	for (const set of team) {
 		const name = set.name || set.species;
@@ -149,21 +153,22 @@ export function validateCodes(team: PokemonSet[], dex: ModdedDex): string[] {
 		}
 
 		// Moves via set code and abilities via set or team code
-		for (const [kind, code] of [['team', activeTeamCode], ['set', activeSetCode]] as const) {
+		for (const [type, code] of [['team', activeTeamCode], ['set', activeSetCode]] as const) {
 			if (!code) continue;
 
 			const move = dex.moves.get(BONUS_MOVE_CODES[code]);
 			if (move && set.moves.some(m => dex.toID(m) === move.id)) {
-				problems.push(`${name} has ${move.name}, which is granted by the ${kind} code ${code.toUpperCase()}.`);
+				problems.push(`${name} has ${move.name}, which is granted by the ${type} code ${code.toUpperCase()}.`);
 			}
-			// hardcodes WHEEE
-			if (set.moves.some(m => dex.toID(m) === 'vcreate') && code === 'victory') {
-				problems.push(`${name} has V-Create, which is granted by the team code VICTORY.`);
+			// Effects that give moves, but not in the prebuilt way
+			const offendingMove = set.moves.some(m => otherMoveEffect[teamCode].includes(dex.toID(m)));
+			if (offendingMove) {
+				problems.push(`${name} has ${offendingMove}, which is granted by the team code ${teamCode}.`);
 			}
 
 			const ability = dex.abilities.get(BONUS_ABILITY_CODES[code]);
 			if (ability && toID(set.ability) === ability.id) {
-				problems.push(`${name} has ${ability.name}, which is granted by the ${kind} code ${code.toUpperCase()}.`);
+				problems.push(`${name} has ${ability.name}, which is granted by the ${type} code ${code.toUpperCase()}.`);
 			}
 		}
 	}
@@ -182,15 +187,15 @@ export function disableCode(b: Battle, t: 'set' | 'team', s?: Side, p?: Pokemon)
 	switch (t) {
 		case 'team':
 			if (!s) throw new Error(`'team' disableCode passed no Side`);
+			b.debug(`${s.name}'s team code '${s.pokemon[0].m.teamCode.toUpperCase()}' cleared.`);
 			for (const p of s.pokemon) {
 				delete p.m.teamCode;
 			};
-			b.debug(`${s.name}'s team code ${s.pokemon[0].m.teamCode.toUpperCase()} cleared.`);
 			break;
 		case 'set':
 			if (!p) throw new Error(`'set' disableCode passed no Pokemon`);
+			b.debug(`${p.name}'s set code '${p.m.setCode.toUpperCase()}' cleared.`);
 			delete p.m.setCode;
-			b.debug(`${p.name}'s set code ${p.m.setCode.toUpperCase()} cleared.`);
 			break;
 		default:
 			throw new Error(`Invalid code type passed to disableCode: ${t}`);
@@ -414,6 +419,19 @@ export const Scripts: ModdedBattleScriptsData = {
 
 					break;
 
+				case 'gofish':
+					const pairs = Object.values(
+						side.pokemon.flatMap(pokemon => pokemon.baseSpecies.types)
+							.reduce((counts, type) => {
+								counts[type] = (counts[type] || 0) + 1;
+								return counts;
+							}, {} as {[type: string]: number})
+						).reduce((sum, count) => sum + Math.floor(count / 2), 0);
+					for (const pokemon of side.pokemon) {
+						pokemon.m.gofishBoost = pairs;
+					}
+					break;
+
 				case 'pride':
 					const pyroar = side.pokemon.find(p => p.m.codeGenerated);
 					if (!pyroar) throw new Error(`PRIDE code team generation failed:`);
@@ -435,27 +453,51 @@ export const Scripts: ModdedBattleScriptsData = {
 					side.pokemon[5].m.innates.push('drizzle');
 					break;
 
-				case 'quetta':
+				case 'quetta': {
+					const boosted = new WeakSet<Species>();
+					const boost = (species: Species): Species => {
+						const clone = this.dex.deepClone(species);
+						for (const stat of ['atk', 'def', 'spa', 'spd', 'spe'] as const) clone.baseStats[stat] += 20;
+						boosted.add(clone);
+						return clone;
+					};
+				
 					for (const pokemon of side.pokemon) {
-						pokemon.clearItem();
-					
-						// Clone so the shared Species object isn't mutated
-						const newSpecies = this.dex.deepClone(pokemon.species);
-						let stat: StatIDExceptHP;
-						// @ts-expect-error
-						for (stat in newSpecies.baseStats) {
-							// @ts-expect-error
-							if (stat === 'hp') continue;
-							newSpecies.baseStats[stat] += 20;
+						pokemon.set.item = '';
+						pokemon.canMegaEvo = false;
+
+						const base = this.dex.species.get(pokemon.baseSpecies.baseSpecies);
+						const eligible = new Set<string>([pokemon.baseSpecies.name]);
+						for (const forme of base.otherFormes || []) {
+							if (this.dex.species.get(forme).battleOnly) eligible.add(forme);
 						}
 
-						const stats = this.spreadModify(newSpecies.baseStats, pokemon.set);
-						for (stat in pokemon.storedStats) {
-							pokemon.storedStats[stat] = stats[stat];
-							pokemon.baseStoredStats[stat] = stats[stat];
-						}
-						pokemon.species = newSpecies;
+						const originalSetSpecies = pokemon.setSpecies.bind(pokemon);
+						pokemon.setSpecies = (rawSpecies, ...rest) => originalSetSpecies(
+							eligible.has(rawSpecies.name) && !boosted.has(rawSpecies) ? boost(rawSpecies) : rawSpecies,
+							...rest
+						);
+
+						pokemon.setSpecies(pokemon.baseSpecies);
 					}
+					break;
+				}
+
+				case 'wizard':
+					const moves = ['magiccoat', 'magicpowder', 'magicroom'];
+					for (const pokemon of side.pokemon) {
+						for (const move of moves.map(m => this.dex.moves.get(m))) {
+							pokemon.moveSlots[pokemon.moveSlots.length] =
+							pokemon.baseMoveSlots[pokemon.baseMoveSlots.length] = {
+								id: move.id,
+								move: move.name,
+								pp: this.calculatePP(move),
+								maxpp: this.calculatePP(move),
+								disabled: false,
+								used: false,
+							};
+						};
+					};
 					break;
 				};
 
@@ -477,7 +519,8 @@ export const Scripts: ModdedBattleScriptsData = {
 			const setCode = pokemon.m.setCode;
 			if (BONUS_MOVE_CODES[setCode]) {
 				const move = this.dex.moves.get(BONUS_MOVE_CODES[setCode]);
-				pokemon.moveSlots[pokemon.moveSlots.length] = pokemon.baseMoveSlots[pokemon.baseMoveSlots.length] = {
+				pokemon.moveSlots[pokemon.moveSlots.length] =
+				pokemon.baseMoveSlots[pokemon.baseMoveSlots.length] = {
 					id: move.id,
 					move: move.name,
 					pp: this.calculatePP(move),

@@ -193,9 +193,30 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	gofish: {
 		name: "GOFISH",
-		// hell no
+		desc: "The team gains a boost to all stats equal to 5% * the number of types shared by more than one team member.",
+		onModifyAtk(relayVar, source, target, move) {
+			if (source.m.gofishBoost) return this.chainModify(source.m.gofishBoost);
+		},
+		onModifyDef(relayVar, source, target, move) {
+			if (source.m.gofishBoost) return this.chainModify(source.m.gofishBoost);
+		},
+		onModifySpA(relayVar, source, target, move) {
+			if (source.m.gofishBoost) return this.chainModify(source.m.gofishBoost);
+		},
+		onModifySpD(relayVar, source, target, move) {
+			if (source.m.gofishBoost) return this.chainModify(source.m.gofishBoost);
+		},
+		onModifySpe(spe, pokemon) {
+			if (pokemon.m.gofishBoost) return this.chainModify(pokemon.m.gofishBoost);
+		},
 	},
-	i: {},
+	i: {
+		name: "I",
+		desc: "This Pokemon creates a substitute when it switches in.",
+		onStart(pokemon) {
+			pokemon.addVolatile('substitute');
+		},
+	},
 	iron: {
 		name: "IRON",
 		shortDesc: "Team gains Quark Drive boost. Steels: immune to indirect damage, use Def if higher than Atk",
@@ -370,14 +391,15 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	survey: {
 		name: "SURVEY",
 		desc: "The opponent's Item and Moves are revealed on switch-in.",
-		onSwitchIn(pokemon) {
+		onStart(pokemon) {
 			const name = Utils.escapeHTML(pokemon.species.name);
 			const item = pokemon.set.item ? this.dex.items.get(pokemon.set.item).name : `No Item ${pokemon.m.teamCode === 'quetta' ? '(Removed by QUETTA)' : ''}`;
 			const moves = pokemon.set.moves
 				.map(m => `- ${this.dex.moves.get(m).name}`)
 				.join('<br />');
 
-			this.add('html',`<details><summary>Set for ${name}:</summary>Item: ${item}<br />Moves:<br />${moves}</details>`);
+			this.add(`|c|${pokemon.side.name}|/raw <div class="infobox"><details>
+				<summary>Set for ${name}:</summary>Item: ${item}<br />Moves:<br />${moves}</details></div>`);
 		},
 	},
 	tear: {
@@ -386,7 +408,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		onSwitchIn(pokemon) {
 			const target = pokemon.foes()[0];
 			if (!target) return;
-			const stat = this.sample(['atk', 'def', 'spa', 'spd', 'spe']) as StatIDExceptHP;
+			const stat = this.sample(['atk', 'def', 'spa', 'spd', 'spe', 'accuracy', 'evasion']);
 			this.boost({ [stat]: -1 }, target, pokemon, CheatCodes);
 		},
 	},
@@ -418,9 +440,44 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			disableCode(this, 'team', source.side);
 		},
 	},
-	wizard: {},
-	zekrom: {},
-	zigzag: {},
+	wizard: {
+		name: "WIZARD",
+		desc: "All Pokemon on this team gain Magic Coat, Magic Powder, and Magic Room as extra moves",
+	},
+	zekrom: {
+		name: "ZEKROM",
+		desc: "The first Pokemon sent out becomes Zekrom.",
+		onStart(pokemon) {
+			pokemon.formeChange('Zekrom');
+			disableCode(this, 'team', pokemon.side);
+		}
+	},
+	zigzag: {
+		name: "ZIGZAG",
+		desc: "If a Pokemon on this team selects a different move than the previous turn, it gains 25% damage reduction and a 20% damage boost.",
+		onBeforeMove(source, target, move) {
+			if (!source.lastMoveUsed) return;
+			if (move.id === source.lastMoveUsed.id) {
+				source.m.zigzagBuff = null;
+				this.debug(`${source.side.name}'s ZIGZAG deactivated.`);
+				return;
+			} else {
+				source.m.zigzagBuff = true;
+				this.debug(`${source.side.name}'s ZIGZAG activated.`);
+				return;
+			}
+		},
+		onModifyDamage(dmg, source, target, move) {
+			if (!source.m.zigzagBuff) return;
+			activateCode(this, 'zigzag', source.side.name, source);
+			return this.chainModify(1.2);
+		},
+		onSourceModifyDamage(dmg, source, target, move) {
+			if (!source.m.zigzagBuff) return;
+			activateCode(this, 'zigzag', source.side.name, source);
+			return this.chainModify(0.75);
+		},
+	},
 	
 
 	// set codes. KEEP THIS ALPHABETIZED
@@ -445,8 +502,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		desc: "This Pokemon's attacks have a 100% chance to burn the target.",
 		effectType: 'Condition',
 		onAfterMove(source, target, move) {
-			activateCode(this, 'burn', source.side.name, source);
-			target.trySetStatus('brn', source, source.m.setCode);
+			if (target.trySetStatus('brn', source, source.m.setCode)) {
+				activateCode(this, 'burn', source.side.name, source);
+			};
 		},
 	},
 	card: {
@@ -455,15 +513,16 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		onModifyDamage(dmg, source, target, move) {
 			const tier = source.species.natDexTier;
 			const boost: { [k: number]: string[] } = {
-				1.1: ['OU', 'Uber', 'AG'],
-				1.2: ['UU', 'UUBL'],
-				1.3: ['RU', 'RUBL'],
-				1.4: ['NFE', 'LC'],
+				1.15: ['OU', 'Uber', 'AG'],
+				1.30: ['UU', 'UUBL'],
+				1.45: ['RU', 'RUBL'],
+				1.60: ['NFE'],
+				1.75: ['LC'],
 			};
 			const key = Object.entries(boost).find(([, tiers]) => tiers.includes(tier));
 			// fallback should never trigger, but i dont feel like crashing the battle when it does
 			const multiplier = key ? Number(key[0]) : 1;
-			this.debug(`${source}'s damage multipler from ${tier}: ${multiplier}`)
+			this.debug(`CARD: ${source.name}'s damage multipler from ${tier}: ${multiplier}`);
 			return this.chainModify(multiplier);
 		},
 	},
@@ -505,7 +564,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		onStart(pokemon) {
 			if (pokemon.hasType('Water')) return;
 			pokemon.setType([...pokemon.getTypes(true, true), 'Water'], true);
-			this.add('-start', pokemon, 'typechange', [...pokemon.getTypes(true, true), 'Water'].join('/'), '[silent]', '[from] format: Cheat Codes');
+			this.add('-start', pokemon, 'typechange', pokemon.getTypes(true, true).join('/'), '[silent]', '[from] format: Cheat Codes');
 		},
 	},
 	gene: {
@@ -544,8 +603,8 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "LAZY",
 		shortDesc: "Drowsy Pokemon can't switch.",
 		desc: "Pokemon with the Drowsy condition can't switch while this Pokemon is on the field.",
-		onTryAddVolatile(status, target, source, sourceEffect) {
-			if (status.id === 'yawn') target.tryTrap(true);
+		onFoeTrapPokemon(pokemon) {
+			if (pokemon.volatiles['yawn']) pokemon.tryTrap(true);
 		},
 	},
 	lets: {
@@ -637,7 +696,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		onStart(pokemon) {
 			if (pokemon.hasType('Steel')) return;
 			pokemon.setType([...pokemon.getTypes(true, true), 'Steel'], true);
-			this.add('-start', pokemon, 'typechange', [...pokemon.getTypes(true, true), 'Steel'].join('/'), '[silent]', '[from] format: Cheat Codes');
+			this.add('-start', pokemon, 'typechange', pokemon.getTypes(true, true).join('/'), '[silent]', '[from] format: Cheat Codes');
 		},
 	},
 	pika: {
@@ -698,9 +757,11 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "TRAP",
 		desc: "Moves used by this Pokemon trap the target.",
 		onAfterMove(source, target, move) {
-			if (!target.tryTrap(true)) return;
+		if (!target || target === source || target.fainted) return;
+		if (target.addVolatile('trapped', source, move, 'trapper')) {
 			activateCode(this, 'trap', source.side.name, source);
-		},
+		}
+	},
 	},
 	true: {
 		name: "TRUE",
@@ -833,7 +894,11 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 					}
 				);
 			};
-			this.debug(`${pokemon.name}'s X: Added moves from the ${TYPE} type. (${MOVE_REPLACE[TYPE].join(', ')})`);
+			this.debug(`${pokemon.name}'s X: Added moves from the ${TYPE} type.
+				(${MOVE_REPLACE[TYPE]
+					.map(m => this.dex.moves.get(m).name)
+					.join(', ')
+				})`);
 		},
 	},
 };

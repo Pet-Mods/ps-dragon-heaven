@@ -8,7 +8,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 		condition: {
 			duration: 5,
 			durationCallback(target, source, effect) {
-				if (source?.m.setCode === 'alt') return 0;
+				if (source.volatiles['alt']) return 0;
 				if (source?.hasAbility('persistent')) {
 					this.add('-activate', source, 'ability: Persistent', '[move] Trick Room');
 					return 7;
@@ -16,7 +16,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				return 5;
 			},
 			onFieldStart(target, source) {
-				if (source?.m.setCode === 'alt') this.effectState.noninterruptable = true;
+				if (source.volatiles['alt']) this.effectState.noninterruptable = true;
 
 				if (source?.hasAbility('persistent')) {
 					this.add('-fieldstart', 'move: Trick Room', `[of] ${source}`, '[persistent]');
@@ -25,7 +25,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				}
 			},
 			onFieldRestart(target, source) {
-				if (this.effectState.noninteruptable) return;
+				if (this.effectState.noninterruptable) return;
 				this.field.removePseudoWeather('trickroom');
 			},
 			// Speed modification is changed in Pokemon.getActionSpeed() in sim/pokemon.js
@@ -42,7 +42,16 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 	toxicspikes: {
 		inherit: true,
 		condition: {
-			inherit: true,
+			// this is a side condition
+			onSideStart(side) {
+				this.add('-sidestart', side, 'move: Toxic Spikes');
+				this.effectState.layers = 1;
+			},
+			onSideRestart(side) {
+				if (this.effectState.layers >= 2) return false;
+				this.add('-sidestart', side, 'move: Toxic Spikes');
+				this.effectState.layers++;
+			},
 			onSwitchIn(pokemon) {
 				const ignoreByCode = pokemon.volatiles['bootie'] || pokemon.volatiles['noclip'];
 				if (!pokemon.isGrounded()) return;
@@ -62,7 +71,16 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 	spikes: {
 		inherit: true,
 		condition: {
-			inherit: true,
+			// this is a side condition
+			onSideStart(side) {
+				this.add('-sidestart', side, 'Spikes');
+				this.effectState.layers = 1;
+			},
+			onSideRestart(side) {
+				if (this.effectState.layers >= 3) return false;
+				this.add('-sidestart', side, 'Spikes');
+				this.effectState.layers++;
+			},
 			onSwitchIn(pokemon) {
 				const ignoreByCode = pokemon.volatiles['bootie'] || pokemon.volatiles['noclip'];
 				if (!pokemon.isGrounded() || pokemon.hasItem('heavydutyboots') || ignoreByCode) return;
@@ -74,7 +92,10 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 	stealthrock: {
 		inherit: true,
 		condition: {
-			inherit: true,
+			// this is a side condition
+			onSideStart(side) {
+				this.add('-sidestart', side, 'move: Stealth Rock');
+			},
 			onSwitchIn(pokemon) {
 				const ignoreByCode = pokemon.volatiles['bootie'] || pokemon.volatiles['noclip'];
 				if (pokemon.hasItem('heavydutyboots') || ignoreByCode) return;
@@ -86,7 +107,9 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 	stickyweb: {
 		inherit: true,
 		condition: {
-			inherit: true,
+			onSideStart(side) {
+				this.add('-sidestart', side, 'move: Sticky Web');
+			},
 			onSwitchIn(pokemon) {
 				const ignoreByCode = pokemon.volatiles['bootie'] || pokemon.volatiles['noclip'];
 				if (!pokemon.isGrounded() || pokemon.hasItem('heavydutyboots') || ignoreByCode) return;

@@ -19,15 +19,15 @@ export const Formats: FormatData[] = [
 			const code = pokemon.m;
 			// DO NOT EVER SET THESE TO INVALID CONDITIONS
 			if (code.teamCode && !pokemon.volatiles[code.teamCode]) pokemon.addVolatile(code.teamCode);
+
 			if (code.setCode && !pokemon.volatiles[code.setCode]) {
 				pokemon.addVolatile(code.setCode);
-				
 				const c = this.dex.conditions.get(code.setCode);
 				this.add('-ability', pokemon, `code: ${c.name}`);
 				this.hint(`${c.name}: ${c.desc}`);
 			};
-			let effect: string;
-			for (effect in code.effects) { 
+			
+			for (const effect of code.effects) { 
 				pokemon.addVolatile(effect);
 			}
 		},

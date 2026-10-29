@@ -13,27 +13,34 @@ import { TEAM_CODES, SET_CODES } from "../../data/mods/gen9cheatcodes/scripts";
 export const commands: Chat.ChatCommands = {
 
 	// Cheat Codes
-	teamcodes: 'cheatcodes',
-	setcodes: 'cheatcodes',
 	cheatcodes(target, room, user, connection, cmd) {
-		const team = cmd.includes('team') || target === 'team';
-		if (cmd === 'codes' && !['all', 'team', 'set'].includes(target)) return this.parse('/help codes');
+		if (target && !['team', 'pokemon', 'set', 'move'].includes(target)) return this.parse('/help cheatcodes');
+		if (target === 'pokemon') target = 'team';
+		if (target === 'move') target = 'set';
+
 		if (!this.runBroadcast()) return;
-		if (target === 'all') {
+
+		const setCodes = SET_CODES.map(c => `<button name="send" value="/cheatcode ${c}"\
+			style="display: inline; padding: 0; border: 0; font: inherit; cursor: pointer;\
+			background: transparent; color: currentColor; -webkit-appearance: none;">${c.toUpperCase()}</i></button>`);
+		const teamCodes = TEAM_CODES.map(c => `<button name="send" value="/cheatcode ${c}"\
+			style="display: inline; padding: 0; border: 0; font: inherit; cursor: pointer;\
+			background: transparent; color: currentColor; -webkit-appearance: none;">${c.toUpperCase()}</i></button>`);
+
+		if (!target) {
 			this.sendReplyBox(
-				[...TEAM_CODES, ...SET_CODES]
+				[...setCodes, ...teamCodes]
 				.sort()
 				.join(', ')
-				.toUpperCase()
 			);
 		} else {
-		this.sendReplyBox((team ? TEAM_CODES : SET_CODES).join(', ').toUpperCase());
+			this.sendReplyBox((target === 'team' ? teamCodes : setCodes).join(', '));
 		};
 	},
-	codeshelp: [
-		`/cheatcodes all - Shows all possible codes in [Gen 9] CH34T C0D3Z.`,
-		`/setcodes - Shows all set codes in [Gen 9] CH34T C0D3Z.`,
-		`/teamcodes - Shows all team codes in [Gen 9] CH34T C0D3Z.`,
+	cheatcodeshelp: [
+		`/cheatcodes [team/set] - Shows all possible codes, including only the team or set, if specified, in [Gen 9] CH34T C0D3Z.`,
+		`/cheatcode [code] - Shows you the information about a Cheat Code in [Gen 9] CH34T C0D3Z.`,
+		`!cheatcode [code] - Shows everyone that information. Requires: + % @ # ~`,
 	],
 	cheatcode(target, room, user, connection, cmd) {
 		if (!target) return this.parse('/help cheatcode');
@@ -49,5 +56,6 @@ export const commands: Chat.ChatCommands = {
 	cheatcodehelp: [
 		`/cheatcode [code] - Shows you the information about a Cheat Code in [Gen 9] CH34T C0D3Z.`,
 		`!cheatcode [code] - Shows everyone that information. Requires: + % @ # ~`,
+		`/cheatcodes [team/set] - Shows all possible codes, including only the team or set, if specified, in [Gen 9] CH34T C0D3Z.`,
 	],
 };
