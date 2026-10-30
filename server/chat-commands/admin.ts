@@ -840,13 +840,13 @@ export const commands: Chat.ChatCommands = {
 			}
 		} catch (e: any) {
 			Rooms.global.notifyRooms(
-				['development', 'staff'] as RoomID[],
+				['dragonsnest', 'staff'] as RoomID[],
 				`|c|${user.getIdentity()}|/log ${user.name} used /hotpatch ${target} - but something failed while trying to hot-patch.`
 			);
 			throw new Chat.ErrorMessage([`Something failed while trying to hot-patch ${target}:`, e.stack]);
 		}
 		Rooms.global.notifyRooms(
-			['development', 'staff'] as RoomID[],
+			['dragonsnest', 'staff'] as RoomID[],
 			`|c|${user.getIdentity()}|/log ${user.name} used /hotpatch ${target}`
 		);
 	},
