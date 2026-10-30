@@ -25,8 +25,11 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				}
 			},
 			onFieldRestart(target, source) {
-				if (this.effectState.noninterruptable) return;
-				this.field.removePseudoWeather('trickroom');
+				if (this.effectState.noninterruptable) {
+					return this.add('-fail', source, 'move: Trick Room', '[from] code: ALT');
+				} else {
+					return this.field.removePseudoWeather('trickroom');
+				}
 			},
 			// Speed modification is changed in Pokemon.getActionSpeed() in sim/pokemon.js
 			onFieldResidualOrder: 27,

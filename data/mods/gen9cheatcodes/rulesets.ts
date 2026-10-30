@@ -1,8 +1,8 @@
 import { validateCodes } from './scripts';
 
 export const Rulesets: import('../../../sim/dex-formats').ModdedFormatDataTable = {
-	cheatcodes: {
-		name: "Cheat Codes",
+	cheatcodesrecursion: {
+		name: "Cheat Codes Recursion",
 		effectType: 'ValidatorRule',
 		desc: "Prevents duplicated moves, abilities, and species.",
 		onValidateTeam(team) {

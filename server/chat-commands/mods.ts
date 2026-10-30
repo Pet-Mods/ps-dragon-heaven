@@ -8,7 +8,16 @@
  *
  * @license MIT
  */
-import { TEAM_CODES, SET_CODES } from "../../data/mods/gen9cheatcodes/scripts";
+import { CodeInfo } from "../../data/mods/gen9cheatcodes/scripts";
+// @ts-expect-error fuck off json
+const CodeInfo: { [code: string]: CodeInfo } = require('../../data/mods/gen9cheatcodes/codes-info.json');
+
+const getCodes = (type: CodeInfo['type']) =>
+	Object.keys(CodeInfo).filter(id => CodeInfo[id].type === type).sort();
+
+const codeButton = (id: string) => `<button name="send" value="/cheatcode ${id}"\
+	style="display: inline; padding: 0; border: 0; font: inherit; cursor: pointer;\
+	background: transparent; color: currentColor; -webkit-appearance: none;">${CodeInfo[id].name}</button>`;
 
 export const commands: Chat.ChatCommands = {
 
@@ -20,22 +29,19 @@ export const commands: Chat.ChatCommands = {
 
 		if (!this.runBroadcast()) return;
 
-		const setCodes = SET_CODES.map(c => `<button name="send" value="/cheatcode ${c}"\
-			style="display: inline; padding: 0; border: 0; font: inherit; cursor: pointer;\
-			background: transparent; color: currentColor; -webkit-appearance: none;">${c.toUpperCase()}</i></button>`);
-		const teamCodes = TEAM_CODES.map(c => `<button name="send" value="/cheatcode ${c}"\
-			style="display: inline; padding: 0; border: 0; font: inherit; cursor: pointer;\
-			background: transparent; color: currentColor; -webkit-appearance: none;">${c.toUpperCase()}</i></button>`);
+		const setCodes = getCodes('set').map(codeButton);
+		const teamCodes = getCodes('team').map(codeButton);
 
 		if (!target) {
 			this.sendReplyBox(
-				[...setCodes, ...teamCodes]
-				.sort()
-				.join(', ')
+				[...getCodes('set'), ...getCodes('team')]
+					.sort()
+					.map(codeButton)
+					.join(', ')
 			);
 		} else {
 			this.sendReplyBox((target === 'team' ? teamCodes : setCodes).join(', '));
-		};
+		}
 	},
 	cheatcodeshelp: [
 		`/cheatcodes [team/set] - Shows all possible codes, including only the team or set, if specified, in [Gen 9] CH34T C0D3Z.`,
@@ -45,13 +51,20 @@ export const commands: Chat.ChatCommands = {
 	cheatcode(target, room, user, connection, cmd) {
 		if (!target) return this.parse('/help cheatcode');
 
-		const codeExists = TEAM_CODES.includes(target) || SET_CODES.includes(target);
-		if (!codeExists) throw new Chat.ErrorMessage(`${target.toUpperCase()} is not a valid cheat code.`);
+		const id = toID(target);
+		if (!Object.prototype.hasOwnProperty.call(CodeInfo, id)) {
+			throw new Chat.ErrorMessage(`${target.toUpperCase()} is not a valid cheat code.`);
+		}
 
 		if (!this.runBroadcast()) return;
 
-		const code = Dex.mod('gen9cheatcodes').conditions.get(target);
-		this.sendReplyBox(`<span class="white"><u>${TEAM_CODES.includes(toID(target)) ? `Team` : `Set`} code:</u> <b>${code.name}</b></span><br/><p>${code.desc}</p>`);
+		const code = CodeInfo[id];
+		let buf = `<span class="white"><u>${code.type === 'team' ? 'Team' : 'Set'} code:</u> <b>${code.name}</b></span><br />`;
+		buf += `<p>${code.desc}</p>`;
+		if (code.effectDetails) {
+			buf += `<details><summary>Effect Details</summary>${code.effectDetails}</details>`;
+		}
+		this.sendReplyBox(buf);
 	},
 	cheatcodehelp: [
 		`/cheatcode [code] - Shows you the information about a Cheat Code in [Gen 9] CH34T C0D3Z.`,

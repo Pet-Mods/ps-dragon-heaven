@@ -5,7 +5,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	// team codes. KEEP THIS ALPHABETIZED
 	aaaaaa: {
 		name: "AAAAAA",
-		desc: "Sound moves always result in a critical hit.",
 		onModifyMove(move, pokemon, target) {
 			activateCode(this, 'aaaaaa', pokemon.side.name);
 			if (move.flags['sound']) move.willCrit = true;
@@ -13,7 +12,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	ablaze: {
 		name: 'ABLAZE',
-		desc: "When any Pokemon on this team is at 33% or less HP, its STAB moves have 1.5x power.",
 		onModifyAtkPriority: 5,
 		onModifyAtk(atk, source, target, move) {
 			const boostTypes = source.getTypes();
@@ -33,7 +31,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	absent: {
 		name: "ABSENT",
-		desc: "Pokemon on this team cannot have their stats lowered.",
 		onTryBoost(boost, target, source, effect) {
 			if (source && target === source) return;
 			let activated = false;
@@ -52,11 +49,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	apples: {
 		name: "APPLES",
-		desc: "An Appletun is added to the team.",
 	},
 	aurora: {
 		name: "AURORA",
-		desc: "Rotates the active weather every turn, Snow -> Rain -> Sun -> Sand.",
 		onResidual(target, source, effect) {
 			let count;
 			if (!count || count > 4) count = 0;
@@ -73,7 +68,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	bees: {
 		name: "BEES",
-		desc: "Pokemon use either Attack Order or Heal Order at the end of the turn.",
 		onResidual(target, source, effect) {
 			const move = this.dex.moves.get(this.sample(['Attack Order', 'Heal Order']));
 			activateCode(this, 'bees', source.side.name);
@@ -82,7 +76,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	block: {
 		name: "BLOCK",
-		desc: "This team's active Pokemon gains immunity to foe's pivot moves.",
 		onFoeTryMove(source, target, move) {
 			if (target.isAlly(source) || !move.selfSwitch) return;
 			activateCode(this, 'block', target.side.name);
@@ -92,12 +85,10 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	bootie: {
 		name: "BOOTIE",
-		desc: "All Pokemon on this team are immune to entry hazards.",
 		// hardcoded in each hazard
 	},
 	bounty: {
 		name: "BOUNTY",
-		desc: "When a Pokemon KOs another Pokemon, its highest stat is raised by 1.",
 		onSourceAfterFaint(length, target, source, effect) {
 			if (effect?.effectType === 'Move') {
 				const bestStat = source.getBestStat(true, true);
@@ -107,11 +98,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	bugsy: {
 		name: "BUGSY",
-		desc: "A Ledian is added to the team. It has the base stats of the other Pokemon in the team",
 	},
 	coffee: {
 		name: "COFFEE",
-		desc: "Pokemon on this team skip recharge turns at the cost of 20% of the move's power.",
 		onSourceTryAddVolatile(status, target, source, sourceEffect) {
 			if (status.id !== 'mustrecharge') return;
 			activateCode(this, 'coffee', source.side.name)
@@ -128,7 +117,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	crash: {
 		name: "CRASH",
-		desc: "The opponent's first Pokemon also has Slow Start.",
 		onStart(pokemon) {
 			pokemon.foes()[0].m.innates.push('slowstart');
 			// hack to instantly activate
@@ -139,21 +127,18 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	drake: {
 		name: "DRAKE",
-		desc: "This team's Dragon type moves ignore Fairy type immunity.",
 		onModifyMove(move, pokemon, target) {
 			if (move.type === 'Dragon') move.ignoreImmunity = { 'Fairy': true };
 		},
 	},
 	enby: {
 		name: "ENBY",
-		desc: "Genderless Pokemon on this team deal 1.5x damage.",
 		onModifyDamage(dmg, source, target, move) {
 			if (source.gender === 'N') return this.chainModify(1.5);
 		},
 	},
 	espeon: {
 		name: "ESPEON",
-		desc: "Pokemon on this team gain the Psychic type and Synchronize.",
 		onStart(pokemon) {
 			if (pokemon.hasType('Psychic')) return;
 			pokemon.setType([...pokemon.getTypes(true, true), 'Psychic'], true);
@@ -162,19 +147,15 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	exequy: {
 		name: "EXEQUY",
-		desc: "Pokemon on this team gain Supreme Overlord",
 	},
 	fluffy: {
 		name: "FLUFFY",
-		desc: "All Pokemon on this team gain Fluffy.",
 	},
 	four: {
 		name: "FOUR",
-		desc: "The opponent's team is trimmed to 4 Pokemon. Does not break their code.",
 	},
 	gitgud: {
 		name: "GITGUD",
-		desc: "Pokemon on this team heal 1/8th max HP and raise their lowest stat by 1(counting stat changes)if it attacks and KOes another Pokemon.",
 		onSourceAfterFaint(length, target, source, effect) {
 			if (effect?.effectType !== 'Move') return;
 			// copy of getBestStat but rotated for worst
@@ -182,9 +163,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			let worstStat = 0;
 			const stats: StatIDExceptHP[] = ['atk', 'def', 'spa', 'spd', 'spe'];
 			for (const i of stats) {
-				if (source.getStat(i, true, true) < worstStat) {
+				if (source.getStat(i, false, true) < worstStat) {
 					statName = i;
-					worstStat = source.getStat(i, true, true);
+					worstStat = source.getStat(i, false, true);
 				}
 			}
 			this.boost({ [worstStat]: length }, source);
@@ -193,7 +174,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	gofish: {
 		name: "GOFISH",
-		desc: "The team gains a boost to all stats equal to 5% * the number of types shared by more than one team member.",
 		onModifyAtk(relayVar, source, target, move) {
 			if (source.m.gofishBoost) return this.chainModify(source.m.gofishBoost);
 		},
@@ -212,15 +192,12 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	i: {
 		name: "I",
-		desc: "This Pokemon creates a substitute when it switches in.",
 		onStart(pokemon) {
 			pokemon.addVolatile('substitute');
 		},
 	},
 	iron: {
 		name: "IRON",
-		shortDesc: "Team gains Quark Drive boost. Steels: immune to indirect damage, use Def if higher than Atk",
-		desc: "All Pokemon gain a Quark Drive boost that can stack with Quark Drive. Steel types: immune to indirect damage, use Defense when attacking if higher than Attack.",
 		onStart(pokemon) {
 			this.add('-activate', pokemon, 'code: IRON');
 			this.effectState.bestStat = pokemon.getBestStat(false, true);
@@ -275,7 +252,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	lmfao: {
 		name: "LMFAO",
-		desc: "All weather- and terrain-setting moves switch the user out on this team.",
 		onModifyMove(move, pokemon, target) {
 			if (!move.terrain || !move.weather) return;
 			activateCode(this, 'lmfao', pokemon.side.name);
@@ -285,11 +261,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	martyr: {},
 	neuter: {
 		name: "NEUTER",
-		desc: "All Pokemon on this team have Neutralizing Gas.",
 	},
 	noclip: {
 		name: "NOCLIP",
-		desc: "Terrains have no effect. All Pokemon gain immunity to hazards, and all moves bypass Substitute and screens.",
 		onAnyModifyMove(move) {
 			move.infiltrates = true;
 		},
@@ -300,7 +274,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	pride: {
 		name: "PRIDE",
-		desc: "This team gains a Mega Pyroar. Each Pokemon on this team that is of the majority gender, or is Pyroar, gains a damage bonus equal to 10% times the number of Pokemon of that gender, plus 10%.",
 		onModifyDamage(dmg, source, target, move) {
 			if (!source.m.prideBoost) return;
 			activateCode(this, 'pride', source.side.name);
@@ -309,12 +282,10 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	quetta: {
 		name: "QUETTA",
-		desc: "All team members lose their held item and gain +20 in all of their base stats, except HP.",
 		// implemented in the scripts
 	},
 	return: {
 		name: "RETURN",
-		desc: "After three Pokemon on this side faint, the next Pokemon that switches in uses Revival Blessing.",
 		onStart(pokemon) {
 			if (pokemon.side.pokemonLeft > 3) return;
 			activateCode(this, 'return', pokemon.side.name);
@@ -324,7 +295,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	rubber: {
 		name: "RUBBER",
-		desc: "This team is immune to Electric-type moves, and gains the Magic Bounce effect on switch-in.",
 		onTryHit(target, source, move) {
 			if (move.type === 'Electric') return false;
 			// TODO: debug for single trigger on switch
@@ -340,8 +310,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	screen: {
 		name: "SCREEN",
-		shortDesc: "On switch-in, based on highest stat, summon a screen. (Def: Reflect, SpD: Light Screen, HP: Aurora Veil)",
-		desc: "When a team member switches in, if its highest stat is Defense, it will summon Reflect, and Light Screen if SpD is the highest stat. If HP is the highest stat, it will use Aurora Veil. These screens cannot be extended by Light Clay.",
 		onSwitchIn(pokemon) {
 			let move = null;
 			const stat = pokemon.getBestStat();
@@ -365,12 +333,10 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	shower: {
 		name: "SHOWER",
-		desc: "The last Pokemon on this team has Drizzle on top of its regular Ability.",
 	},
 	sleuth: {},
 	spikes: {
 		name: "SPIKES",
-		desc: "The opposing team starts with 1 layer of Spikes.",
 		onStart(pokemon) {
 			activateCode(this, 'spikes', pokemon.side.name);
 			pokemon.side.foe.addSideCondition('spikes', pokemon, CheatCodes);
@@ -379,8 +345,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	spooky: {
 		name: "SPOOKY",
-		shortDesc: "Ghost and Dark moves: 0.75x power, 0.5x if Ghost type",
-		desc: "All Pokemon take 0.75x damage from Dark and Ghost type moves. Ghost types take halved damage from these types.",
 		onSourceModifyDamage(relayVar, source, target, move) {
 			if (move.type === 'Dark' || move.type === 'Ghost') {
 				activateCode(this, 'spooky', target.side.name);
@@ -390,7 +354,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	survey: {
 		name: "SURVEY",
-		desc: "The opponent's Item and Moves are revealed on switch-in.",
 		onStart(pokemon) {
 			const name = Utils.escapeHTML(pokemon.species.name);
 			const item = pokemon.set.item ? this.dex.items.get(pokemon.set.item).name : `No Item ${pokemon.m.teamCode === 'quetta' ? '(Removed by QUETTA)' : ''}`;
@@ -398,13 +361,11 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 				.map(m => `- ${this.dex.moves.get(m).name}`)
 				.join('<br />');
 
-			this.add(`|c|${pokemon.side.name}|/raw <div class="infobox"><details>
-				<summary>Set for ${name}:</summary>Item: ${item}<br />Moves:<br />${moves}</details></div>`);
+			this.add(`|html|<div class="infobox"><details><summary>Set for ${name}:</summary>Item: ${item}<br />Moves:<br />${moves}</details></div>`);
 		},
 	},
 	tear: {
 		name: "TEAR",
-		desc: "On switch-in, lowers a random stat of the foe by 1.",
 		onSwitchIn(pokemon) {
 			const target = pokemon.foes()[0];
 			if (!target) return;
@@ -414,16 +375,14 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	tracks: {
 		name: "TRACKS",
-		desc: "No moves can miss.",
 		onAnyAccuracy(accuracy, target, source, move) {
 			return true;
 		},
 	},
 	victor: {
 		name: "VICTOR",
-		desc: "This team gains one use of V-Create across the whole team.",
 		onStart(pokemon) {
-			if (!pokemon.m.effects.includes('victor')) return;
+			if (!pokemon.volatiles['victor']) return;
 			pokemon.moveSlots.push({
 				id: 'vcreate' as ID,
 				move: 'V-Create',
@@ -436,25 +395,23 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			});
 		},
 		onAfterMove(source, target, move) {
-			if (!source.m.effects.includes('victor') || move.id !== 'vcreate') return;
+			if (move.id !== 'vcreate') return;
 			disableCode(this, 'team', source.side);
+			source.removeVolatile('victor');
 		},
 	},
 	wizard: {
 		name: "WIZARD",
-		desc: "All Pokemon on this team gain Magic Coat, Magic Powder, and Magic Room as extra moves",
 	},
 	zekrom: {
 		name: "ZEKROM",
-		desc: "The first Pokemon sent out becomes Zekrom.",
 		onStart(pokemon) {
-			pokemon.formeChange('Zekrom');
+			pokemon.formeChange('Zekrom', CheatCodes, true);
 			disableCode(this, 'team', pokemon.side);
 		}
 	},
 	zigzag: {
 		name: "ZIGZAG",
-		desc: "If a Pokemon on this team selects a different move than the previous turn, it gains 25% damage reduction and a 20% damage boost.",
 		onBeforeMove(source, target, move) {
 			if (!source.lastMoveUsed) return;
 			if (move.id === source.lastMoveUsed.id) {
@@ -483,8 +440,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	// set codes. KEEP THIS ALPHABETIZED
 	alt: {
 		name: "ALT",
-		shortDesc: "Spawns Trick Room while on the field.",
-		desc: "Trick Room is permanently active while this Pokemon is on the field. It can still be replaced or suppressed.",
 		effectType: 'Condition',
 		onStart(pokemon) {
 			// permanence implemented in move data
@@ -499,7 +454,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	burn: {
 		name: "BURN",
-		desc: "This Pokemon's attacks have a 100% chance to burn the target.",
 		effectType: 'Condition',
 		onAfterMove(source, target, move) {
 			if (target.trySetStatus('brn', source, source.m.setCode)) {
@@ -509,7 +463,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	card: {
 		name: "CARD",
-		desc: "This Pokemon gains a damage boost based on its usage tier.",
 		onModifyDamage(dmg, source, target, move) {
 			const tier = source.species.natDexTier;
 			const boost: { [k: number]: string[] } = {
@@ -528,25 +481,20 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	chip: {
 		name: "CHIP",
-		shortDesc: "Moves deal an additional 1/16 max HP.",
-		desc: "Attacking moves cause the target to lose an additional 1/16th of their max HP. Multi-hit moves only activate this effect once.",
 		onAfterMove(source, target, move) {
-			if (!target.hp || move.category === 'Status' || !source.foes().includes(target)) return;
+			if (!target.hp || move.category === 'Status' || target.isAlly(source)) return;
 			activateCode(this, 'chip', source.side.name, source);
 			this.damage(target.maxhp / 16, target, source, this.effect);
 		},
 	},
 	debt: {
 		name: "DEBT",
-		desc: "This Pokemon gains Neutralizing Gas",
 	},
 	eggs: {
 		name: "EGGS",
-		desc: "This Pokemon gains Soft-Boiled as a 5th move.",
 		},
 	fast: {
 		name: "FAST",
-		desc: "This Pokemon cannot lose a speed tie.",
 		// this will not work well in non-singles formats
 		onBeforeMove(source, target, move) {
 			if (source.getStat('spe') === target.getStat('spe'))
@@ -556,11 +504,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	fest: {
 		name: "FEST",
-		desc: "This Pokemon gains Celebrate as a 5th move.",
 		},
 	fish: {
 		name: "FISH",
-		desc: "This Pokemon has the Water type.",
 		onStart(pokemon) {
 			if (pokemon.hasType('Water')) return;
 			pokemon.setType([...pokemon.getTypes(true, true), 'Water'], true);
@@ -569,7 +515,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	gene: {
 		name: "GENE",
-		desc: "If this Pokemon has no Item, it gains +2 Attack and becomes confused on switch-in.",
 		onStart(pokemon) {
 			if (pokemon.item) return;
 			activateCode(this, 'gene', pokemon.side.name, pokemon)
@@ -579,7 +524,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	go: {
 		name: "GO",
-		desc: "This Pokemon's attacks have +2 priority and scatter coins.",
 		onModifyPriority(priority, source, target, move) {
 			activateCode(this, 'go', source.side.name, source);
 			return priority + 2;
@@ -590,31 +534,25 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	gold: {
 		name: "GOLD",
-		desc: "This Pokemon gains Good as Gold.",
 	},
 	heal: {
 		name: "HEAL",
-		desc: "This Pokemon uses Heal Bell when it switches in.",
 		onStart(pokemon) {
 			this.actions.useMove('healbell', pokemon);
 		},
 	},
 	lazy: {
 		name: "LAZY",
-		shortDesc: "Drowsy Pokemon can't switch.",
-		desc: "Pokemon with the Drowsy condition can't switch while this Pokemon is on the field.",
 		onFoeTrapPokemon(pokemon) {
 			if (pokemon.volatiles['yawn']) pokemon.tryTrap(true);
 		},
 	},
 	lets: {
 		name: "LETS",
-		desc: "This Pokemon gains Levitate.",
 	},
 	life: {
 		name: "LIFE",
-		desc: "This Pokemon heals 1/8 max HP after attacking.",
-		onSourceDamagingHit(damage, source, target, move) {
+		onDamagingHit(damage, source, target, move) {
 			if (!target.hp) return;
 			activateCode(this, 'life', target.side.name, target);
 			this.heal(target.maxhp / 8, target, target, target.m.teamCode);
@@ -622,7 +560,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	luck: {
 		name: "LUCK",
-		desc: "This Pokemon gains +2 Crit ratio, and has its moves' secondary effect chances doubled.",
 		onModifyCritRatio(critRatio, source, target, move) {
 			return critRatio + 2;
 		},
@@ -640,8 +577,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	mega: {
 		name: "MEGA",
-		shortDesc: "If this Pokemon has a Mega form, it will Mega Evolve when entering the field.",
-		desc: "If this Pokemon has a Mega form, it immediately Mega Evolves, without needing to hold a mega stone. Evolves into the X form if this Pokemon has an Attack-boosting nature, otherwise evolves into the Y form.",
 		onStart(pokemon) {
 			if (!pokemon.species.otherFormes) return;
 			const megas = pokemon.species.otherFormes
@@ -660,15 +595,12 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	moms: {
 		name: "MOMS",
-		desc: "This Pokemon gains Parental Bond."
 	},
 	monk: {
 		name: "MONK",
-		desc: "This Pokemon has Gorilla Tactics",
 	},
 	nuke: {
 		name: "NUKE",
-		desc: "When this Pokemon faints, it uses Explosion.",
 		onFaint(target, source, effect) {
 			activateCode(this, 'nuke', source.side.name, source);
 			this.actions.useMove('explosion', source);
@@ -676,7 +608,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	okay: {
 		name: "OKAY",
-		desc: "Moves used by or against this Pokemon deal neutral damage.",
 		onImmunity(type, pokemon) {
 			return false;
 		},
@@ -692,7 +623,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	paid: {
 		name: "PAID",
-		desc: "This Pokemon gains the Steel type, and Make it Rain as a 5th move.",
 		onStart(pokemon) {
 			if (pokemon.hasType('Steel')) return;
 			pokemon.setType([...pokemon.getTypes(true, true), 'Steel'], true);
@@ -701,11 +631,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	pika: {
 		name: "PIKA",
-		desc: "This Pokemon gains Volt Tackle as a 5th move.",
 	},
 	rise: {
 		name: "RISE",
-		desc: "When this Pokemon KOs another Pokemon, its highest stat is raised by 1.",
 		onSourceAfterFaint(length, target, source, effect) {
 			if (effect?.effectType === 'Move') {
 				const bestStat = source.getBestStat(true, true);
@@ -715,7 +643,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	sips: {
 		name: "SIPS",
-		desc: "This Pokemon is immune to Water-type moves.",
 		onTryHit(target, source, move) {
 			if (target !== source && move.type === 'Water') {
 				activateCode(this, 'sips', target.side.name, target)
@@ -726,7 +653,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	stab: {
 		name: 'STAB',
-		desc: "This Pokemon's STAB is 2.0x.",
 		onModifySTAB(stab, source, target, move) {
 			if (move.forceSTAB || source.hasType(move.type)) {
 				activateCode(this, 'stab', source.side.name, source);
@@ -736,8 +662,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	star: {
 		name: "STAR",
-		shortDesc: "Primary type Fairy. First move: Fairy type, 1.2x BP.",
-		desc: "This Pokemon's primary type is replaced with Fairy. Its first move becomes Fairy type and its BP is boosted by 1.2x.",
 		onStart(pokemon) {
 			pokemon.setType(['Fairy', pokemon.getTypes(true, true)[1] || ''], true);
 			this.add('-start', pokemon, 'typechange', pokemon.species.types.join('/'), '[silent]', '[from] format: Cheat Codes');
@@ -755,7 +679,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	trap: {
 		name: "TRAP",
-		desc: "Moves used by this Pokemon trap the target.",
 		onAfterMove(source, target, move) {
 		if (!target || target === source || target.fainted) return;
 		if (target.addVolatile('trapped', source, move, 'trapper')) {
@@ -765,7 +688,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	true: {
 		name: "TRUE",
-		desc: "This Pokemon's Normal-type moves match its primary type.",
 		onModifyMove(move, pokemon, target) {
 			const normalPrimary = pokemon.getTypes(undefined, true)[0];
 			if (move.type === 'Normal' && normalPrimary !== 'Normal') {
@@ -775,7 +697,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	tune: {
 		name: "TUNE",
-		desc: "This Pokemon starts Perish Song on all Pokemon after landing an attack.",
 		onSourceDamagingHit(damage, target, source, move) {
 			activateCode(this, 'tune', target.side.name, target);
 			for (const pokemon of this.getAllActive()) {
@@ -786,7 +707,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	warp: {
 		name: "WARP",
-		desc: "This Pokemon's type effectiveness is inverted when attacking.",
 		onEffectivenessPriority: -100,
 		onSourceEffectiveness(effectiveness, target, type, move) {
 			return -effectiveness;
@@ -794,15 +714,12 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	waxy: {
 		name: "WAXY",
-		desc: "At the end of each turn, this Pokemon uses Wish.",
 		onResidual(target, source, effect) {
 			this.actions.useMove('Wish', target);
 		},
 	},
 	what: {
 		name: "WHAT",
-		shortDesc: "This Pokemon skips recharge turns and uses the higher attacking stat for all moves.",
-		desc: "This Pokemon skips recharge turns after attacks, and uses their highest Attack or Special Attack for all their damaging moves.",
 		onSourceTryAddVolatile(status, target, source, sourceEffect) {
 			if (status.id === 'mustrecharge') return false;
 		},
@@ -817,7 +734,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	wind: {
 		name: "WIND",
-		desc: "On switch-in, this Pokemon sets Tailwind",
 		onStart(pokemon) {
 			pokemon.side.addSideCondition('Tailwind', pokemon, CheatCodes);
 		}
@@ -825,14 +741,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	// oh god
 	x: {
 		name: "X",
-		shortDesc: "The first time this Pokemon switches in, it will learn three specific moves based on what the opposing Pokemon is weak to.",
-		desc: "The first time this Pokemon is sent out, it will learn three specific moves, depending on what type the opposing Pokemon is weak to. " +
-		"If the opposing Pokemon has more than one weakness, one will be chosen at random. BUG First Impression, Bug Buzz, and Sticky Web; DARK Knock Off, " +
-		"Dark Pulse, and Taunt; DRAGON Dragon Pulse, Dragon Claw, and Dragon Tail; ELECTR Thunderbolt, Thunder Punch, and Thunder Wave; FAIRY Moonblast, " +
-		"Play Rough, and Char; FIGHT Brick Break, Aura Sphere, and Detect; FIRE Flamethrower, Fire Punch, and Will-O-Wisp; FLYING Acrobatics, Air Slash, " +
-		"and Tailwind; GHOST Shadow Ball, Shadow Claw, and Curse; GRASS Energy Ball, Leaf Blade, and Synthesis; GROUND Earthquake, Earth Power, and Shore Up; " +
-		"ICE Ice Beam, Ice Punch, and Icy Wind; POISON Sludge Bomb, Poison Jab, and Toxic; PSYCHIC Psychic, Zen Headbutt, and Wish; ROCK Rock Slide, Power Gem, " +
-		"and Stealth Rock; STEEL Iron Head, Flash Cannon, and Iron Defense; WATER Surf, Waterfall, and Aqua Ring",
 		onStart(pokemon) {
 			// this already ran
 			if (pokemon.baseMoveSlots.length > 1) return;
@@ -840,21 +748,21 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			const MOVE_REPLACE: { [k: string]: string[] } = {
 				bug: ['firstimpression', 'bugbuzz', 'stickyweb'],
 				dark: ['knockoff', 'darkpulse', 'taunt'],
-				dragon: ['dragonpulse', 'dragonclaw', 'dragontail'],
-				electric: ['thunderbolt', 'thunderpunch', 'thunderwave'],
-				fairy: ['moonblast', 'playrough', 'charm'],
-				fighting: ['brickbreak', 'auraspehere', 'detect'],
-				fire: ['flamethrower', 'firepunch', 'willowisp'],
+				dragon: ['dragonclaw', 'dragonpulse', 'dragontail'],
+				electric: ['thunderpunch', 'thunderbolt', 'thunderwave'],
+				fairy: ['playrough', 'moonblast', 'charm'],
+				fighting: ['brickbreak', 'aurasphere', 'detect'],
+				fire: ['firepunch', 'flamethrower', 'willowisp'],
 				flying: ['acrobatics', 'airslash', 'tailwind'],
-				ghost: ['shadowball', 'shadowclaw', 'curse'],
-				grass: ['energyball', 'leafblade', 'synthesis'],
+				ghost: ['shadowclaw', 'shadowball', 'curse'],
+				grass: ['leafblade', 'energyball', 'synthesis'],
 				ground: ['earthquake', 'earthpower', 'shoreup'],
-				ice: ['icebeam', 'icepunch', 'icywind'],
-				poison: ['sludgebomb', 'poisonjab', 'toxic'],
-				psychic: ['psychic', 'zenheadbutt', 'wish'],
+				ice: ['icepunch', 'icebeam', 'icywind'],
+				poison: ['poisonjab', 'sludgebomb', 'toxic'],
+				psychic: ['zenheadbutt', 'psychic', 'wish'],
 				rock: ['rockslide', 'powergem', 'stealthrock'],
 				steel: ['ironhead', 'flashcannon', 'irondefense'],
-				water: ['surf', 'waterfall', 'aquaring'],
+				water: ['waterfall', 'surf', 'aquaring'],
 			};
 
 			if (!pokemon.foes().length) return;
@@ -899,6 +807,10 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 					.map(m => this.dex.moves.get(m).name)
 					.join(', ')
 				})`);
+		},
+		// this is absolutely not neccessary i just hate it not matching
+		onModifyMove(move, pokemon, target) {
+			if (move.id === 'wish') return 'Psychic';
 		},
 	},
 };

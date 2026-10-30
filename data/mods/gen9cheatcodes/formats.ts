@@ -3,14 +3,15 @@ import { FormatData } from '../../../sim/dex-formats';
 export const Formats: FormatData[] = [
 	{
 		name: "[Gen 9 NatDex] Ch34t C0d3z",
-		desc: `The first letter of each Pokemon on your team, and each of their moves, form Codes that give your Pokemon and Team special effects.`,
+		desc: `The first letter of each Pokemon on your team, and each of their moves, form Codes that give your Pokemon and Team special effectCodes.`,
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3789229/">Smogon Thread</a>`,
 			`&bullet; <a href="https://docs.google.com/spreadsheets/d/1x1Nz2d2M9EwlcvDzFvzSOKVo_mKHxP8p35a_h7zr-Os/">Codes Sheet</a>`,
+			`&bullet; <a href="https://docs.google.com/spreadsheets/d/1UCUnt1Ild068S6U5WjNwD-XorrVAGzDkSadcM7gnh1k/">Sample Sets</a>`,
 		],
 		mod: 'gen9cheatcodes',
 		debug: true,
-		ruleset: ['Standard NatDex', 'Terastal Clause'],
+		ruleset: ['Standard NatDex', 'Terastal Clause', 'Cheat Codes Recursion'],
 		banlist: [
 			'ND Uber', 'ND AG', 'Arena Trap', 'Moody', 'Power Construct', 'Shadow Tag', 'King\'s Rock',
 			'Quick Claw', 'Razor Fang', 'Assist', 'Baton Pass', 'Last Respects', 'Shed Tail'
@@ -27,11 +28,12 @@ export const Formats: FormatData[] = [
 				this.hint(`${c.name}: ${c.desc}`);
 			};
 			
-			for (const effect of code.effects) { 
-				pokemon.addVolatile(effect);
+			if (code.effectCodes) {
+				for (const effect of code.effectCodes) { 
+					pokemon.addVolatile(effect);
+				}
 			}
 		},
-		// pokebilities adjacent bs, for codes that add abilities
 		onBeforeSwitchIn(pokemon) {
 			if (pokemon.m.innates) {
 				for (const innates of pokemon.m.innates) {

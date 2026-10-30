@@ -28,9 +28,9 @@ Some `.m` states also used for code effects:
 
 (boolean) `.m.zigzagBuff`: Damage dealt and taken is boosted by ZIGZAG.
 
-(string[]) `.m.effects`: Various code effects keyed by cause code: SURVEY, NOCLIP, VICTOR.
+(string[]) `.m.effectCodes`: Various code effectCodes keyed by cause code: SURVEY, NOCLIP, VICTOR.
 
-Note all `.m` functions that are not `.effects` require the volatile of the code to be placed on the recipient Pokemon - just having the property is not enough to use it.
+Note all `.m` functions that are not `.effectCodes` require the volatile of the code to be placed on the recipient Pokemon - just having the property is not enough to use it.
 
 
 Useful debugging codes when in-battle:
