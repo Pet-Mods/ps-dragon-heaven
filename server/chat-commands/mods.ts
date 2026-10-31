@@ -8,11 +8,10 @@
  *
  * @license MIT
  */
-import { CodeInfo } from "../../data/mods/gen9cheatcodes/scripts";
-// @ts-expect-error fuck off json
-const CodeInfo: { [code: string]: CodeInfo } = require('../../data/mods/gen9cheatcodes/codes-info.json');
+import { CodesInfo } from "../../data/mods/gen9cheatcodes/scripts";
+const CodeInfo: { [code: string]: CodesInfo } = require('../../data/mods/gen9cheatcodes/codes-info.json');
 
-const getCodes = (type: CodeInfo['type']) =>
+const getCodes = (type: CodesInfo['type']) =>
 	Object.keys(CodeInfo).filter(id => CodeInfo[id].type === type).sort();
 
 const codeButton = (id: string) => `<button name="send" value="/cheatcode ${id}"\

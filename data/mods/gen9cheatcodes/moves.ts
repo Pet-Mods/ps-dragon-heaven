@@ -41,7 +41,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 		},
 	},
 
-	// for BOOTIE
+	// for BOOTIE and NOCLIP
 	toxicspikes: {
 		inherit: true,
 		condition: {
@@ -72,25 +72,41 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 		},
 	},
 	spikes: {
-		inherit: true,
+		// i have no idea why inherit broke it, but it did
+		num: 191,
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		name: "Spikes",
+		pp: 20,
+		priority: 0,
+		flags: { reflectable: 1, nonsky: 1, metronome: 1, mustpressure: 1 },
+		sideCondition: 'spikes',
 		condition: {
 			// this is a side condition
 			onSideStart(side) {
+				this.debug('spikes reached onSideStart()');
 				this.add('-sidestart', side, 'Spikes');
 				this.effectState.layers = 1;
 			},
 			onSideRestart(side) {
+				this.debug('spikes reached onSideRestart()');
 				if (this.effectState.layers >= 3) return false;
 				this.add('-sidestart', side, 'Spikes');
 				this.effectState.layers++;
 			},
 			onSwitchIn(pokemon) {
+				this.debug('spikes reached onSwitchIn()');
 				const ignoreByCode = pokemon.volatiles['bootie'] || pokemon.volatiles['noclip'];
 				if (!pokemon.isGrounded() || pokemon.hasItem('heavydutyboots') || ignoreByCode) return;
 				const damageAmounts = [0, 3, 4, 6]; // 1/8, 1/6, 1/4
 				this.damage(damageAmounts[this.effectState.layers] * pokemon.maxhp / 24);
 			},
 		},
+		target: "foeSide",
+		type: "Ground",
+		zMove: { boost: { def: 1 } },
+		contestType: "Clever",
 	},
 	stealthrock: {
 		inherit: true,
@@ -139,6 +155,8 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 			},
 		},
 	},
+
+	// for SCREEN
 	reflect: {
 		inherit: true,
 		condition: {
@@ -232,5 +250,204 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				this.add('-sideend', side, 'move: Aurora Veil');
 			},
 		},
-	}
+	},
+
+	// for NOCLIP
+	electricterrain: {
+		inherit: true,
+		condition: {
+			effectType: 'Terrain',
+			duration: 5,
+			durationCallback(source, effect) {
+				if (source?.hasItem('terrainextender')) {
+					return 8;
+				}
+				return 5;
+			},
+			onSetStatus(status, target, source, effect) {
+				if (target.volatiles['noclip']) return this.debug(`Terrain effect SETSTATUS suppressed by NOCLIP`);
+				if (status.id === 'slp' && target.isGrounded() && !target.isSemiInvulnerable()) {
+					if (effect.id === 'yawn' || (effect.effectType === 'Move' && !effect.secondaries)) {
+						this.add('-activate', target, 'move: Electric Terrain');
+					}
+					return false;
+				}
+			},
+			onTryAddVolatile(status, target) {
+				if (target.volatiles['noclip']) return this.debug(`Terrain effect TRYADDVOLATILE suppressed by NOCLIP`);
+				if (!target.isGrounded() || target.isSemiInvulnerable()) return;
+				if (status.id === 'yawn') {
+					this.add('-activate', target, 'move: Electric Terrain');
+					return null;
+				}
+			},
+			onBasePowerPriority: 6,
+			onBasePower(basePower, attacker, defender, move) {
+				if (attacker.volatiles['noclip']) return this.debug(`Terrain effect BASEPOWER suppressed by NOCLIP`);
+				if (move.type === 'Electric' && attacker.isGrounded() && !attacker.isSemiInvulnerable()) {
+					this.debug('electric terrain boost');
+					return this.chainModify([5325, 4096]);
+				}
+			},
+			onFieldStart(field, source, effect) {
+				if (effect?.effectType === 'Ability') {
+					this.add('-fieldstart', 'move: Electric Terrain', '[from] ability: ' + effect.name, `[of] ${source}`);
+				} else {
+					this.add('-fieldstart', 'move: Electric Terrain');
+				}
+			},
+			onFieldResidualOrder: 27,
+			onFieldResidualSubOrder: 7,
+			onFieldEnd() {
+				this.add('-fieldend', 'move: Electric Terrain');
+			},
+		},
+	},
+	psychicterrain: {
+		inherit: true,
+		condition: {
+			effectType: 'Terrain',
+			duration: 5,
+			durationCallback(source, effect) {
+				if (source?.hasItem('terrainextender')) {
+					return 8;
+				}
+				return 5;
+			},
+			onTryHitPriority: 4,
+			onTryHit(target, source, effect) {
+				if (target.volatiles['noclip']) return this.debug(`Terrain effect TRYHIT suppressed by NOCLIP`);
+				if (effect && (effect.priority <= 0.1 || effect.target === 'self')) {
+					return;
+				}
+				if (target.isSemiInvulnerable() || target.isAlly(source)) return;
+				if (!target.isGrounded()) {
+					const baseMove = this.dex.moves.get(effect.id);
+					if (baseMove.priority > 0) {
+						this.hint("Psychic Terrain doesn't affect airborne Pokémon.");
+					}
+					return;
+				}
+				this.add('-activate', target, 'move: Psychic Terrain');
+				return null;
+			},
+			onBasePowerPriority: 6,
+			onBasePower(basePower, attacker, defender, move) {
+				if (attacker.volatiles['noclip']) return this.debug(`Terrain effect BASEPOWER suppressed by NOCLIP`);
+				if (move.type === 'Psychic' && attacker.isGrounded() && !attacker.isSemiInvulnerable()) {
+					this.debug('psychic terrain boost');
+					return this.chainModify([5325, 4096]);
+				}
+			},
+			onFieldStart(field, source, effect) {
+				if (effect?.effectType === 'Ability') {
+					this.add('-fieldstart', 'move: Psychic Terrain', '[from] ability: ' + effect.name, `[of] ${source}`);
+				} else {
+					this.add('-fieldstart', 'move: Psychic Terrain');
+				}
+			},
+			onFieldResidualOrder: 27,
+			onFieldResidualSubOrder: 7,
+			onFieldEnd() {
+				this.add('-fieldend', 'move: Psychic Terrain');
+			},
+		},
+	},
+	mistyterrain: {
+		inherit: true,
+		condition: {
+			effectType: 'Terrain',
+			duration: 5,
+			durationCallback(source, effect) {
+				if (source?.hasItem('terrainextender')) {
+					return 8;
+				}
+				return 5;
+			},
+			onSetStatus(status, target, source, effect) {
+				if (target.volatiles['noclip']) return this.debug(`Terrain effect SETSTATUS suppressed by NOCLIP`);
+				if (!target.isGrounded() || target.isSemiInvulnerable()) return;
+				if (effect && ((effect as Move).status || effect.id === 'yawn')) {
+					this.add('-activate', target, 'move: Misty Terrain');
+				}
+				return false;
+			},
+			onTryAddVolatile(status, target, source, effect) {
+				if (target.volatiles['noclip']) return this.debug(`Terrain effect TRYADDVOLATILE suppressed by NOCLIP`);
+				if (!target.isGrounded() || target.isSemiInvulnerable()) return;
+				if (status.id === 'confusion') {
+					if (effect.effectType === 'Move' && !effect.secondaries) this.add('-activate', target, 'move: Misty Terrain');
+					return null;
+				}
+			},
+			onBasePowerPriority: 6,
+			onBasePower(basePower, attacker, defender, move) {
+				if (defender.volatiles['noclip']) return this.debug(`Terrain effect BASEPOWER suppressed by NOCLIP`);
+				if (move.type === 'Dragon' && defender.isGrounded() && !defender.isSemiInvulnerable()) {
+					this.debug('misty terrain weaken');
+					return this.chainModify(0.5);
+				}
+			},
+			onFieldStart(field, source, effect) {
+				if (effect?.effectType === 'Ability') {
+					this.add('-fieldstart', 'move: Misty Terrain', '[from] ability: ' + effect.name, `[of] ${source}`);
+				} else {
+					this.add('-fieldstart', 'move: Misty Terrain');
+				}
+			},
+			onFieldResidualOrder: 27,
+			onFieldResidualSubOrder: 7,
+			onFieldEnd() {
+				this.add('-fieldend', 'Misty Terrain');
+			},
+		},
+	},
+	grassyterrain: {
+		inherit: true,
+		condition: {
+			effectType: 'Terrain',
+			duration: 5,
+			durationCallback(source, effect) {
+				if (source?.hasItem('terrainextender')) {
+					return 8;
+				}
+				return 5;
+			},
+			onBasePowerPriority: 6,
+			onBasePower(basePower, attacker, defender, move) {
+				if (attacker.volatiles['noclip']) return this.debug(`Terrain effect BASEPOWER suppressed by NOCLIP`);
+				const weakenedMoves = ['earthquake', 'bulldoze', 'magnitude'];
+				if (weakenedMoves.includes(move.id) && defender.isGrounded() && !defender.isSemiInvulnerable()) {
+					this.debug('move weakened by grassy terrain');
+					return this.chainModify(0.5);
+				}
+				if (move.type === 'Grass' && attacker.isGrounded()) {
+					this.debug('grassy terrain boost');
+					return this.chainModify([5325, 4096]);
+				}
+			},
+			onFieldStart(field, source, effect) {
+				if (effect?.effectType === 'Ability') {
+					this.add('-fieldstart', 'move: Grassy Terrain', '[from] ability: ' + effect.name, `[of] ${source}`);
+				} else {
+					this.add('-fieldstart', 'move: Grassy Terrain');
+				}
+			},
+			onResidualOrder: 5,
+			onResidualSubOrder: 2,
+			onResidual(pokemon) {
+				if (pokemon.volatiles['noclip']) return this.debug(`Terrain effect RESIDUAL suppressed by NOCLIP`);
+				if (pokemon.isGrounded() && !pokemon.isSemiInvulnerable()) {
+					this.heal(pokemon.baseMaxhp / 16, pokemon, pokemon);
+				} else {
+					this.debug(`Pokemon semi-invuln or not grounded; Grassy Terrain skipped`);
+				}
+			},
+			onFieldResidualOrder: 27,
+			onFieldResidualSubOrder: 7,
+			onFieldEnd() {
+				this.add('-fieldend', 'move: Grassy Terrain');
+			},
+		},
+	},
 };

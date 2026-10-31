@@ -1,6 +1,6 @@
 export const CheatCodes = Dex.formats.get('gen9natdexch34tc0d3z');
 
-export interface CodeInfo {
+export interface CodesInfo {
 	id: ID,
 	name: string,
 	desc: string,
@@ -9,7 +9,7 @@ export interface CodeInfo {
 	shortDesc?: string,
 	effectDetails?: string,
 }
-export const CodeInfo: { [code: string]: CodeInfo } = require('./codes-info.json');
+export const CodeInfo: { [code: string]: CodesInfo } = require('./codes-info.json');
 
 const BONUS_POKEMON_CODES: { [k: string]: PokemonSet } = {
 	'apples': {
@@ -141,7 +141,7 @@ export function validateCodes(team: PokemonSet[], dex: ModdedDex): string[] {
 
 /** Debugging function: A cheat code has activated. */
 export function activateCode(b: Battle, n: string, p: string, s?: Pokemon) {
-	const c = b.dex.conditions.get(n);
+	const c = CodeInfo[n];
 	b.debug(`${p}'s ${s ? `${s.name}'s set` : `team`} code activated: ${c.name}: ${c.shortDesc || c.desc}`);
 }
 
@@ -282,6 +282,12 @@ export const Scripts: ModdedBattleScriptsData = {
 		 * properties. Some codes trigger on battle start, and take place immediately after preparing each side's codes.
 		 */
 
+		// flavor
+		this.add(`-message`, 'Activating codes.');
+		this.add(`-message`, 'Activating codes. .');
+		this.add(`-message`, 'Activating codes. . .');
+		this.add(`-message`, 'Codes online.');
+
 		// Prepare codes
 		for (const side of this.sides) {
 			const maybeCode = side.pokemon.map(p => p.name.charAt(0).toLowerCase()).join('');
@@ -291,7 +297,7 @@ export const Scripts: ModdedBattleScriptsData = {
 					pokemon.m.teamCode = code;
 				};
 				this.add(`raw|<div class="broadcast-blue"><b>${side.name}'s team code: ${code.name}</b></div>`);
-				this.hint(`${code.name}: ${this.dex.conditions.get(code.id).desc}`);
+				this.hint(`${code.name}: ${CodeInfo[code.id].desc}`);
 			} else {
 				this.add(`raw|<div class="broadcast-red"><b>${side.name} has no team code.</b></div>`);
 			};
@@ -318,7 +324,7 @@ export const Scripts: ModdedBattleScriptsData = {
 				case 'four':
 					const trim = side.pokemon.splice(4, side.pokemon.length - 4);
 					// BUGSY breaks without reassigning
-					if (teamCode === 'bugsy') side.pokemon[0].m.bugsyStat = trim[0];
+					if (teamCode.id === 'bugsy') side.pokemon[0].m.bugsyStat = trim[0];
 					break;
 				case 'noclip':
 					for (const p of side.pokemon) {
@@ -340,7 +346,7 @@ export const Scripts: ModdedBattleScriptsData = {
 			
 			// Codes that give you an extra Pokemon
 			if (BONUS_POKEMON_CODES[teamCode]) {
-				const codePkmn = side.addPokemon(BONUS_POKEMON_CODES[teamCode]);
+				const codePkmn = side.addPokemon(BONUS_POKEMON_CODES[teamCode.id]);
 				if (codePkmn) {
 					codePkmn.m.codeGenerated = true;
 					codePkmn.m.teamCode = teamCode;
@@ -487,7 +493,7 @@ export const Scripts: ModdedBattleScriptsData = {
 		for (const pokemon of this.getAllPokemon()) {
 			const setCode = pokemon.m.setCode;
 			if (BONUS_MOVE_CODES[setCode]) {
-				const move = this.dex.moves.get(BONUS_MOVE_CODES[setCode]);
+				const move = this.dex.moves.get(BONUS_MOVE_CODES[setCode.id]);
 				pokemon.moveSlots[pokemon.moveSlots.length] =
 				pokemon.baseMoveSlots[pokemon.baseMoveSlots.length] = {
 					id: move.id,

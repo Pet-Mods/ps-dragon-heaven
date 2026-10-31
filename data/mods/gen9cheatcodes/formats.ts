@@ -18,12 +18,13 @@ export const Formats: FormatData[] = [
 		],
 		onSwitchIn(pokemon) {
 			const code = pokemon.m;
+			const CodeInfo: { [code: string]: import('./scripts').CodesInfo } = require('./codes-info.json');
 			// DO NOT EVER SET THESE TO INVALID CONDITIONS
 			if (code.teamCode && !pokemon.volatiles[code.teamCode]) pokemon.addVolatile(code.teamCode);
 
 			if (code.setCode && !pokemon.volatiles[code.setCode]) {
 				pokemon.addVolatile(code.setCode);
-				const c = this.dex.conditions.get(code.setCode);
+				const c = CodeInfo[code.setCode];
 				this.add('-ability', pokemon, `code: ${c.name}`);
 				this.hint(`${c.name}: ${c.desc}`);
 			};

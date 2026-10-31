@@ -199,9 +199,10 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	iron: {
 		name: "IRON",
 		onStart(pokemon) {
+			if (!pokemon.hasType('Steel')) return;
 			this.add('-activate', pokemon, 'code: IRON');
 			this.effectState.bestStat = pokemon.getBestStat(false, true);
-			this.add('-start', pokemon, 'quarkdrive' + this.effectState.bestStat);
+			this.add('-start', pokemon, 'IRON' + this.effectState.bestStat);
 		},
 		onModifyAtkPriority: 5,
 		onModifyAtk(atk, pokemon) {
@@ -236,7 +237,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			this.add('-end', pokemon, 'IRON');
 		},
 		onFaint(pokemon) {
-			this.add('-end', pokemon, 'IRON');
+			this.add('-end', pokemon, 'IRON', `[silent]`);
 		},
 		onModifyMove(move, pokemon, target) {
 			if (!(pokemon.getStat('def', true, true) > pokemon.getStat('atk', true, true)) || !pokemon.hasType('Steel')) return;
@@ -258,7 +259,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			move.selfSwitch = true;
 		},
 	},
-	martyr: {},
+	martyr: {
+		name: "MARTYR",
+	},
 	neuter: {
 		name: "NEUTER",
 	},
@@ -267,9 +270,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		onAnyModifyMove(move) {
 			move.infiltrates = true;
 		},
-		onAnyTerrain(pokemon) {
-			return false;
-		},
+		// terrain effect implemented in each terrain
 		// hazard immunity effect hardcoded in each hazard
 	},
 	pride: {
@@ -297,15 +298,12 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "RUBBER",
 		onTryHit(target, source, move) {
 			if (move.type === 'Electric') return false;
-			// TODO: debug for single trigger on switch
-			if (target === source || move.hasBounced || !move.flags['reflectable'] || target.isSemiInvulnerable()) {
-				return;
-			}
-			const newMove = this.dex.getActiveMove(move.id);
-			newMove.hasBounced = true;
-			newMove.pranksterBoosted = false;
-			this.actions.useMove(newMove, target, { target: source });
-			return null;
+		},
+		onStart(pokemon) {
+			pokemon.addVolatile('ability: Magic Bounce');
+		},
+		onResidual(target, source, effect) {
+			source.removeVolatile('ability: Magic Bounce');
 		},
 	},
 	screen: {
@@ -601,9 +599,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	nuke: {
 		name: "NUKE",
-		onFaint(target, source, effect) {
-			activateCode(this, 'nuke', source.side.name, source);
-			this.actions.useMove('explosion', source);
+		onBeforeFaint(pokemon, effect) {
+			activateCode(this, 'nuke', pokemon.side.name, pokemon);
+			this.actions.useMove('explosion', pokemon);
 		},
 	},
 	okay: {
@@ -664,7 +662,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "STAR",
 		onStart(pokemon) {
 			pokemon.setType(['Fairy', pokemon.getTypes(true, true)[1] || ''], true);
-			this.add('-start', pokemon, 'typechange', pokemon.species.types.join('/'), '[silent]', '[from] format: Cheat Codes');
+			this.add('-start', pokemon, 'typechange', pokemon.getTypes(false, true).join('/'), '[silent]', '[from] format: Cheat Codes');
 		},
 		onModifyMove(move, pokemon, target) {
 			if (move.id === pokemon.getMoveSlot(0)?.id) {
@@ -673,6 +671,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		},
 		onBasePower(bp, source, target, move) {
 			if (move.id === source.getMoveSlot(0)?.id) {
+				activateCode(this, 'star', source.side.name, source);
 				return bp * 1.2;
 			};
 		},
