@@ -1,10 +1,10 @@
 import { validateCodes } from './scripts';
 
 export const Rulesets: import('../../../sim/dex-formats').ModdedFormatDataTable = {
-	cheatcodesrecursion: {
-		name: "Cheat Codes Recursion",
+	ccv: {
+		name: "CCV",
 		effectType: 'ValidatorRule',
-		desc: "Prevents duplicated moves, abilities, and species.",
+		desc: "Prevents duplication and usage of banned codes for Pokemon.",
 		onValidateTeam(team) {
 			return validateCodes(team, this.dex);
 		},

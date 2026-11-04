@@ -3,30 +3,35 @@ import { FormatData } from '../../../sim/dex-formats';
 export const Formats: FormatData[] = [
 	{
 		name: "[Gen 9 NatDex] Ch34t C0d3z",
-		desc: `The first letter of each Pokemon on your team, and each of their moves, form Codes that give your Pokemon and Team special effectCodes.`,
+		desc: `The first letter of each Pokemon on your team, and each of their moves, form Codes that give your Pokemon and Team special effects.`,
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3789229/">Smogon Thread</a>`,
 			`&bullet; <a href="https://docs.google.com/spreadsheets/d/1x1Nz2d2M9EwlcvDzFvzSOKVo_mKHxP8p35a_h7zr-Os/">Codes Sheet</a>`,
-			`&bullet; <a href="https://docs.google.com/spreadsheets/d/1UCUnt1Ild068S6U5WjNwD-XorrVAGzDkSadcM7gnh1k/">Sample Sets</a>`,
+			`&bullet; <a href="https://docs.google.com/spreadsheets/d/1x1Nz2d2M9EwlcvDzFvzSOKVo_mKHxP8p35a_h7zr-Os/edit?gid=1258363109#gid=1258363109">Sample Sets</a>`,
 		],
 		mod: 'gen9cheatcodes',
 		debug: true,
-		ruleset: ['Standard NatDex', 'Terastal Clause', 'Cheat Codes Recursion'],
+		ruleset: ['Standard NatDex', 'Terastal Clause', 'CCV'],
 		banlist: [
 			'ND Uber', 'ND AG', 'Arena Trap', 'Moody', 'Power Construct', 'Shadow Tag', 'King\'s Rock',
 			'Quick Claw', 'Razor Fang', 'Assist', 'Baton Pass', 'Last Respects', 'Shed Tail'
 		],
 		onSwitchIn(pokemon) {
 			const code = pokemon.m;
-			const CodeInfo: { [code: string]: import('./scripts').CodesInfo } = require('./codes-info.json');
+			const CodeInfo: { [code: string]: import('./scripts').CodeDetails } = require('./codes-info.json');
 			// DO NOT EVER SET THESE TO INVALID CONDITIONS
 			if (code.teamCode && !pokemon.volatiles[code.teamCode]) pokemon.addVolatile(code.teamCode);
 
 			if (code.setCode && !pokemon.volatiles[code.setCode]) {
-				pokemon.addVolatile(code.setCode);
-				const c = CodeInfo[code.setCode];
-				this.add('-ability', pokemon, `code: ${c.name}`);
-				this.hint(`${c.name}: ${c.desc}`);
+				if (CodeInfo[code.setCode].banlist?.includes(pokemon.baseSpecies.id)) {
+					this.debug(`Code ${code.setCode} failed to activate: ${pokemon.baseSpecies.name} is banned from using it.`);
+					this.add(`raw|<div class="broadcast-red"><b>${pokemon.baseSpecies.name} is banned from using ${code.teamCode}.</b></div>`);
+				} else {
+					pokemon.addVolatile(code.setCode);
+					const c = CodeInfo[code.setCode];
+					this.add('-ability', pokemon, `code: ${c.name}`);
+					this.hint(`${c.name}: ${c.desc}`);
+				}
 			};
 			
 			if (code.effectCodes) {

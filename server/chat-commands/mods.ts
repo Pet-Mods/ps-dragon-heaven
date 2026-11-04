@@ -8,10 +8,10 @@
  *
  * @license MIT
  */
-import { CodesInfo } from "../../data/mods/gen9cheatcodes/scripts";
-const CodeInfo: { [code: string]: CodesInfo } = require('../../data/mods/gen9cheatcodes/codes-info.json');
+import { CodeDetails } from "../../data/mods/gen9cheatcodes/scripts";
+const CodeInfo: { [code: string]: CodeDetails } = require('../../data/mods/gen9cheatcodes/codes-info.json');
 
-const getCodes = (type: CodesInfo['type']) =>
+const getCodes = (type: CodeDetails['type']) =>
 	Object.keys(CodeInfo).filter(id => CodeInfo[id].type === type).sort();
 
 const codeButton = (id: string) => `<button name="send" value="/cheatcode ${id}"\
@@ -60,6 +60,9 @@ export const commands: Chat.ChatCommands = {
 		const code = CodeInfo[id];
 		let buf = `<span class="white"><u>${code.type === 'team' ? 'Team' : 'Set'} code:</u> <b>${code.name}</b></span><br />`;
 		buf += `<p>${code.desc}</p>`;
+		if (code.banlist) {
+			buf += `<details><summary>Code Banlist</summary>${code.banlist.map(p => Dex.species.get(p).name).join(', ')}</details>`;
+		}
 		if (code.effectDetails) {
 			buf += `<details><summary>Effect Details</summary>${code.effectDetails}</details>`;
 		}
