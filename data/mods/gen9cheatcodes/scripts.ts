@@ -6,7 +6,6 @@ export interface CodeDetails {
 	desc: string,
 	type: 'set' | 'team',
 	behavior?: 'pokemon' | 'ability' | 'move' | 'unique',
-	shortDesc?: string,
 	effectDetails?: string,
 	banlist?: string[],
 }
@@ -84,10 +83,38 @@ const BONUS_ABILITY_CODES: { [k: string]: string } = {
 	'moms': 'parentalbond',
 	'monk': 'gorillatactics',
 }
+const BONUS_TYPE_CODES: { [c: string]: string } = {
+	// set
+	'fish': 'Water',
+	'paid': 'Steel',
+	// team
+	'espeon': 'Psychic',
+	'spooky': 'Ghost',
+};
 
 function codesOfType(type: 'set' | 'team'): string[] {
 	if (!(type === 'set' || type === 'team')) throw new Error(`invalid type ${type} passed to codesOfType`);
 	return Object.keys(CodeInfo).filter(id => CodeInfo[id].type === type);
+}
+
+/** Rebuild a Pokemon's types from codes that modify them. */
+function recalculateTypes(p: Pokemon, s: string | undefined, t: string | undefined) {
+	p.m.moddedTypes = p.species.types || [];
+
+	if (s && s === 'star') {
+		const sType = p.baseTypes[1];
+		if (sType === 'Fairy' || !sType) {
+			p.m.moddedTypes = ['Fairy'];
+		} else {
+			p.m.moddedTypes = ['Fairy', sType];
+		}
+	};
+	if (p.m.codeGenerated && t && t === 'bugsy') p.m.moddedTypes = ['Bug', 'Fighting'];
+
+	if (s && BONUS_TYPE_CODES[s]) p.m.moddedTypes = [...p.m.moddedTypes, BONUS_TYPE_CODES[s]];
+	if (t && BONUS_TYPE_CODES[t]) p.m.moddedTypes = [...p.m.moddedTypes, BONUS_TYPE_CODES[t]];
+
+	return p.m.moddedTypes as string[];
 }
 
 /** Prevents duplicated moves/abilities/species based on codes and brought team, and enforces code banlist. */
@@ -149,7 +176,7 @@ export function validateCodes(team: PokemonSet[], dex: ModdedDex): string[] {
 /** Debugging function: A cheat code has activated. */
 export function activateCode(b: Battle, n: string, p: string, s?: Pokemon, m?: string) {
 	const c = CodeInfo[n];
-	b.debug(`${p}'s ${s ? `${s.name}'s set` : `team`} code activated: ${c.name}: ${c.shortDesc || c.desc}${m ? ` (${m})` : ''}`);
+	b.debug(`${p}'s ${s ? `${s.name}'s set` : `team`} code activated${m ? ` (${m})` : ''}`);
 }
 
 /** Disable a set or team code */
@@ -176,7 +203,7 @@ export const Scripts: ModdedBattleScriptsData = {
 	gen: 9,
 	inherit: 'gen9',
 	actions: {
-		canTerastallize(pokemon: Pokemon) {
+		canTerastallize() {
 			return null;
 		}
 	},
@@ -263,8 +290,82 @@ export const Scripts: ModdedBattleScriptsData = {
 			this.setSpecies(this.baseSpecies);
 
 			// the modded part: respect edited baseTypes from codes
-			this.types = this.baseTypes;
-		}
+			if (this.m.moddedTypes) this.types = this.m.moddedTypes;
+		},
+		formeChange(
+				this: Pokemon, speciesId: string | Species, source: Effect | null = this.battle.effect,
+				isPermanent?: boolean, abilitySlot = '0', message?: string
+			) {
+				const rawSpecies = this.battle.dex.species.get(speciesId);
+		
+				const species = this.setSpecies(rawSpecies, source);
+				if (!species) return false;
+		
+				if (this.battle.gen <= 2) return true;
+		
+				// The species the opponent sees
+				const apparentSpecies =
+					this.illusion ? this.illusion.species.name : species.baseSpecies;
+				if (isPermanent) {
+					this.baseSpecies = rawSpecies;
+					this.details = this.getUpdatedDetails();
+					let details = (this.illusion || this).details;
+					if (this.terastallized) details += `, tera:${this.terastallized}`;
+					this.battle.add('detailschange', this, details);
+					this.updateMaxHp();
+					if (!source) {
+						// Tera forme
+						// Ogerpon/Terapagos text goes here
+						this.formeRegression = true;
+					} else if (source.effectType === 'Item') {
+						this.canTerastallize = null; // National Dex behavior
+						if (source.zMove) {
+							this.battle.add('-burst', this, apparentSpecies, species.requiredItem);
+							this.moveThisTurnResult = true; // Ultra Burst counts as an action for Truant
+						} else if (source.isPrimalOrb) {
+							if (this.illusion) {
+								this.ability = '';
+								this.battle.add('-primal', this.illusion, species.requiredItem);
+							} else {
+								this.battle.add('-primal', this, species.requiredItem);
+							}
+						} else {
+							this.battle.add('-mega', this, apparentSpecies, species.requiredItem);
+							this.moveThisTurnResult = true; // Mega Evolution counts as an action for Truant
+						}
+						this.formeRegression = true;
+					} else if (source.effectType === 'Status') {
+						// Shaymin-Sky -> Shaymin
+						this.battle.add('-formechange', this, species.name, message);
+					}
+				} else {
+					if (source?.effectType === 'Ability') {
+						this.battle.add('-formechange', this, species.name, message, `[from] ability: ${source.name}`);
+					} else {
+						this.battle.add('-formechange', this, this.illusion ? this.illusion.species.name : species.name, message);
+					}
+				}
+				if (isPermanent && (!source || !['disguise', 'iceface'].includes(source.id))) {
+					if (this.illusion && source) {
+						// Tera forme by Ogerpon or Terapagos breaks the Illusion
+						this.ability = ''; // Don't allow Illusion to wear off
+					}
+					const ability = species.abilities[abilitySlot] || species.abilities['0'];
+					// Ogerpon's forme change doesn't override permanent abilities
+					if (source || !this.getAbility().flags['cantsuppress']) this.setAbility(ability, null, null, true);
+					// However, its ability does reset upon switching out
+					this.baseAbility = this.battle.toID(ability);
+				}
+				if (this.terastallized) {
+					this.knownType = true;
+					this.apparentType = this.terastallized;
+				}
+				if (this.m.moddedTypes) {
+					this.m.moddedTypes = recalculateTypes(this, this.m.setCode, this.m.teamCode);
+					this.types = this.m.moddedTypes;
+				}
+				return true;
+			}
 	},
 	field: {
 		suppressingWeather() {
@@ -461,22 +562,12 @@ export const Scripts: ModdedBattleScriptsData = {
 					ledian.maxhp = hpSpeMon.baseMaxhp;
 					ledian.hp = ledian.maxhp;
 
-					ledian.baseTypes = ['Bug', 'Fighting'];
-					ledian.types = ['Bug', 'Fighting'];
-
 					this.debug(`${ledian.side.name}'s ${ledian.name}'s stats: ` +
 						[ledian.hp, stats.atk, stats.def, stats.spa, stats.spd, stats.spe].join(', '));
 
 					// clear unneeded storage
 					for (const p of side.pokemon) delete p.m.bugsyStat;
 
-					break;
-
-				case 'espeon':
-					for (const p of side.pokemon) {
-						p.baseTypes = p.types =
-							[...p.getTypes(true, true), 'Psychic'];
-					}
 					break;
 
 				case 'gofish':
@@ -503,26 +594,24 @@ export const Scripts: ModdedBattleScriptsData = {
 						if (p.gender === 'M') M.push(p);
 						if (p.gender === 'F') F.push(p);
 					}
-					const majority = M.length > F.length ? M : M.length < F.length ? F : null;
-					if (!majority) return;
-					const Pboost = 1.1 + 0.1 * majority.length;
-					for (const p of majority) {
-						p.m.prideBoost = Pboost;
+					const majority =
+						M.length > F.length ? M :
+						M.length < F.length ? F :
+						null;
+					if (majority) {
+						const Pboost = 1.1 + 0.1 * majority.length;
+						for (const p of majority) {
+							p.m.prideBoost = Pboost;
+						}
+						pyroar.m.prideBoost = Pboost;
+						this.debug(`${side.name}'s PRIDE boost: ${Pboost}`);
+					} else {
+						this.debug(`No boost was given to ${side.name}'s PRIDE due to a gender equal.`)
 					}
-					pyroar.m.prideBoost = Pboost;
-					this.debug(`${side.name}'s GOFISH boost: ${Pboost}`)
 					break;
 
 				case 'shower':
 					side.pokemon[side.pokemon.length - 1].m.innates.push('drizzle');
-					break;
-
-				case 'spooky':
-					for (const p of side.pokemon) {
-						if (p.baseTypes.includes('Ghost')) continue;
-						p.baseTypes = p.types =
-							[...p.baseTypes, 'Ghost'];
-					}
 					break;
 
 				case 'quetta': {
@@ -601,24 +690,7 @@ export const Scripts: ModdedBattleScriptsData = {
 			if (BONUS_ABILITY_CODES[setCode]) {
 				pokemon.m.innates.push(BONUS_ABILITY_CODES[setCode]);
 			};
-			if (['fish', 'paid', 'star'].includes(setCode)) {
-				if (setCode === 'star') {
-					const sType = pokemon.baseTypes[1];
-					if (sType === 'Fairy' || !sType) {
-						pokemon.baseTypes = pokemon.types =
-							['Fairy'];
-					} else {
-						pokemon.baseTypes = pokemon.types =
-							['Fairy', sType];
-					};
-				} else if (setCode === 'fish' && !pokemon.baseTypes.includes('Water')) {
-						pokemon.baseTypes = pokemon.types =
-							[...pokemon.baseTypes, 'Water'];
-				} else if (setCode === 'paid' && !pokemon.baseTypes.includes('Steel')) {
-						pokemon.baseTypes = pokemon.types =
-							[...pokemon.baseTypes, 'Steel'];
-				};
-			};
+			pokemon.types = recalculateTypes(pokemon, setCode, pokemon.m.teamCode);
 		}
 
 		// #endregion

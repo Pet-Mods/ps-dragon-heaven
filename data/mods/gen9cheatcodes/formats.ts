@@ -38,6 +38,10 @@ export const Formats: FormatData[] = [
 				for (const effect of code.effectCodes) { 
 					pokemon.addVolatile(effect);
 				}
+			};
+			if (pokemon.baseTypes !== pokemon.m.moddedTypes) {
+				this.add('-start', pokemon, 'typechange', pokemon.getTypes(true, true).join('/'),
+					'[silent]', '[from] format: Cheat Codes');
 			}
 		},
 		onBeforeSwitchIn(pokemon) {

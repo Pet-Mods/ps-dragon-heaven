@@ -9,14 +9,11 @@
  * @license MIT
  */
 import { CodeDetails } from "../../data/mods/gen9cheatcodes/scripts";
-const CodeInfo: { [code: string]: CodeDetails } = require('../../data/mods/gen9cheatcodes/codes-info.json');
 
+// cheatcodes
+const CodeInfo: { [code: string]: CodeDetails } = require('../../data/mods/gen9cheatcodes/codes-info.json');
 const getCodes = (type: CodeDetails['type']) =>
 	Object.keys(CodeInfo).filter(id => CodeInfo[id].type === type).sort();
-
-const codeButton = (id: string) => `<button name="send" value="/cheatcode ${id}"\
-	style="display: inline; padding: 0; border: 0; font: inherit; cursor: pointer;\
-	background: transparent; color: currentColor; -webkit-appearance: none;">${CodeInfo[id].name}</button>`;
 
 export const commands: Chat.ChatCommands = {
 
@@ -28,14 +25,14 @@ export const commands: Chat.ChatCommands = {
 
 		if (!this.runBroadcast()) return;
 
-		const setCodes = getCodes('set').map(codeButton);
-		const teamCodes = getCodes('team').map(codeButton);
+		const setCodes = getCodes('set').map(id => `<button name="send" value="/cheatcode ${id}" style="display: inline; padding: 0; border: 0; font: inherit; cursor: pointer; background: transparent; color: currentColor; -webkit-appearance: none;">${CodeInfo[id].name}</button>`);
+		const teamCodes = getCodes('team').map(id => `<button name="send" value="/cheatcode ${id}" style="display: inline; padding: 0; border: 0; font: inherit; cursor: pointer; background: transparent; color: currentColor; -webkit-appearance: none;">${CodeInfo[id].name}</button>`);
 
 		if (!target) {
 			this.sendReplyBox(
 				[...getCodes('set'), ...getCodes('team')]
 					.sort()
-					.map(codeButton)
+					.map(id => `<button name="send" value="/cheatcode ${id}" style="display: inline; padding: 0; border: 0; font: inherit; cursor: pointer; background: transparent; color: currentColor; -webkit-appearance: none;">${CodeInfo[id].name}</button>`)
 					.join(', ')
 			);
 		} else {
@@ -51,7 +48,7 @@ export const commands: Chat.ChatCommands = {
 		if (!target) return this.parse('/help cheatcode');
 
 		const id = toID(target);
-		if (!Object.prototype.hasOwnProperty.call(CodeInfo, id)) {
+		if (!CodeInfo[id]) {
 			throw new Chat.ErrorMessage(`${target.toUpperCase()} is not a valid cheat code.`);
 		}
 

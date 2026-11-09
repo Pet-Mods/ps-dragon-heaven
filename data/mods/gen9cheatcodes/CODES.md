@@ -28,11 +28,15 @@ Some `.m` states also used for code effects:
 
 (boolean) `.m.prideBoost`: This Pokemon's attacks are boosted through the PRIDE code.
 
+(boolean) `.m.shouldSetSpikes`: A layer of spikes should be set on this side.
+
 (boolean) `.m.zigzagBuff`: Damage dealt and taken is boosted by ZIGZAG.
 
 (string[]) `.m.innates`: Abilities added through codes.
 
 (string[]) `.m.effectCodes`: Various code effectCodes keyed by cause code: SURVEY, NOCLIP, VICTOR.
+
+(string[]) `.m.moddedTypes`: A string of replacement types to be merged with its baseTypes.
 
 Note all `.m` functions that are not `.effectCodes` require the volatile of the code to be placed on the recipient Pokemon - just having the property is not enough to use it.
 

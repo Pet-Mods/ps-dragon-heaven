@@ -64,7 +64,7 @@
   "bugsy": {
     "id": "bugsy",
     "name": "BUGSY",
-    "desc": "A Ledian is added to the team. It has the base stats of the other Pokemon in the team.",
+    "desc": "A Ledian is added to the team. It has the stats of the other Pokemon in the team.",
     "type": "team",
     "behavior": "unique",
     "effectDetails": "<b>Adds this Pokemon to the team:</b><br />Bugsy's Ledian (Ledian) (M)<br />Types: Bug, Fighting<br />Item: Life Orb<br />Ability: Iron Fist<br />Nature: Jolly<br />Level: 100<br />EVs: 252 Atk / 4 SpD / 252 Spe<br />Moves: U-turn, Drain Punch, Ice Punch, Thunder Punch<br /><br /><b>Inherits base stats from:</b><br />1st Pokemon: Atk<br />2nd Pokemon: Def<br />3rd Pokemon: SpA<br />4th Pokemon: SpD<br />5th Pokemon: HP and Spe"
@@ -87,8 +87,7 @@
     "id": "chip",
     "name": "CHIP",
     "desc": "Attacking moves cause the target to lose an additional 1/16th of their max HP. Multi-hit moves only activate this effect once.",
-    "type": "set",
-    "shortDesc": "Moves deal an additional 1/16 max HP."
+    "type": "set"
   },
   "coffee": {
     "id": "coffee",
@@ -105,7 +104,7 @@
   "debt": {
     "id": "debt",
     "name": "DEBT",
-    "desc": "This Pokemon gains Neutralizing Gas",
+    "desc": "This Pokemon gains Neutralizing Gas.",
     "type": "set",
     "behavior": "ability"
   },
@@ -138,7 +137,7 @@
   "exequy": {
     "id": "exequy",
     "name": "EXEQUY",
-    "desc": "Pokemon on this team gain Supreme Overlord",
+    "desc": "Pokemon on this team gain Supreme Overlord.",
     "type": "team",
     "behavior": "ability"
   },
@@ -208,7 +207,7 @@
     "type": "set"
   },
   "heal": {
-    "id": "name",
+    "id": "heal",
     "name": "HEAL",
     "desc": "This Pokemon uses Heal Bell when it switches in.",
     "type": "set"
@@ -223,15 +222,13 @@
     "id": "iron",
     "name": "IRON",
     "desc": "All Pokemon gain a Quark Drive boost that can stack with Quark Drive. Steel types: immune to indirect damage, use Defense when attacking if higher than Attack.",
-    "type": "team",
-    "shortDesc": "Team gains Quark Drive boost. Steels: immune to indirect damage, use Def if higher than Atk"
+    "type": "team"
   },
   "lazy": {
     "id": "lazy",
     "name": "LAZY",
     "desc": "Pokemon with the Drowsy condition can't switch while this Pokemon is on the field.",
-    "type": "set",
-    "shortDesc": "Drowsy Pokemon can't switch."
+    "type": "set"
   },
   "lets": {
     "id": "lets",
@@ -258,18 +255,11 @@
     "desc": "This Pokemon gains +2 Crit ratio, and has its moves' secondary effect chances doubled.",
     "type": "set"
   },
-  "martyr": {
-    "id": "martyr",
-    "name": "MARTYR",
-    "desc": "",
-    "type": "team"
-  },
   "mega": {
     "id": "mega",
     "name": "MEGA",
     "desc": "If this Pokemon has a Mega form, it immediately Mega Evolves, without needing to hold a mega stone. Evolves into the X form if this Pokemon has an Attack-boosting nature, otherwise evolves into the Y form.",
-    "type": "set",
-    "shortDesc": "If this Pokemon has a Mega form, it will Mega Evolve when entering the field."
+    "type": "set"
   },
   "moms": {
     "id": "moms",
@@ -281,7 +271,7 @@
   "monk": {
     "id": "monk",
     "name": "MONK",
-    "desc": "This Pokemon has Gorilla Tactics",
+    "desc": "This Pokemon has Gorilla Tactics.",
     "type": "set",
     "behavior": "ability"
   },
@@ -360,8 +350,7 @@
     "id": "screen",
     "name": "SCREEN",
     "desc": "When a team member switches in, if its highest stat is Defense, it will summon Reflect, and Light Screen if SpD is the highest stat. If HP is the highest stat, it will use Aurora Veil. These screens cannot be extended by Light Clay.",
-    "type": "team",
-    "shortDesc": "On switch-in, based on highest stat, summon a screen. (Def: Reflect, SpD: Light Screen, HP: Aurora Veil)"
+    "type": "team"
   },
   "shower": {
     "id": "shower",
@@ -379,13 +368,6 @@
     "id": "sleuth",
     "name": "SLEUTH",
     "desc": "Reveals all team members, items, and moves of the opponent. All active pokemon are identified (Ghost types are not immune to Normal/Fighting).",
-    "shortDesc": "Reveals opponent's team. All Pokemon are Foresighted.",
-    "type": "team"
-  },
-  "spikes": {
-    "id": "spikes",
-    "name": "SPIKES",
-    "desc": "The opposing team starts with 1 layer of Spikes.",
     "type": "team"
   },
   "spooky": {
@@ -404,8 +386,7 @@
     "id": "star",
     "name": "STAR",
     "desc": "This Pokemon's primary type is replaced with Fairy. Its first move becomes Fairy type and its BP is boosted by 1.2x.",
-    "type": "set",
-    "shortDesc": "Primary type Fairy. First move: Fairy type, 1.2x BP."
+    "type": "set"
   },
   "survey": {
     "id": "survey",
@@ -465,19 +446,18 @@
     "id": "what",
     "name": "WHAT",
     "desc": "This Pokemon skips recharge turns after attacks, and uses their highest Attack or Special Attack for all their damaging moves.",
-    "type": "set",
-    "shortDesc": "This Pokemon skips recharge turns and uses the higher attacking stat for all moves."
+    "type": "set"
   },
   "wind": {
     "id": "wind",
     "name": "WIND",
-    "desc": "On switch-in, this Pokemon sets Tailwind",
+    "desc": "On switch-in, this Pokemon sets Tailwind.",
     "type": "set"
   },
   "wizard": {
     "id": "wizard",
     "name": "WIZARD",
-    "desc": "All Pokemon on this team gain Magic Coat, Magic Powder, and Magic Room as extra moves",
+    "desc": "All Pokemon on this team gain Magic Coat, Magic Powder, and Magic Room as extra moves.",
     "type": "team"
   },
   "x": {
@@ -486,7 +466,6 @@
     "desc": "The first time this Pokemon is sent out, it will learn three specific moves, depending on what type the opposing Pokemon is weak to. If the opposing Pokemon has more than one weakness, one will be chosen at random.",
     "type": "set",
     "behavior": "unique",
-    "shortDesc": "The first time this Pokemon switches in, it will learn three specific moves based on what the opposing Pokemon is weak to.",
     "effectDetails": "<table><tr><th>Type</th><th>Physical Move</th><th>Special Move</th><th>Utility Move</th></tr><tr><td>Bug</td><td>First Impression</td><td>Bug Buzz</td><td>Sticky Web</td></tr><tr><td>Dark</td><td>Knock Off</td><td>Dark Pulse</td><td>Taunt</td></tr><tr><td>Dragon</td><td>Dragon Claw</td><td>Dragon Pulse</td><td>Dragon Tail</td></tr><tr><td>Electric</td><td>Thunder Punch</td><td>Thunderbolt</td><td>Thunder Wave</td></tr><tr><td>Fairy</td><td>Play Rough</td><td>Moonblast</td><td>Charm</td></tr><tr><td>Fighting</td><td>Brick Break</td><td>Aura Sphere</td><td>Detect</td></tr><tr><td>Fire</td><td>Fire Punch</td><td>Flamethrower</td><td>Will-O-Wisp</td></tr><tr><td>Flying</td><td>Acrobatics</td><td>Air Slash</td><td>Tailwind</td></tr><tr><td>Ghost</td><td>Shadow Claw</td><td>Shadow Ball</td><td>Curse</td></tr><tr><td>Grass</td><td>Leaf Blade</td><td>Energy Ball</td><td>Synthesis</td></tr><tr><td>Ground</td><td>Earthquake</td><td>Earth Power</td><td>Shore Up</td></tr><tr><td>Ice</td><td>Ice Punch</td><td>Ice Beam</td><td>Icy Wind</td></tr><tr><td>Poison</td><td>Sludge Bomb</td><td>Poison Jab</td><td>Toxic</td></tr><tr><td>Psychic</td><td>Zen Headbutt</td><td>Psychic</td><td>Wish</td></tr><tr><td>Rock</td><td>Rock Slide</td><td>Power Gem</td><td>Stealth Rock</td></tr><tr><td>Steel</td><td>Iron Head</td><td>Flash Cannon</td><td>Iron Defense</td></tr><tr><td>Water</td><td>Waterfall</td><td>Surf</td><td>Aqua Ring</td></tr></table>"
   },
   "zekrom": {

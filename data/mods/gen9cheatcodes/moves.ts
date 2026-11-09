@@ -71,6 +71,27 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 			},
 		},
 	},
+	spikes: {
+		inherit: true,
+		condition: {
+			// this is a side condition
+			onSideStart(side) {
+				this.add('-sidestart', side, 'Spikes');
+				this.effectState.layers = 1;
+			},
+			onSideRestart(side) {
+				if (this.effectState.layers >= 3) return false;
+				this.add('-sidestart', side, 'Spikes');
+				this.effectState.layers++;
+			},
+			onSwitchIn(pokemon) {
+				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') || ['noclip', 'bootie'].includes(pokemon.m.teamCode);
+				if (!pokemon.isGrounded() || pokemon.hasItem('heavydutyboots') || ignoreByCode) return;
+				const damageAmounts = [0, 3, 4, 6]; // 1/8, 1/6, 1/4
+				this.damage(damageAmounts[this.effectState.layers] * pokemon.maxhp / 24);
+			},
+		},
+	},
 	stealthrock: {
 		inherit: true,
 		condition: {
@@ -228,7 +249,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				return 5;
 			},
 			onSetStatus(status, target, source, effect) {
-				if (target.volatiles['noclip']) return this.debug(`Terrain effect SETSTATUS suppressed by NOCLIP`);
+				if (target.volatiles['noclip']) return this.debug(`Terrain effect onSetStatus() suppressed by NOCLIP`);
 				if (status.id === 'slp' && target.isGrounded() && !target.isSemiInvulnerable()) {
 					if (effect.id === 'yawn' || (effect.effectType === 'Move' && !effect.secondaries)) {
 						this.add('-activate', target, 'move: Electric Terrain');
@@ -237,7 +258,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				}
 			},
 			onTryAddVolatile(status, target) {
-				if (target.volatiles['noclip']) return this.debug(`Terrain effect TRYADDVOLATILE suppressed by NOCLIP`);
+				if (target.volatiles['noclip']) return this.debug(`Terrain effect onTryAddVolatile() suppressed by NOCLIP`);
 				if (!target.isGrounded() || target.isSemiInvulnerable()) return;
 				if (status.id === 'yawn') {
 					this.add('-activate', target, 'move: Electric Terrain');
@@ -246,7 +267,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 			},
 			onBasePowerPriority: 6,
 			onBasePower(basePower, attacker, defender, move) {
-				if (attacker.volatiles['noclip']) return this.debug(`Terrain effect BASEPOWER suppressed by NOCLIP`);
+				if (attacker.volatiles['noclip']) return this.debug(`Terrain effect onBasePower() suppressed by NOCLIP`);
 				if (move.type === 'Electric' && attacker.isGrounded() && !attacker.isSemiInvulnerable()) {
 					this.debug('electric terrain boost');
 					return this.chainModify([5325, 4096]);
@@ -279,7 +300,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 			},
 			onTryHitPriority: 4,
 			onTryHit(target, source, effect) {
-				if (target.volatiles['noclip']) return this.debug(`Terrain effect TRYHIT suppressed by NOCLIP`);
+				if (target.volatiles['noclip']) return this.debug(`Terrain effect onTryHit() suppressed by NOCLIP`);
 				if (effect && (effect.priority <= 0.1 || effect.target === 'self')) {
 					return;
 				}
@@ -296,7 +317,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 			},
 			onBasePowerPriority: 6,
 			onBasePower(basePower, attacker, defender, move) {
-				if (attacker.volatiles['noclip']) return this.debug(`Terrain effect BASEPOWER suppressed by NOCLIP`);
+				if (attacker.volatiles['noclip']) return this.debug(`Terrain effect onBasePower() suppressed by NOCLIP`);
 				if (move.type === 'Psychic' && attacker.isGrounded() && !attacker.isSemiInvulnerable()) {
 					this.debug('psychic terrain boost');
 					return this.chainModify([5325, 4096]);
@@ -328,7 +349,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				return 5;
 			},
 			onSetStatus(status, target, source, effect) {
-				if (target.volatiles['noclip']) return this.debug(`Terrain effect SETSTATUS suppressed by NOCLIP`);
+				if (target.volatiles['noclip']) return this.debug(`Terrain effect onSetStatus() suppressed by NOCLIP`);
 				if (!target.isGrounded() || target.isSemiInvulnerable()) return;
 				if (effect && ((effect as Move).status || effect.id === 'yawn')) {
 					this.add('-activate', target, 'move: Misty Terrain');
@@ -336,7 +357,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				return false;
 			},
 			onTryAddVolatile(status, target, source, effect) {
-				if (target.volatiles['noclip']) return this.debug(`Terrain effect TRYADDVOLATILE suppressed by NOCLIP`);
+				if (target.volatiles['noclip']) return this.debug(`Terrain effect onTryAddVolatile() suppressed by NOCLIP`);
 				if (!target.isGrounded() || target.isSemiInvulnerable()) return;
 				if (status.id === 'confusion') {
 					if (effect.effectType === 'Move' && !effect.secondaries) this.add('-activate', target, 'move: Misty Terrain');
@@ -345,7 +366,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 			},
 			onBasePowerPriority: 6,
 			onBasePower(basePower, attacker, defender, move) {
-				if (defender.volatiles['noclip']) return this.debug(`Terrain effect BASEPOWER suppressed by NOCLIP`);
+				if (defender.volatiles['noclip']) return this.debug(`Terrain effect onBasePower() suppressed by NOCLIP`);
 				if (move.type === 'Dragon' && defender.isGrounded() && !defender.isSemiInvulnerable()) {
 					this.debug('misty terrain weaken');
 					return this.chainModify(0.5);
@@ -378,7 +399,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 			},
 			onBasePowerPriority: 6,
 			onBasePower(basePower, attacker, defender, move) {
-				if (attacker.volatiles['noclip']) return this.debug(`Terrain effect BASEPOWER suppressed by NOCLIP`);
+				if (attacker.volatiles['noclip']) return this.debug(`Terrain effect onBasePower() suppressed by NOCLIP`);
 				const weakenedMoves = ['earthquake', 'bulldoze', 'magnitude'];
 				if (weakenedMoves.includes(move.id) && defender.isGrounded() && !defender.isSemiInvulnerable()) {
 					this.debug('move weakened by grassy terrain');
@@ -399,7 +420,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 			onResidualOrder: 5,
 			onResidualSubOrder: 2,
 			onResidual(pokemon) {
-				if (pokemon.volatiles['noclip']) return this.debug(`Terrain effect RESIDUAL suppressed by NOCLIP`);
+				if (pokemon.volatiles['noclip']) return this.debug(`Terrain effect onResidual() suppressed by NOCLIP`);
 				if (pokemon.isGrounded() && !pokemon.isSemiInvulnerable()) {
 					this.heal(pokemon.baseMaxhp / 16, pokemon, pokemon);
 				} else {

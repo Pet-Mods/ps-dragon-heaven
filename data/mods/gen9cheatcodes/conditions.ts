@@ -142,10 +142,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	espeon: {
 		name: "ESPEON",
-		onStart(pokemon) {
-			this.add('-start', pokemon, 'typechange',[...pokemon.getTypes(false, true), 'Psychic']
-				.join('/'), '[silent]', '[from] format: Cheat Codes');
-		},
 	},
 	exequy: {
 		name: "EXEQUY",
@@ -171,7 +167,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 				}
 			}
 			activateCode(this, 'gitgud', source.side.name, undefined, `boosting ${statName}`);
-			this.heal(target.maxhp / 8, target, target, this.effect);
+			this.heal(source.maxhp / 8, source, source, `cheats` as unknown as Effect);
 			this.boost({ [statName]: 1 }, source);
 		},
 	},
@@ -262,9 +258,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			move.selfSwitch = true;
 		},
 	},
-	martyr: {
-		name: "MARTYR",
-	},
 	neuter: {
 		name: "NEUTER",
 	},
@@ -332,14 +325,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			pokemon.addVolatile('foresight', pokemon, CheatCodes);
 		},
 	},
-	spikes: {
+	/* spikes: {
 		name: "SPIKES",
-		onStart(pokemon) {
-			activateCode(this, 'spikes', pokemon.side.name);
-			pokemon.side.foe.addSideCondition('spikes', pokemon, CheatCodes);
-			disableCode(this, 'team', pokemon.side);
-		}
-	},
+	}, */
 	spooky: {
 		name: "SPOOKY",
 		onStart(pokemon) {
@@ -408,6 +396,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "ZEKROM",
 		onStart(pokemon) {
 			pokemon.formeChange('Zekrom', CheatCodes, true);
+			pokemon.baseTypes = pokemon.types = ['Dragon', 'Electric'];
 			disableCode(this, 'team', pokemon.side);
 		}
 	},
@@ -516,10 +505,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		},
 	fish: {
 		name: "FISH",
-		onStart(pokemon) {
-			this.add('-start', pokemon, 'typechange', pokemon.getTypes(true, true).join('/'),
-				'[silent]', '[from] format: Cheat Codes');
-		},
 	},
 	gene: {
 		name: "GENE",
@@ -562,15 +547,15 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "LIFE",
 		onAfterHit(source, target, move) {
 			if (!target.hp || !source.hp) return;
-			const heal = target.maxhp / 8;
-			activateCode(this, 'life', target.side.name, target, `healing ${heal}`);
-			this.heal(heal, target, target, this.effect);
+			const heal = source.maxhp / 8;
+			activateCode(this, 'life', source.side.name, source, `healing ${heal}`);
+			this.heal(heal, source, source, this.effect);
 		},
-		onAfterSubDamage(damage, source, target, move) {
+		onAfterSubDamage(damage, target, source, move) {
 			if (!source.hp) return;
-			const heal = target.maxhp / 8;
-			activateCode(this, 'life', target.side.name, target, `healing ${heal}`);
-			this.heal(heal, target, target, this.effect);
+			const heal = source.maxhp / 8;
+			activateCode(this, 'life', source.side.name, source, `healing ${heal}`);
+			this.heal(heal, source, source, this.effect);
 		},
 	},
 	luck: {
@@ -605,6 +590,10 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			if (mega) {
 				activateCode(this, 'mega', pokemon.side.name, pokemon, `transforming to ${mega.name}`);
 				pokemon.formeChange(mega.id, this.effect, true);
+				if (pokemon.baseTypes !== pokemon.m.moddedTypes) {
+					this.add('-start', pokemon, 'typechange', pokemon.getTypes(true, true).join('/'),
+						'[silent]', '[from] format: Cheat Codes');
+				}
 			};
 		},
 	},
@@ -638,10 +627,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	paid: {
 		name: "PAID",
-		onStart(pokemon) {
-			this.add('-start', pokemon, 'typechange', pokemon.getTypes(true, true).join('/'),
-				'[silent]', '[from] format: Cheat Codes');
-		},
 	},
 	pika: {
 		name: "PIKA",
@@ -677,10 +662,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	star: {
 		name: "STAR",
-		onStart(pokemon) {
-			this.add('-start', pokemon, 'typechange', pokemon.getTypes(false, true).join('/'),
-				'[silent]', '[from] format: Cheat Codes');
-		},
 		onModifyMove(move, pokemon, target) {
 			if (move.id === pokemon.getMoveSlot(0)?.id) {
 				move.type = 'Fairy';
@@ -727,12 +708,11 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			move.ignoreImmunity = true;
 		},
 		onEffectiveness(typeMod, target, type, move) {
+			// The effectiveness of Freeze Dry on Water isn't reverted
 			if (move?.id === 'freezedry' && type === 'Water') return;
 			if (move && !this.dex.getImmunity(move, type)) return 1;
-			// fuck this
-			activateCode(this, 'warp', target?.foes()[0].name || 'no source indentified',
-				undefined, `changed to ${typeMod * -1}`);
-			return typeMod * -1;
+			// Ignore normal effectiveness, prevents bug with Tera Shell
+			if (typeMod) return -typeMod;
 		},
 	},
 	waxy: {
@@ -761,6 +741,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	wind: {
 		name: "WIND",
 		onStart(pokemon) {
+			activateCode(this, 'wind', pokemon.side.name, pokemon);
 			pokemon.side.addSideCondition('Tailwind', pokemon, CheatCodes);
 		}
 	},
