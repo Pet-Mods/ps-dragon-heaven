@@ -78,9 +78,9 @@ const BONUS_ABILITY_CODES: { [k: string]: string } = {
 	'neuter': 'neutralizinggas',
 	// set
 	'debt': 'neutralizinggas',
+	'fam': 'parentalbond',
 	'gold': 'goodasgold',
 	'lets': 'levitate',
-	'moms': 'parentalbond',
 	'monk': 'gorillatactics',
 }
 const BONUS_TYPE_CODES: { [c: string]: string } = {
@@ -150,7 +150,8 @@ export function validateCodes(team: PokemonSet[], dex: ModdedDex): string[] {
 		if (setCode) {
 			const banned = setCode.banlist?.includes(Dex.species.get(Dex.species.get(set.species).baseSpecies).id);
 			if (banned) {
-				problems.push(`${name} is banned from using ${setCode.name}.`);
+				problems.push(`${name} is banned from using ${setCode.name}.` +
+					`(If this code was unintentional, rearrange your moves, which will remove the code.)`);
 			}
 		}
 
@@ -174,13 +175,13 @@ export function validateCodes(team: PokemonSet[], dex: ModdedDex): string[] {
 }
 
 /** Debugging function: A cheat code has activated. */
-export function activateCode(b: Battle, n: string, p: string, s?: Pokemon, m?: string) {
+export function activateCode(b: Battle, n: string, p: string, s?: Pokemon | null, m?: string) {
 	const c = CodeInfo[n];
-	b.debug(`${p}'s ${s ? `${s.name}'s set` : `team`} code activated${m ? ` (${m})` : ''}`);
+	b.debug(`${p}'s ${s ? `${s.name}'s set` : `team`} code ${c.name} activated${m ? ` (${m})` : ''}`);
 }
 
 /** Disable a set or team code */
-export function disableCode(b: Battle, t: 'set' | 'team', s?: Side, p?: Pokemon) {
+export function disableCode(b: Battle, t: 'set' | 'team', s?: Side | null, p?: Pokemon) {
 	switch (t) {
 		case 'team':
 			if (!s) throw new Error(`'team' disableCode passed no Side`);

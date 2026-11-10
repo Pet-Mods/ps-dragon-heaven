@@ -20,7 +20,7 @@
   "alt": {
     "id": "alt",
     "name": "ALT",
-    "desc": "Trick Room is permanently active while this Pokemon is on the field. It cannot be replaced or suppressed.",
+    "desc": "Trick Room is set or removed at the end of every turn while this Pokemon is on the field.",
     "type": "set"
   },
   "apples": {
@@ -141,10 +141,17 @@
     "type": "team",
     "behavior": "ability"
   },
+  "fam": {
+    "id": "fam",
+    "name": "FAM",
+    "desc": "This Pokemon gains Parental Bond.",
+    "type": "set",
+    "behavior": "ability"
+  },
   "fast": {
     "id": "fast",
     "name": "FAST",
-    "desc": "This Pokemon cannot lose a speed tie.",
+    "desc": "The first time this Pokemon is sent out, it gains +1 Speed.",
     "type": "set"
   },
   "fest": {
@@ -197,7 +204,7 @@
   "gofish": {
     "id": "gofish",
     "name": "GOFISH",
-    "desc": "The team gains a boost to all stats equal to 5% * the number of types shared by more than one team member.",
+    "desc": "The team gains a boost to all stats (except Spe, acc, and eva) equal to 5% * the number of types shared by more than one team member.",
     "type": "team"
   },
   "gold": {
@@ -215,7 +222,7 @@
   "i": {
     "id": "i",
     "name": "I",
-    "desc": "This Pokemon creates a substitute when it switches in.",
+    "desc": "On switch-in, gain 1 in all stats (except acc/eva).",
     "type": "team"
   },
   "iron": {
@@ -258,15 +265,9 @@
   "mega": {
     "id": "mega",
     "name": "MEGA",
-    "desc": "If this Pokemon has a Mega form, it immediately Mega Evolves, without needing to hold a mega stone. Evolves into the X form if this Pokemon has an Attack-boosting nature, otherwise evolves into the Y form.",
-    "type": "set"
-  },
-  "moms": {
-    "id": "moms",
-    "name": "MOMS",
-    "desc": "This Pokemon gains Parental Bond.",
+    "desc": "If this Pokemon has a Mega form, excluding Z forms, it immediately Mega Evolves, without needing to hold a mega stone. Evolves into the X form if this Pokemon has an Attack-boosting nature, otherwise evolves into the Y form.",
     "type": "set",
-    "behavior": "ability"
+    "banlist": ["floette", "gengar"]
   },
   "monk": {
     "id": "monk",
@@ -349,7 +350,7 @@
   "screen": {
     "id": "screen",
     "name": "SCREEN",
-    "desc": "When a team member switches in, if its highest stat is Defense, it will summon Reflect, and Light Screen if SpD is the highest stat. If HP is the highest stat, it will use Aurora Veil. These screens cannot be extended by Light Clay.",
+    "desc": "When a team member switches in, if its highest raw stat is Defense, it will summon Reflect, and Light Screen if SpD is the highest raw stat. If HP is the highest raw stat, it will use Aurora Veil. These screens cannot be extended by Light Clay.",
     "type": "team"
   },
   "shower": {
@@ -379,7 +380,7 @@
   "stab": {
     "id": "stab",
     "name": "STAB",
-    "desc": "This Pokemon's STAB is 2.0x.",
+    "desc": "This Pokemon's STAB moves deal 1.1x damage.",
     "type": "set"
   },
   "star": {
@@ -398,7 +399,7 @@
     "id": "tear",
     "name": "TEAR",
     "desc": "On switch-in, lowers a random stat of the foe by 1.",
-    "type": "team"
+    "type": "set"
   },
   "tracks": {
     "id": "tracks",
@@ -451,7 +452,7 @@
   "wind": {
     "id": "wind",
     "name": "WIND",
-    "desc": "On switch-in, this Pokemon sets Tailwind.",
+    "desc": "At the end of each turn, once per switch-in, this Pokemon sets Tailwind if it is not already up.",
     "type": "set"
   },
   "wizard": {

@@ -28,7 +28,7 @@ Some `.m` states also used for code effects:
 
 (boolean) `.m.prideBoost`: This Pokemon's attacks are boosted through the PRIDE code.
 
-(boolean) `.m.shouldSetSpikes`: A layer of spikes should be set on this side.
+(true) `.m.windActivated`: This Pokemon has set Tailwind through the WIND code.
 
 (boolean) `.m.zigzagBuff`: Damage dealt and taken is boosted by ZIGZAG.
 

@@ -19,16 +19,20 @@ export const Formats: FormatData[] = [
 		onSwitchIn(pokemon) {
 			const code = pokemon.m;
 			const CodeInfo: { [code: string]: import('./scripts').CodeDetails } = require('./codes-info.json');
-			// DO NOT EVER SET THESE TO INVALID CONDITIONS
+
 			if (code.teamCode && !pokemon.volatiles[code.teamCode]) pokemon.addVolatile(code.teamCode);
 
 			if (code.setCode && !pokemon.volatiles[code.setCode]) {
-				if (CodeInfo[code.setCode].banlist?.includes(pokemon.baseSpecies.id)) {
+				const c = CodeInfo[code.setCode];
+				if (!c) {
+					this.add(`raw|<div class="broadcast-red"><b>${pokemon.baseSpecies.name}'s code "${code.setCode}" data is malformed. Discarding.</b></div>`);
+					delete code.setCode;
+				};
+				if (c.banlist?.includes(pokemon.baseSpecies.id)) {
 					this.debug(`Code ${code.setCode} failed to activate: ${pokemon.baseSpecies.name} is banned from using it.`);
 					this.add(`raw|<div class="broadcast-red"><b>${pokemon.baseSpecies.name} is banned from using ${code.teamCode}.</b></div>`);
 				} else {
 					pokemon.addVolatile(code.setCode);
-					const c = CodeInfo[code.setCode];
 					this.add('-ability', pokemon, `code: ${c.name}`);
 					this.hint(`${c.name}: ${c.desc}`);
 				}

@@ -58,7 +58,7 @@ export const commands: Chat.ChatCommands = {
 		let buf = `<span class="white"><u>${code.type === 'team' ? 'Team' : 'Set'} code:</u> <b>${code.name}</b></span><br />`;
 		buf += `<p>${code.desc}</p>`;
 		if (code.banlist) {
-			buf += `<details><summary>Code Banlist</summary>${code.banlist.map(p => Dex.species.get(p).name).join(', ')}</details>`;
+			buf += `<details><summary>Code Banlist</summary>The following Pokemon cannot use this code:<br>- ${code.banlist.map(p => Dex.species.get(p).name).join('<br>- ')}</details>`;
 		}
 		if (code.effectDetails) {
 			buf += `<details><summary>Effect Details</summary>${code.effectDetails}</details>`;

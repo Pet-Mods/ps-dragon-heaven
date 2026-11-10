@@ -62,7 +62,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 				4: 'sandstorm',
 			};
 			count++;
-			activateCode(this, 'aurora', target.side.name, undefined, `Setting to ${weathers[count]}`);
+			activateCode(this, 'aurora', target.side.name, null, `Setting to ${weathers[count]}`);
 			this.field.setWeather(weathers[count], target, CheatCodes);
 		},
 	},
@@ -70,7 +70,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "BEES",
 		onResidual(target, source, effect) {
 			const move = this.dex.moves.get(this.sample(['Attack Order', 'Heal Order']));
-			activateCode(this, 'bees', source.side.name, undefined, `using ${move}`);
+			activateCode(this, 'bees', source.side.name, null, `using ${move}`);
 			this.actions.useMove(move, move.id === 'attackorder' ? target.foes()[0] : target);
 		},
 	},
@@ -124,7 +124,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			foe.addVolatile('slowstart');
 			this.add('-start', foe, 'ability: Slow Start');
 
-			activateCode(this, 'crash', pokemon.side.name, undefined, `effect applied to ${foe}`);
+			activateCode(this, 'crash', pokemon.side.name, null, `effect applied to ${foe}`);
 			disableCode(this, 'team', pokemon.side);
 		},
 	},
@@ -166,7 +166,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 					worstStat = source.getStat(i, false, true);
 				}
 			}
-			activateCode(this, 'gitgud', source.side.name, undefined, `boosting ${statName}`);
+			activateCode(this, 'gitgud', source.side.name, null, `boosting ${statName}`);
 			this.heal(source.maxhp / 8, source, source, `cheats` as unknown as Effect);
 			this.boost({ [statName]: 1 }, source);
 		},
@@ -185,14 +185,11 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		onModifySpD(relayVar, source, target, move) {
 			if (source.m.gofishBoost) return this.chainModify(source.m.gofishBoost);
 		},
-		onModifySpe(spe, pokemon) {
-			if (pokemon.m.gofishBoost) return this.chainModify(pokemon.m.gofishBoost);
-		},
 	},
 	i: {
 		name: "I",
 		onStart(pokemon) {
-			pokemon.addVolatile('substitute');
+			this.boost({ atk: 1, def: 1, spa: 1, spd: 1, spe: 1 }, pokemon, pokemon, CheatCodes, undefined, true);
 		},
 	},
 	iron: {
@@ -205,30 +202,35 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		},
 		onModifyAtkPriority: 5,
 		onModifyAtk(atk, pokemon) {
-			if (this.effectState.bestStat !== 'atk' || pokemon.ignoringAbility()) return;
+			if (this.effectState.bestStat !== 'atk' || pokemon.ignoringAbility() ||
+				!pokemon.hasType('Steel')) return;
 			this.debug('code: IRON atk boost');
 			return this.chainModify([5325, 4096]);
 		},
 		onModifyDefPriority: 6,
 		onModifyDef(def, pokemon) {
-			if (this.effectState.bestStat !== 'def' || pokemon.ignoringAbility()) return;
+			if (this.effectState.bestStat !== 'def' || pokemon.ignoringAbility() ||
+				!pokemon.hasType('Steel')) return;
 			this.debug('code: IRON def boost');
 			return this.chainModify([5325, 4096]);
 		},
 		onModifySpAPriority: 5,
 		onModifySpA(spa, pokemon) {
-			if (this.effectState.bestStat !== 'spa' || pokemon.ignoringAbility()) return;
+			if (this.effectState.bestStat !== 'spa' || pokemon.ignoringAbility() ||
+				!pokemon.hasType('Steel')) return;
 			this.debug('code: IRON spa boost');
 			return this.chainModify([5325, 4096]);
 		},
 		onModifySpDPriority: 6,
 		onModifySpD(spd, pokemon) {
-			if (this.effectState.bestStat !== 'spd' || pokemon.ignoringAbility()) return;
+			if (this.effectState.bestStat !== 'spd' || pokemon.ignoringAbility() ||
+				!pokemon.hasType('Steel')) return;
 			this.debug('code: IRON spd boost');
 			return this.chainModify([5325, 4096]);
 		},
 		onModifySpe(spe, pokemon) {
-			if (this.effectState.bestStat !== 'spe' || pokemon.ignoringAbility()) return;
+			if (this.effectState.bestStat !== 'spe' || pokemon.ignoringAbility() ||
+				!pokemon.hasType('Steel')) return;
 			this.debug('code: IRON spe boost');
 			return this.chainModify(1.5);
 		},
@@ -239,13 +241,14 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			this.add('-end', pokemon, 'IRON', `[silent]`);
 		},
 		onModifyMove(move, pokemon, target) {
-			if (!(pokemon.getStat('def', true, true) > pokemon.getStat('atk', true, true)) || !pokemon.hasType('Steel')) return;
-			activateCode(this, 'iron', pokemon.side.name)
+			if (!(pokemon.getStat('def', true, true) > pokemon.getStat('atk', true, true)) ||
+				!pokemon.hasType('Steel') || move.category !== 'Physical') return;
+			activateCode(this, 'iron', pokemon.side.name, null, `overriding stat to Def`);
 			move.overrideOffensiveStat = 'def';
 		},
 		onDamage(damage, target, source, effect) {
 			if (effect.effectType !== 'Move' && target.hasType('Steel')) {
-				activateCode(this, 'iron', target.side.name);
+				activateCode(this, 'iron', target.side.name, null, `suppressing indirect damage`);
 				return false;
 			}
 		},
@@ -273,7 +276,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "PRIDE",
 		onModifyDamage(dmg, source, target, move) {
 			if (!source.m.prideBoost) return;
-			activateCode(this, 'pride', source.side.name, undefined, `boost: ${source.m.prideBoost}`);
+			activateCode(this, 'pride', source.side.name, null, `boost: ${source.m.prideBoost}`);
 			return this.chainModify(source.m.prideBoost);
 		},
 	},
@@ -306,13 +309,14 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "SCREEN",
 		onStart(pokemon) {
 			let cond;
-			const stat = pokemon.getBestStat();
+			const stat = pokemon.getBestStat(true, true);
 			if (pokemon.maxhp > pokemon.getStat(stat)) cond = 'Aurora Veil';
 			if (stat === "def")	cond = "Reflect";
 			if (stat === "spd") cond = 'Light Screen';
 			if (cond) {
 				activateCode(this, 'screen', pokemon.side.name);
-				pokemon.side.addSideCondition(cond, pokemon, CheatCodes);
+				// debug is hack to prevent Light Clay from being passed
+				pokemon.side.addSideCondition(cond, "debug", CheatCodes);
 			};
 		},
 	},
@@ -371,7 +375,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	victor: {
 		name: "VICTOR",
 		onStart(pokemon) {
-			if (!pokemon.volatiles['victor']) return;
 			pokemon.moveSlots.push({
 				id: 'vcreate' as ID,
 				move: 'V-Create',
@@ -432,7 +435,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "ALT",
 		effectType: 'Condition',
 		onStart(pokemon) {
-			// permanence implemented in move data
+			this.field.addPseudoWeather('Trick Room', pokemon, CheatCodes);
+		},
+		onResidual(pokemon) {
 			this.field.addPseudoWeather('Trick Room', pokemon, CheatCodes);
 		},
 		onSwitchOut(pokemon) {
@@ -483,23 +488,14 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	eggs: {
 		name: "EGGS",
-		},
-	/* fast: {
+	},
+	fast: {
 		name: "FAST",
-		onBeforeTurn(pokemon) {
-			if (pokemon.getActionSpeed() === pokemon.foes()[0].getActionSpeed()) {
-				activateCode(this, 'fast', pokemon.side.name, pokemon);
-				pokemon.speed = pokemon.getActionSpeed() + 1;
-			}
+		onStart(pokemon) {
+			this.boost({ spe: 1 }, pokemon, pokemon, CheatCodes, false, true);
+			disableCode(this, 'set', null, pokemon);
 		},
-
-  "fast": {
-    "id": "fast",
-    "name": "FAST",
-    "desc": "This Pokemon cannot lose a speed tie.",
-    "type": "set"
-  },
-	}, */
+	},
 	fest: {
 		name: "FEST",
 		},
@@ -607,6 +603,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "NUKE",
 		onBeforeFaint(pokemon, effect) {
 			activateCode(this, 'nuke', pokemon.side.name, pokemon);
+			this.boost({ atk: -12 }, pokemon, pokemon, CheatCodes);
 			this.actions.useMove('explosion', pokemon);
 		},
 	},
@@ -652,11 +649,10 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	stab: {
 		name: 'STAB',
-		onModifySTAB(stab, source, target, move) {
+		onModifyDamage(dmg, source, target, move) {
 			if (move.forceSTAB || source.hasType(move.type)) {
-				const newSTAB = stab === 2 ? 2.25 : 2;
-				activateCode(this, 'stab', source.side.name, source, `boosted to ${newSTAB}`);
-				return newSTAB;
+				activateCode(this, 'stab', source.side.name, source);
+				return this.chainModify(1.1);
 			}
 		},
 	},
@@ -686,7 +682,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	true: {
 		name: "TRUE",
 		onModifyMove(move, pokemon, target) {
-			const normalPrimary = pokemon.getTypes(undefined, true)[0];
+			const normalPrimary = pokemon.getTypes(false, true)[0];
 			if (move.type === 'Normal' && normalPrimary !== 'Normal') {
 				move.type = normalPrimary;
 			}
@@ -704,10 +700,10 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	warp: {
 		name: "WARP",
-		onAnyModifyMove(move) {
+		onModifyMove(move) {
 			move.ignoreImmunity = true;
 		},
-		onEffectiveness(typeMod, target, type, move) {
+		onFoeEffectiveness(typeMod, target, type, move) {
 			// The effectiveness of Freeze Dry on Water isn't reverted
 			if (move?.id === 'freezedry' && type === 'Water') return;
 			if (move && !this.dex.getImmunity(move, type)) return 1;
@@ -730,20 +726,29 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			const spa = pokemon.getStat('spa');
 			const atk = pokemon.getStat('atk');
 			if (atk > spa && move.category === 'Special') {
-				activateCode(this, 'what', pokemon.side.name, undefined, "Atk used in place of SpA");
+				activateCode(this, 'what', pokemon.side.name, null, "Atk used in place of SpA");
 				move.category = 'Physical';
 			} else if (spa > atk && move.category === 'Physical') {
-				activateCode(this, 'what', pokemon.side.name, undefined, "SpA used in place of Atk");
+				activateCode(this, 'what', pokemon.side.name, null, "SpA used in place of Atk");
 				move.category = 'Special';
 			}
 		}
 	},
 	wind: {
 		name: "WIND",
-		onStart(pokemon) {
-			activateCode(this, 'wind', pokemon.side.name, pokemon);
-			pokemon.side.addSideCondition('Tailwind', pokemon, CheatCodes);
-		}
+		onResidual(pokemon) {
+			if (pokemon.m.windActivated) return;
+			if (pokemon.side.addSideCondition('Tailwind', pokemon, CheatCodes)) {
+				activateCode(this, 'wind', pokemon.side.name, pokemon);
+				pokemon.m.windActivated = true;
+			}
+		},
+		onFaint(pokemon) {
+			delete pokemon.m.windActivated;
+		},
+		onSwitchOut(pokemon) {
+			delete pokemon.m.windActivated;
+		},
 	},
 	// oh god
 	x: {

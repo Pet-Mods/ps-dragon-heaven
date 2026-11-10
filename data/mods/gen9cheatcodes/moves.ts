@@ -2,45 +2,6 @@ import { CheatCodes } from './scripts';
 
 export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 
-	// for ALT
-	trickroom: {
-		inherit: true,
-		condition: {
-			duration: 5,
-			durationCallback(target, source, effect) {
-				if (source.volatiles['alt']) return 0;
-				if (source?.hasAbility('persistent')) {
-					this.add('-activate', source, 'ability: Persistent', '[move] Trick Room');
-					return 7;
-				}
-				return 5;
-			},
-			onFieldStart(target, source) {
-				if (source.volatiles['alt']) this.effectState.noninterruptable = true;
-
-				if (source?.hasAbility('persistent')) {
-					this.add('-fieldstart', 'move: Trick Room', `[of] ${source}`, '[persistent]');
-				} else {
-					this.add('-fieldstart', 'move: Trick Room', `[of] ${source}`);
-				}
-			},
-			onFieldRestart(target, source) {
-				if (this.effectState.noninterruptable) {
-					return this.add('-fail', source, 'move: Trick Room', '[from] code: ALT');
-				} else {
-					return this.field.removePseudoWeather('trickroom');
-				}
-			},
-			// Speed modification is changed in Pokemon.getActionSpeed() in sim/pokemon.js
-			onFieldResidualOrder: 27,
-			onFieldResidualSubOrder: 1,
-			onFieldEnd() {
-				delete this.effectState.noninteruptable;
-				this.add('-fieldend', 'move: Trick Room');
-			},
-		},
-	},
-
 	// for BOOTIE and NOCLIP
 	toxicspikes: {
 		inherit: true,
