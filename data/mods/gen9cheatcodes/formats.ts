@@ -43,7 +43,7 @@ export const Formats: FormatData[] = [
 					pokemon.addVolatile(effect);
 				}
 			};
-			if (pokemon.baseTypes !== pokemon.m.moddedTypes) {
+			if (pokemon.m.moddedTypes !== pokemon.baseTypes) {
 				this.add('-start', pokemon, 'typechange', pokemon.getTypes(true, true).join('/'),
 					'[silent]', '[from] format: Cheat Codes');
 			}

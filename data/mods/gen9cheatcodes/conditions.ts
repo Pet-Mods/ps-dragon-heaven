@@ -451,7 +451,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "BURN",
 		effectType: 'Condition',
 		onAfterMove(source, target, move) {
-			if (move.category === 'Status' || target === source) return;
+			if (!move.flags['contact'] || target === source) return;
 			if (target.trySetStatus('brn', source, CheatCodes)) {
 				activateCode(this, 'burn', source.side.name, source);
 			};

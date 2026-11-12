@@ -98,28 +98,29 @@ function codesOfType(type: 'set' | 'team'): string[] {
 }
 
 /** Rebuild a Pokemon's types from codes that modify them. */
-function recalculateTypes(p: Pokemon, s: string | undefined, t: string | undefined) {
-	p.m.moddedTypes = p.species.types || [];
+export function calculateTypes(p: Pokemon, s: string | undefined, t: string | undefined) {
+	let types: string[] = p.species.types || [];
 
 	if (s && s === 'star') {
 		const sType = p.baseTypes[1];
 		if (sType === 'Fairy' || !sType) {
-			p.m.moddedTypes = ['Fairy'];
+			types = ['Fairy'];
 		} else {
-			p.m.moddedTypes = ['Fairy', sType];
+			types = ['Fairy', sType];
 		}
 	};
-	if (p.m.codeGenerated && t && t === 'bugsy') p.m.moddedTypes = ['Bug', 'Fighting'];
+	if (p.m.codeGenerated && t && t === 'bugsy') types = ['Bug', 'Fighting'];
 
-	if (s && BONUS_TYPE_CODES[s]) p.m.moddedTypes = [...p.m.moddedTypes, BONUS_TYPE_CODES[s]];
-	if (t && BONUS_TYPE_CODES[t]) p.m.moddedTypes = [...p.m.moddedTypes, BONUS_TYPE_CODES[t]];
+	if (s && BONUS_TYPE_CODES[s]) types.push(BONUS_TYPE_CODES[s]);
+	if (t && BONUS_TYPE_CODES[t]) types.push(BONUS_TYPE_CODES[t]);
 
-	return p.m.moddedTypes as string[];
+	return types;
 }
 
 /** Prevents duplicated moves/abilities/species based on codes and brought team, and enforces code banlist. */
 export function validateCodes(team: PokemonSet[], dex: ModdedDex): string[] {
 	const problems: string[] = [];
+	// const usedCodes: string[] = [];
 
 	const maybeTeamCode = team.map(set => dex.toID(set.species).charAt(0)).join('');
 	const teamCode = codesOfType('team').includes(maybeTeamCode) ? CodeInfo[maybeTeamCode] : null;
@@ -152,7 +153,11 @@ export function validateCodes(team: PokemonSet[], dex: ModdedDex): string[] {
 			if (banned) {
 				problems.push(`${name} is banned from using ${setCode.name}.` +
 					`(If this code was unintentional, rearrange your moves, which will remove the code.)`);
-			}
+			};
+			/* if (usedCodes.includes(setCode)) {
+				problems.push(`${setCode} is used multiple times.`);
+			};
+			usedCodes.push(setCode); */
 		}
 
 		// Moves and abilities granted by team or set code
@@ -361,10 +366,8 @@ export const Scripts: ModdedBattleScriptsData = {
 					this.knownType = true;
 					this.apparentType = this.terastallized;
 				}
-				if (this.m.moddedTypes) {
-					this.m.moddedTypes = recalculateTypes(this, this.m.setCode, this.m.teamCode);
-					this.types = this.m.moddedTypes;
-				}
+				this.m.moddedTypes = this.types =
+					calculateTypes(this, this.m.setCode, this.m.teamCode);
 				return true;
 			}
 	},
@@ -691,7 +694,7 @@ export const Scripts: ModdedBattleScriptsData = {
 			if (BONUS_ABILITY_CODES[setCode]) {
 				pokemon.m.innates.push(BONUS_ABILITY_CODES[setCode]);
 			};
-			pokemon.types = recalculateTypes(pokemon, setCode, pokemon.m.teamCode);
+			pokemon.m.moddedTypes = calculateTypes(pokemon, setCode, pokemon.m.teamCode);
 		}
 
 		// #endregion

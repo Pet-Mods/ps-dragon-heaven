@@ -72,7 +72,7 @@
   "burn": {
     "id": "burn",
     "name": "BURN",
-    "desc": "This Pokemon's attacks have a 100% chance to burn the target.",
+    "desc": "This Pokemon's contact moves have a 100% chance to burn the target.",
     "type": "set"
   },
   "card": {
