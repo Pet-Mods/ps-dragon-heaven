@@ -438,6 +438,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			this.field.addPseudoWeather('Trick Room', pokemon, CheatCodes);
 		},
 		onResidual(pokemon) {
+			if (pokemon.newlySwitched) return;
 			this.field.addPseudoWeather('Trick Room', pokemon, CheatCodes);
 		},
 		onSwitchOut(pokemon) {

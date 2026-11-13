@@ -99,10 +99,11 @@ function codesOfType(type: 'set' | 'team'): string[] {
 
 /** Rebuild a Pokemon's types from codes that modify them. */
 export function calculateTypes(p: Pokemon, s: string | undefined, t: string | undefined) {
-	let types: string[] = p.species.types || [];
+	const baseTypes = p.species.types;
+	let types: string[] = [...(baseTypes || [])];
 
 	if (s && s === 'star') {
-		const sType = p.baseTypes[1];
+		const sType = p.species.types[1];
 		if (sType === 'Fairy' || !sType) {
 			types = ['Fairy'];
 		} else {
@@ -111,10 +112,17 @@ export function calculateTypes(p: Pokemon, s: string | undefined, t: string | un
 	};
 	if (p.m.codeGenerated && t && t === 'bugsy') types = ['Bug', 'Fighting'];
 
-	if (s && BONUS_TYPE_CODES[s]) types.push(BONUS_TYPE_CODES[s]);
-	if (t && BONUS_TYPE_CODES[t]) types.push(BONUS_TYPE_CODES[t]);
+	if (t) {
+		const typeT = BONUS_TYPE_CODES[t];
+		if (typeT && !types.includes(typeT)) types.push(typeT);
+	}
+	if (s) {
+		const typeS = BONUS_TYPE_CODES[s];
+		if (typeS && !types.includes(typeS)) types.push(typeS);
+	}
 
-	return types;
+	if (baseTypes.length === types.length && baseTypes.every((type, i) => type === types[i])) return types;
+	return null;
 }
 
 /** Prevents duplicated moves/abilities/species based on codes and brought team, and enforces code banlist. */
@@ -296,7 +304,7 @@ export const Scripts: ModdedBattleScriptsData = {
 			this.setSpecies(this.baseSpecies);
 
 			// the modded part: respect edited baseTypes from codes
-			if (this.m.moddedTypes) this.types = this.m.moddedTypes;
+			if (this.m.moddedTypes) this.types = [...this.m.moddedTypes];
 		},
 		formeChange(
 				this: Pokemon, speciesId: string | Species, source: Effect | null = this.battle.effect,
@@ -306,9 +314,9 @@ export const Scripts: ModdedBattleScriptsData = {
 		
 				const species = this.setSpecies(rawSpecies, source);
 				if (!species) return false;
-		
+
 				if (this.battle.gen <= 2) return true;
-		
+
 				// The species the opponent sees
 				const apparentSpecies =
 					this.illusion ? this.illusion.species.name : species.baseSpecies;
@@ -366,8 +374,11 @@ export const Scripts: ModdedBattleScriptsData = {
 					this.knownType = true;
 					this.apparentType = this.terastallized;
 				}
-				this.m.moddedTypes = this.types =
-					calculateTypes(this, this.m.setCode, this.m.teamCode);
+				this.m.moddedTypes = calculateTypes(this, this.m.setCode, this.m.teamCode);
+				if (this.m.moddedTypes) this.types = this.m.moddedTypes;
+
+				this.canMegaEvo = this.battle.actions.canMegaEvo(this);
+
 				return true;
 			}
 	},
@@ -695,6 +706,7 @@ export const Scripts: ModdedBattleScriptsData = {
 				pokemon.m.innates.push(BONUS_ABILITY_CODES[setCode]);
 			};
 			pokemon.m.moddedTypes = calculateTypes(pokemon, setCode, pokemon.m.teamCode);
+			if (pokemon.m.moddedTypes) pokemon.m.types = [...pokemon.m.moddedTypes];
 		}
 
 		// #endregion

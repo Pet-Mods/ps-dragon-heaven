@@ -25,7 +25,7 @@ export const Formats: FormatData[] = [
 			if (code.setCode && !pokemon.volatiles[code.setCode]) {
 				const c = CodeInfo[code.setCode];
 				if (!c) {
-					this.add(`raw|<div class="broadcast-red"><b>${pokemon.baseSpecies.name}'s code "${code.setCode}" data is malformed. Discarding.</b></div>`);
+					this.add(`raw|<div class="broadcast-red"><b>${pokemon.baseSpecies.name}'s code "${code.setCode}" has malformed data. Discarding.</b></div>`);
 					delete code.setCode;
 				};
 				if (c.banlist?.includes(pokemon.baseSpecies.id)) {
@@ -43,7 +43,7 @@ export const Formats: FormatData[] = [
 					pokemon.addVolatile(effect);
 				}
 			};
-			if (pokemon.m.moddedTypes !== pokemon.baseTypes) {
+			if (pokemon.m.moddedTypes) {
 				this.add('-start', pokemon, 'typechange', pokemon.getTypes(true, true).join('/'),
 					'[silent]', '[from] format: Cheat Codes');
 			}
