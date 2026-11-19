@@ -24,21 +24,23 @@ Some `.m` states also used for code effects:
 
 (any) `.m.bugsyStat`: Scripts storage for interaction between BUGSY and FOUR
 
-(number) `.m.gofishBoost` Boost by GOFISH.
-
-(boolean) `.m.prideBoost`: This Pokemon's attacks are boosted through the PRIDE code.
-
-(true) `.m.windActivated`: This Pokemon has set Tailwind through the WIND code.
-
-(boolean) `.m.zigzagBuff`: Damage dealt and taken is boosted by ZIGZAG.
-
 (string[]) `.m.innates`: Abilities added through codes.
 
 (string[]) `.m.effectCodes`: Various code effectCodes keyed by cause code: SURVEY, NOCLIP, VICTOR.
 
 (string[]) `.m.moddedTypes`: A string of replacement types to be merged with its baseTypes.
 
-Note all `.m` functions that are not `.effectCodes` require the volatile of the code to be placed on the recipient Pokemon - just having the property is not enough to use it.
+(Map<>) `.m.codeEffects`: Effects of codes:
+
+	(number) `gofish` Boost by GOFISH.
+
+	(boolean) `pride`: This Pokemon's attacks are boosted through the PRIDE code.
+
+	(true) `wind`: This Pokemon has set Tailwind through the WIND code.
+
+	(boolean) `zigzag`: Damage dealt and taken is boosted by ZIGZAG.
+
+Note all `.m` functions that are not `.effectCodes` require the volatile of the code to be placed on the recipient Pokemon - just having the property is not enough to use it. However, .codeEffects should not be treated as codes, instead they are interpreted _by_ codes.
 
 
 Useful debugging codes when in-battle:

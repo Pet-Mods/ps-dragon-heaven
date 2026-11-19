@@ -114,6 +114,12 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 				return this.chainModify(0.8);
 			}
 		},
+		onTryBoost(boost, target, source, effect) {
+			if (boost.spe && boost.spe < 0) {
+				activateCode(this, 'coffee', target.side.name);
+				delete boost.spe;
+			}
+		},
 	},
 	crash: {
 		name: "CRASH",
@@ -130,8 +136,12 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	drake: {
 		name: "DRAKE",
-		onFoeImmunity(type, pokemon) {
-			if (type === 'Dragon' && pokemon.hasType('Fairy')) return false;
+		onModifyMovePriority: -5,
+		onModifyMove(move) {
+			if (!move.ignoreImmunity) move.ignoreImmunity = {};
+			if (move.ignoreImmunity !== true) {
+				move.ignoreImmunity['Dragon'] = true;
+			}
 		},
 	},
 	enby: {
@@ -174,16 +184,16 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	gofish: {
 		name: "GOFISH",
 		onModifyAtk(relayVar, source, target, move) {
-			if (source.m.gofishBoost) return this.chainModify(source.m.gofishBoost);
+			if (source.m.codeEffects['gofish']) return this.chainModify(source.m.codeEffects['gofish']);
 		},
 		onModifyDef(relayVar, source, target, move) {
-			if (source.m.gofishBoost) return this.chainModify(source.m.gofishBoost);
+			if (source.m.codeEffects['gofish']) return this.chainModify(source.m.codeEffects['gofish']);
 		},
 		onModifySpA(relayVar, source, target, move) {
-			if (source.m.gofishBoost) return this.chainModify(source.m.gofishBoost);
+			if (source.m.codeEffects['gofish']) return this.chainModify(source.m.codeEffects['gofish']);
 		},
 		onModifySpD(relayVar, source, target, move) {
-			if (source.m.gofishBoost) return this.chainModify(source.m.gofishBoost);
+			if (source.m.codeEffects['gofish']) return this.chainModify(source.m.codeEffects['gofish']);
 		},
 	},
 	i: {
@@ -389,7 +399,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		onAfterMove(source, target, move) {
 			if (move.id !== 'vcreate') return;
 			disableCode(this, 'team', source.side);
-			source.removeVolatile('victor');
+		},
+		onSourceModifyAccuracy(accuracy) {
+			if (typeof accuracy === 'number') return accuracy * 1.1;
 		},
 	},
 	wizard: {
@@ -406,13 +418,13 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	zigzag: {
 		name: "ZIGZAG",
 		onBeforeMove(source, target, move) {
-			if (!source.lastMoveUsed) return;
+			if (!source.lastMoveUsed) return source.m.codeEffects['zigzag'] = null;
 			if (move.id === source.lastMoveUsed.id) {
-				source.m.zigzagBuff = null;
+				source.m.codeEffects['zigzag'] = null;
 				this.debug(`${source.side.name}'s ZIGZAG deactivated.`);
 				return;
 			} else {
-				source.m.zigzagBuff = true;
+				source.m.codeEffects['zigzag'] = true;
 				this.debug(`${source.side.name}'s ZIGZAG activated.`);
 				return;
 			}
@@ -451,8 +463,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	burn: {
 		name: "BURN",
 		effectType: 'Condition',
-		onAfterMove(source, target, move) {
-			if (!move.flags['contact'] || target === source) return;
+		onAfterMoveSecondarySelf(source, target, move) {
+			if (!move.flags['contact'] || target === source ||
+				target.isProtected() || !target.hurtThisTurn) return;
 			if (target.trySetStatus('brn', source, CheatCodes)) {
 				activateCode(this, 'burn', source.side.name, source);
 			};
@@ -478,7 +491,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	chip: {
 		name: "CHIP",
-		onAfterMove(source, target, move) {
+		onAfterMoveSecondarySelf(source, target, move) {
 			if (!target.hp || move.category === 'Status' || target.isAlly(source)) return;
 			activateCode(this, 'chip', source.side.name, source);
 			this.damage(target.maxhp / 16, target, source, this.effect);
@@ -518,7 +531,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			activateCode(this, 'go', source.side.name, source);
 			return priority + 2;
 		},
-		onAfterMove(source, target, move) {
+		onAfterMoveSecondarySelf(source, target, move) {
 			this.add('-message', 'Coins were scattered everywhere!');
 		},
 	},
@@ -542,17 +555,11 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	life: {
 		name: "LIFE",
-		onAfterHit(source, target, move) {
-			if (!target.hp || !source.hp) return;
-			const heal = source.maxhp / 8;
-			activateCode(this, 'life', source.side.name, source, `healing ${heal}`);
-			this.heal(heal, source, source, this.effect);
-		},
-		onAfterSubDamage(damage, target, source, move) {
-			if (!source.hp) return;
-			const heal = source.maxhp / 8;
-			activateCode(this, 'life', source.side.name, source, `healing ${heal}`);
-			this.heal(heal, source, source, this.effect);
+		onAfterMoveSecondarySelf(pokemon, target, move) {
+			if (!pokemon.hp) return;
+			const heal = Math.trunc(pokemon.maxhp / 8);
+			activateCode(this, 'life', pokemon.side.name, pokemon, `healing ${heal}`);
+			this.heal(heal, pokemon, pokemon, this.effect);
 		},
 	},
 	luck: {
@@ -673,12 +680,12 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	trap: {
 		name: "TRAP",
-		onAfterMove(source, target, move) {
-		if (!target || target === source || target.fainted) return;
-		if (target.addVolatile('trapped', source, move, 'trapper')) {
-			activateCode(this, 'trap', source.side.name, source);
-		}
-	},
+		onAfterMoveSecondarySelf(source, target, move) {
+			if (!target || target === source || target.fainted) return;
+			if (target.addVolatile('trapped', source, move, 'trapper')) {
+				activateCode(this, 'trap', source.side.name, source);
+			}
+		},
 	},
 	true: {
 		name: "TRUE",
@@ -738,17 +745,17 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	wind: {
 		name: "WIND",
 		onResidual(pokemon) {
-			if (pokemon.m.windActivated) return;
+			if (pokemon.m.codeEffects['wind']) return;
 			if (pokemon.side.addSideCondition('Tailwind', pokemon, CheatCodes)) {
 				activateCode(this, 'wind', pokemon.side.name, pokemon);
-				pokemon.m.windActivated = true;
+				pokemon.m.codeEffects['wind'] = true;
 			}
 		},
 		onFaint(pokemon) {
-			delete pokemon.m.windActivated;
+			delete pokemon.m.codeEffects['wind'];
 		},
 		onSwitchOut(pokemon) {
-			delete pokemon.m.windActivated;
+			delete pokemon.m.codeEffects['wind'];
 		},
 	},
 	// oh god

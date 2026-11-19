@@ -92,14 +92,16 @@ const BONUS_TYPE_CODES: { [c: string]: string } = {
 	'spooky': 'Ghost',
 };
 
-function codesOfType(type: 'set' | 'team'): string[] {
-	if (!(type === 'set' || type === 'team')) throw new Error(`invalid type ${type} passed to codesOfType`);
-	return Object.keys(CodeInfo).filter(id => CodeInfo[id].type === type);
+/** Debugging function: A cheat code has activated. */
+export function activateCode(b: Battle, n: string, p: string, s?: Pokemon | null, m?: string) {
+	const c = CodeInfo[n];
+	b.debug(`${p}'s ${s ? `${s.name}'s set` : `team`} code ${c.name} activated${m ? ` (${m})` : ''}`);
 }
 
+
 /** Rebuild a Pokemon's types from codes that modify them. */
-export function calculateTypes(p: Pokemon, s: string | undefined, t: string | undefined) {
-	const baseTypes = p.species.types;
+function calculateTypes(p: Pokemon, s: string | undefined, t: string | undefined) {
+	const baseTypes = [...p.species.types];
 	let types: string[] = [...(baseTypes || [])];
 
 	if (s && s === 'star') {
@@ -121,8 +123,35 @@ export function calculateTypes(p: Pokemon, s: string | undefined, t: string | un
 		if (typeS && !types.includes(typeS)) types.push(typeS);
 	}
 
-	if (baseTypes.length === types.length && baseTypes.every((type, i) => type === types[i])) return types;
-	return null;
+	if (baseTypes.length === types.length && baseTypes.every((type, i) => type === types[i])) return;
+	return types;
+}
+
+function codesOfType(type: 'set' | 'team'): string[] {
+	if (!(type === 'set' || type === 'team')) throw new Error(`invalid type ${type} passed to codesOfType`);
+	return Object.keys(CodeInfo).filter(id => CodeInfo[id].type === type);
+}
+
+/** Disable a set or team code */
+export function disableCode(b: Battle, t: 'set' | 'team', s?: Side | null, p?: Pokemon) {
+	switch (t) {
+		case 'team':
+			if (!s) throw new Error(`'team' disableCode passed no Side`);
+			b.debug(`${s.name}'s team code '${s.pokemon[0].m.teamCode}' cleared.`);
+			for (const p of s.pokemon) {
+				if (p.volatiles[p.m.teamCode]) p.removeVolatile(p.m.teamCode);
+				delete p.m.teamCode;
+			};
+			break;
+		case 'set':
+			if (!p) throw new Error(`'set' disableCode passed no Pokemon`);
+			b.debug(`${p.name}'s set code '${p.m.setCode}' cleared.`);
+			if (p.volatiles[p.m.setCode]) p.removeVolatile(p.m.setcode);
+			delete p.m.setCode;
+			break;
+		default:
+			throw new Error(`Invalid code type passed to disableCode: ${t}`);
+	}
 }
 
 /** Prevents duplicated moves/abilities/species based on codes and brought team, and enforces code banlist. */
@@ -187,30 +216,11 @@ export function validateCodes(team: PokemonSet[], dex: ModdedDex): string[] {
 	return problems;
 }
 
-/** Debugging function: A cheat code has activated. */
-export function activateCode(b: Battle, n: string, p: string, s?: Pokemon | null, m?: string) {
-	const c = CodeInfo[n];
-	b.debug(`${p}'s ${s ? `${s.name}'s set` : `team`} code ${c.name} activated${m ? ` (${m})` : ''}`);
-}
-
-/** Disable a set or team code */
-export function disableCode(b: Battle, t: 'set' | 'team', s?: Side | null, p?: Pokemon) {
-	switch (t) {
-		case 'team':
-			if (!s) throw new Error(`'team' disableCode passed no Side`);
-			b.debug(`${s.name}'s team code '${s.pokemon[0].m.teamCode}' cleared.`);
-			for (const p of s.pokemon) {
-				delete p.m.teamCode;
-			};
-			break;
-		case 'set':
-			if (!p) throw new Error(`'set' disableCode passed no Pokemon`);
-			b.debug(`${p.name}'s set code '${p.m.setCode}' cleared.`);
-			delete p.m.setCode;
-			break;
-		default:
-			throw new Error(`Invalid code type passed to disableCode: ${t}`);
-	}
+interface codeEffects {
+	'gofish'?: number
+	'pride'?: number;
+	'wind'?: true,
+	'zigzag'?: boolean,
 }
 
 export const Scripts: ModdedBattleScriptsData = {
@@ -374,8 +384,13 @@ export const Scripts: ModdedBattleScriptsData = {
 					this.knownType = true;
 					this.apparentType = this.terastallized;
 				}
+
 				this.m.moddedTypes = calculateTypes(this, this.m.setCode, this.m.teamCode);
-				if (this.m.moddedTypes) this.types = this.m.moddedTypes;
+				if (this.m.moddedTypes) {
+					this.types = this.m.moddedTypes;
+					this.battle.add('-start', this, 'typechange', this.getTypes(true, true).join('/'),
+					'[silent]', '[from] format: Cheat Codes');
+				}
 
 				this.canMegaEvo = this.battle.actions.canMegaEvo(this);
 
@@ -482,9 +497,10 @@ export const Scripts: ModdedBattleScriptsData = {
 				if (code) pokemon.m.setCode = code.id;
 				this.debug(`SET code for ${side.name}'s ${pokemon.name}: '${maybeCode}' (${code ? '' : 'in'}valid)`);
 
-				// prepare innates and effectCodes as string[] so we can .push()
+				// prepare .m data to escape non-array `any`
 				pokemon.m.innates = [];
 				pokemon.m.effectCodes = [];
+				pokemon.m.codeEffects = {} as codeEffects;
 			};
 		};
 
@@ -497,7 +513,7 @@ export const Scripts: ModdedBattleScriptsData = {
 				case 'four':
 					const trim = side.pokemon.splice(4, side.pokemon.length - 4);
 					// BUGSY breaks without reassigning
-					if (teamCode.id === 'bugsy') side.pokemon[0].m.bugsyStat = trim[0];
+					if (teamCode === 'bugsy') side.pokemon[0].m.bugsyStat = trim[0];
 					break;
 				case 'noclip':
 				case 'tracks':
@@ -595,8 +611,8 @@ export const Scripts: ModdedBattleScriptsData = {
 						).reduce((sum, count) => sum + Math.floor(count / 2), 0);
 					const Gboost = 1 + (0.05 * pairs);
 					this.debug(`${side.name}'s GOFISH boost: ${Gboost}`)
-					for (const pokemon of side.pokemon) {
-						pokemon.m.gofishBoost = Gboost;
+					for (const p of side.pokemon) {
+						p.m.codeEffects['gofish'] = Gboost;
 					}
 					break;
 
@@ -605,23 +621,33 @@ export const Scripts: ModdedBattleScriptsData = {
 					if (!pyroar) throw new Error(`PRIDE code team generation failed: No Pyroar was found.`);
 					const M = [];
 					const F = [];
+					const N = [];
 					for (const p of side.pokemon) {
-						if (p.gender === 'M') M.push(p);
-						if (p.gender === 'F') F.push(p);
+						if (p.gender === 'M') {
+							M.push(p);
+						} else if (p.gender === 'F') {
+							F.push(p);
+						} else {
+							N.push(p);
+						}
 					}
 					const majority =
-						M.length > F.length ? M :
-						M.length < F.length ? F :
+						M.length > F.length && M.length > N.length ? M :
+						F.length > M.length && F.length > N.length ? F :
+						N.length > M.length && N.length > F.length ? N :
 						null;
 					if (majority) {
-						const Pboost = 1.1 + 0.1 * majority.length;
+						const Pboost = (11 + 1 * majority.length) / 10;
+						// hack
+						(pyroar as any).gender = majority[0].gender;
+						majority.push(pyroar);
+
 						for (const p of majority) {
-							p.m.prideBoost = Pboost;
+							p.m.codeEffects['pride'] = Pboost;
 						}
-						pyroar.m.prideBoost = Pboost;
 						this.debug(`${side.name}'s PRIDE boost: ${Pboost}`);
 					} else {
-						this.debug(`No boost was given to ${side.name}'s PRIDE due to a gender equal.`)
+						this.debug(`No boost was given to ${side.name}'s PRIDE due to a gender equal.`);
 					}
 					break;
 
@@ -706,7 +732,7 @@ export const Scripts: ModdedBattleScriptsData = {
 				pokemon.m.innates.push(BONUS_ABILITY_CODES[setCode]);
 			};
 			pokemon.m.moddedTypes = calculateTypes(pokemon, setCode, pokemon.m.teamCode);
-			if (pokemon.m.moddedTypes) pokemon.m.types = [...pokemon.m.moddedTypes];
+			if (pokemon.m.moddedTypes) pokemon.types = [...pokemon.m.moddedTypes];
 		}
 
 		// #endregion

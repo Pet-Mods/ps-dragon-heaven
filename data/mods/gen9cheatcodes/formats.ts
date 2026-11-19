@@ -36,13 +36,13 @@ export const Formats: FormatData[] = [
 					this.add('-ability', pokemon, `code: ${c.name}`);
 					this.hint(`${c.name}: ${c.desc}`);
 				}
-			};
-			
+			}
+
 			if (code.effectCodes) {
 				for (const effect of code.effectCodes) { 
 					pokemon.addVolatile(effect);
 				}
-			};
+			}
 			if (pokemon.m.moddedTypes) {
 				this.add('-start', pokemon, 'typechange', pokemon.getTypes(true, true).join('/'),
 					'[silent]', '[from] format: Cheat Codes');
