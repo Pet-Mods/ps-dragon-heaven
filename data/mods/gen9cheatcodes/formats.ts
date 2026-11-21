@@ -17,32 +17,34 @@ export const Formats: FormatData[] = [
 			'Quick Claw', 'Razor Fang', 'Assist', 'Baton Pass', 'Last Respects', 'Shed Tail'
 		],
 		onSwitchIn(pokemon) {
-			const code = pokemon.m;
+			const code = pokemon.m.codes;
 			const CodeInfo: { [code: string]: import('./scripts').CodeDetails } = require('./codes-info.json');
 
-			if (code.teamCode && !pokemon.volatiles[code.teamCode]) pokemon.addVolatile(code.teamCode);
+			if (code['team'] && !pokemon.volatiles[code['team']]) pokemon.addVolatile(code['team']);
 
-			if (code.setCode && !pokemon.volatiles[code.setCode]) {
-				const c = CodeInfo[code.setCode];
+			if (code['set'] && !pokemon.volatiles[code['set']]) {
+				const c = CodeInfo[code['set']];
 				if (!c) {
-					this.add(`raw|<div class="broadcast-red"><b>${pokemon.baseSpecies.name}'s code "${code.setCode}" has malformed data. Discarding.</b></div>`);
-					delete code.setCode;
+					this.add(`raw|<div class="broadcast-red"><b>${pokemon.baseSpecies.name}'s code "${code['set']}" has malformed data. Discarding.</b></div>`);
+					delete code['set'];
 				};
 				if (c.banlist?.includes(pokemon.baseSpecies.id)) {
-					this.debug(`Code ${code.setCode} failed to activate: ${pokemon.baseSpecies.name} is banned from using it`);
-					this.add(`raw|<div class="broadcast-red"><b>${pokemon.baseSpecies.name} is banned from using ${code.teamCode}.</b></div>`);
+					this.debug(`Code ${code['set']} failed to activate: ${pokemon.baseSpecies.name} is banned from using it`);
+					this.add(`raw|<div class="broadcast-red"><b>${pokemon.baseSpecies.name} is banned from using ${code['set']}.</b></div>`);
 				} else {
-					pokemon.addVolatile(code.setCode);
+					pokemon.addVolatile(code['set']);
 					this.add('-ability', pokemon, `code: ${c.name}`);
 					this.hint(`${c.name}: ${c.desc}`);
 				}
 			}
 
 			if (code.effectCodes) {
-				for (const effect of code.effectCodes) { 
+				for (const effect of code.effectCodes) {
+					if (pokemon.hasAbility(effect)) continue;
 					pokemon.addVolatile(effect);
 				}
 			}
+
 			if (pokemon.m.moddedTypes) {
 				this.add('-start', pokemon, 'typechange', pokemon.getTypes(true, true).join('/'),
 					'[silent]', '[from] format: Cheat Codes');
@@ -61,9 +63,9 @@ export const Formats: FormatData[] = [
 			for (const innates of Object.keys(pokemon.volatiles).filter(i => i.startsWith('ability:'))) {
 				pokemon.removeVolatile(innates);
 			}
-			const c = pokemon.m;
-			if (c.teamCode) pokemon.removeVolatile(c.teamCode);
-			if (c.setCode) pokemon.removeVolatile(c.setCode);
+			const code = pokemon.m.codes;
+			if (code['team']) pokemon.removeVolatile(code['team']);
+			if (code['set']) pokemon.removeVolatile(code['set']);
 		},
 		onFaint(pokemon) {
 			for (const innates of Object.keys(pokemon.volatiles).filter(i => i.startsWith('ability:'))) {

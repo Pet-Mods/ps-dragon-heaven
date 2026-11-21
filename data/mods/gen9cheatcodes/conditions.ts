@@ -207,7 +207,7 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		onStart(pokemon) {
 			this.add('-activate', pokemon, 'code: IRON');
 			this.effectState.bestStat = pokemon.getBestStat(false, true);
-			this.add('-start', pokemon, 'Quark Drive' + this.effectState.bestStat);
+			this.add('-start', pokemon, pokemon.hasAbility('quarkdrive') ? 'IRON' : 'Quark Drive' + this.effectState.bestStat);
 		},
 		onModifyAtkPriority: 5,
 		onModifyAtk(atk, pokemon) {
@@ -353,25 +353,12 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "SURVEY",
 		onStart(pokemon) {
 			const name = Utils.escapeHTML(pokemon.species.name);
-			const item = pokemon.set.item ? this.dex.items.get(pokemon.set.item).name : `No Item${pokemon.m.teamCode === 'quetta' ? ' (Removed by QUETTA)' : ''}`;
+			const item = pokemon.set.item ? this.dex.items.get(pokemon.set.item).name : `No Item${pokemon.m.codes['team'] === 'quetta' ? ' (Removed by QUETTA)' : ''}`;
 			const moves = pokemon.set.moves
 				.map(m => `- ${this.dex.moves.get(m).name}`)
 				.join('<br />');
 
 			this.add('html', `<div class="infobox"><details><summary>Set for ${name}:</summary>Item: ${item}<br />Moves:<br />${moves}</details></div>`);
-		},
-	},
-	tear: {
-		name: "TEAR",
-		onStart(pokemon) {
-			let activated = false;
-			for (const target of pokemon.adjacentFoes()) {
-				if (!activated) {
-					activated = true;
-				}
-				const stat = this.sample(['atk', 'def', 'spa', 'spd', 'spe', 'accuracy', 'evasion']);
-				this.boost({ [stat]: -1 }, target, pokemon, CheatCodes);
-			}
 		},
 	},
 	tracks: {
@@ -473,24 +460,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			if (target.trySetStatus('brn', source, CheatCodes)) {
 				activateCode(this, 'burn', source.side.name, source);
 			};
-		},
-	},
-	card: {
-		name: "CARD",
-		onModifyDamage(dmg, source, target, move) {
-			const tier = source.species.natDexTier;
-			const boost: { [k: number]: string[] } = {
-				1.15: ['OU', 'Uber', 'AG'],
-				1.30: ['UU', 'UUBL'],
-				1.45: ['RU', 'RUBL'],
-				1.60: ['NFE'],
-				1.75: ['LC'],
-			};
-			const key = Object.entries(boost).find(([, tiers]) => tiers.includes(tier));
-			// fallback should never trigger, but i dont feel like crashing the battle when it does
-			const multiplier = key ? Number(key[0]) : 1;
-			this.debug(`CARD: ${source.name}'s damage multipler from ${tier}: ${multiplier}`);
-			return this.chainModify(multiplier);
 		},
 	},
 	chip: {
@@ -681,6 +650,37 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 				activateCode(this, 'star', source.side.name, source, `new BP: ${bp * 1.2}`);
 				return bp * 1.2;
 			};
+		},
+	},
+	tear: {
+		name: "TEAR",
+		onStart(pokemon) {
+			let activated = false;
+			for (const target of pokemon.adjacentFoes()) {
+				if (!activated) {
+					activated = true;
+				}
+				const stat = this.sample(['atk', 'def', 'spa', 'spd', 'spe', 'accuracy', 'evasion']);
+				this.boost({ [stat]: -1 }, target, pokemon, CheatCodes);
+			}
+		},
+	},
+	tier: {
+		name: "TIER",
+		onModifyDamage(dmg, source, target, move) {
+			const tier = source.species.natDexTier;
+			const boost: { [k: number]: string[] } = {
+				1.1: ['OU', 'Uber', 'AG'],
+				1.2: ['UU', 'UUBL'],
+				1.3: ['RU', 'RUBL'],
+				1.7: ['NFE'],
+				1.9: ['LC'],
+			};
+			const key = Object.entries(boost).find(([, tiers]) => tiers.includes(tier));
+			// fallback should never trigger, but i dont feel like crashing the battle when it does
+			const multiplier = key ? Number(key[0]) : 1;
+			this.debug(`TIER: ${source.name}'s damage multipler from ${tier}: ${multiplier}`);
+			return this.chainModify(multiplier);
 		},
 	},
 	trap: {

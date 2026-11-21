@@ -75,14 +75,6 @@
     "desc": "This Pokemon's contact moves have a 100% chance to burn the target.",
     "type": "set"
   },
-  "card": {
-    "id": "card",
-    "name": "CARD",
-    "desc": "This Pokemon gains a damage boost based on its usage tier.",
-    "type": "set",
-    "behavior": "unique",
-    "effectDetails": "<table><tr><th>Tier</th><th> </th><th>Multiplier</th><tr><td>OU</td><td>Uber</td><td>1.15</td></tr><tr><td>UU</td><td>UUBL</td><td>1.30</td></tr><tr><td>RU</td><td>RUBL</td><td>1.45</td></tr><tr><td>NFE</td><td>&nbsp;</td><td>1.60</td></tr><tr><td>LC</td><td>&nbsp;</td><td>1.75</td></tr></tr></table>"
-  },
   "chip": {
     "id": "chip",
     "name": "CHIP",
@@ -400,6 +392,14 @@
     "name": "TEAR",
     "desc": "On switch-in, lowers a random stat of the foe by 1.",
     "type": "set"
+  },
+  "tier": {
+    "id": "tier",
+    "name": "TIER",
+    "desc": "This Pokemon gains a damage boost based on its usage tier.",
+    "type": "set",
+    "behavior": "unique",
+    "effectDetails": "<table><tr><th>Tier</th><th> </th><th>Multiplier</th><tr><td>OU</td><td>Uber</td><td>1.1</td></tr><tr><td>UU</td><td>UUBL</td><td>1.2</td></tr><tr><td>RU</td><td>RUBL</td><td>1.3</td></tr><tr><td>NFE</td><td>&nbsp;</td><td>1.7</td></tr><tr><td>LC</td><td>&nbsp;</td><td>1.9</td></tr></tr></table>"
   },
   "tracks": {
     "id": "tracks",

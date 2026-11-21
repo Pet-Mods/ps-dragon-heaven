@@ -126,9 +126,9 @@ function calculateTypes(p: Pokemon, s: string | undefined, t: string | undefined
 	return types;
 }
 
-export function codesOfType(type: 'set' | 'team' | 'all'): string[] {
+export function getCodes(type: 'set' | 'team' | 'all'): string[] {
 	const all = type === 'all';
-	if (!(type === 'set' || type === 'team' || all)) throw new Error(`invalid type ${type} passed to codesOfType`);
+	if (!(type === 'set' || type === 'team' || all)) throw new Error(`invalid type ${type} passed to getCodes`);
 	if (all) return Object.keys(CodeInfo);
 	return Object.keys(CodeInfo).filter(id => CodeInfo[id].type === type);
 }
@@ -138,17 +138,17 @@ export function disableCode(b: Battle, t: 'set' | 'team', s?: Side | null, p?: P
 	switch (t) {
 		case 'team':
 			if (!s) throw new Error(`'team' disableCode passed no Side`);
-			b.debug(`${s.name}'s team code '${s.pokemon[0].m.teamCode}' cleared`);
+			b.debug(`${s.name}'s team code '${s.pokemon[0].m.codes['team']}' cleared`);
 			for (const p of s.pokemon) {
-				if (p.volatiles[p.m.teamCode]) p.removeVolatile(p.m.teamCode);
-				delete p.m.teamCode;
+				if (p.volatiles[p.m.codes['team']]) p.removeVolatile(p.m.codes['team']);
+				delete p.m.codes['team'];
 			};
 			break;
 		case 'set':
 			if (!p) throw new Error(`'set' disableCode passed no Pokemon`);
-			b.debug(`${p.name}'s set code '${p.m.setCode}' cleared`);
-			if (p.volatiles[p.m.setCode]) p.removeVolatile(p.m.setcode);
-			delete p.m.setCode;
+			b.debug(`${p.name}'s set code '${p.m.codes['set']}' cleared`);
+			if (p.volatiles[p.m.codes['set']]) p.removeVolatile(p.m.codes['set']);
+			delete p.m.codes['set'];
 			break;
 		default:
 			throw new Error(`Invalid code type passed to disableCode: ${t}`);
@@ -158,10 +158,10 @@ export function disableCode(b: Battle, t: 'set' | 'team', s?: Side | null, p?: P
 /** Prevents duplicated moves/abilities/species based on codes and brought team, and enforces code banlist. */
 export function validateCodes(team: PokemonSet[], dex: ModdedDex): string[] {
 	const problems: string[] = [];
-	// const usedCodes: string[] = [];
+	// const usedCodes: { [code: string]: string } = {};
 
 	const maybeTeamCode = team.map(set => dex.toID(set.species).charAt(0)).join('');
-	const teamCode = codesOfType('team').includes(maybeTeamCode) ? CodeInfo[maybeTeamCode] : null;
+	const teamCode = getCodes('team').includes(maybeTeamCode) ? CodeInfo[maybeTeamCode] : null;
 	const givenSpecies = teamCode ? dex.species.get(BONUS_POKEMON_CODES[teamCode.id]?.species || '') : null;
 	const otherMoveEffect: { [k: string]: string[] } = {
 		'victor': ['vcreate'],
@@ -171,7 +171,7 @@ export function validateCodes(team: PokemonSet[], dex: ModdedDex): string[] {
 	for (const set of team) {
 		const name = set.name || set.species;
 		const maybeSetCode = set.moves.map(m => dex.toID(m).charAt(0)).join('');
-		const setCode = codesOfType('set').includes(maybeSetCode) ? CodeInfo[maybeSetCode] : null;
+		const setCode = getCodes('set').includes(maybeSetCode) ? CodeInfo[maybeSetCode] : null;
 
 		// Pokemon granted by team code
 		const species = dex.species.get(set.species);
@@ -192,13 +192,13 @@ export function validateCodes(team: PokemonSet[], dex: ModdedDex): string[] {
 				problems.push(`${name} is banned from using ${setCode.name}.` +
 					`(If this code was unintentional, rearrange your moves, which will remove the code.)`);
 			};
-			/* if (usedCodes.includes(setCode)) {
-				problems.push(`${setCode} is used multiple times.`);
+			/* if (usedCodes[setCode]) {
+				problems.push(`${setCode} is used multiple times. (${pokemon.name} and ${usedCodes[setCode]} both have it.)`);
 			};
-			usedCodes.push(setCode); */
+			usedCodes.push({setCode: species.name}); */
 		}
 
-		// Moves and abilities granted by team or set code
+		// Moves granted by team or set code
 		for (const [type, code] of [['team', teamCode], ['set', setCode]] as const) {
 			if (!code) continue;
 
@@ -206,11 +206,10 @@ export function validateCodes(team: PokemonSet[], dex: ModdedDex): string[] {
 			if (move.exists && set.moves.some(m => dex.toID(m) === move.id)) {
 				problems.push(`${name} has ${move.name}, which is granted by the ${type} code ${code.name}.`);
 			}
-
-			const ability = dex.abilities.get(BONUS_ABILITY_CODES[code.id] || '');
+			/* const ability = dex.abilities.get(BONUS_ABILITY_CODES[code.id] || '');
 			if (ability.exists && dex.toID(set.ability) === ability.id) {
 				problems.push(`${name} has ${ability.name}, which is granted by the ${type} code ${code.name}.`);
-			}
+			} */
 		}
 	}
 
@@ -381,7 +380,7 @@ export const Scripts: ModdedBattleScriptsData = {
 					this.apparentType = this.terastallized;
 				}
 
-				this.m.moddedTypes = calculateTypes(this, this.m.setCode, this.m.teamCode);
+				this.m.moddedTypes = calculateTypes(this, this.m.codes['set'], this.m.codes['team']);
 				if (this.m.moddedTypes) {
 					this.types = this.m.moddedTypes;
 					this.battle.add('-start', this, 'typechange', this.getTypes(true, true).join('/'),
@@ -470,11 +469,18 @@ export const Scripts: ModdedBattleScriptsData = {
 
 		// Prepare codes
 		for (const side of this.sides) {
+			for (const p of side.pokemon) {
+				// prepare .m data to escape non-array `any`
+				p.m.innates = [];
+				p.m.codes = {};
+				p.m.effectCodes = [];
+				p.m.codeEffects = {};
+			}
 			const maybeCode = side.pokemon.map(p => p.species.name.charAt(0).toLowerCase()).join('');
-			const code = codesOfType('team').includes(maybeCode) ? CodeInfo[maybeCode] : null;
+			const code = getCodes('team').includes(maybeCode) ? CodeInfo[maybeCode] : null;
 			if (code) {
 				for (const pokemon of side.pokemon) {
-					pokemon.m.teamCode = code.id;
+					pokemon.m.codes['team'] = code.id;
 				};
 				this.add(`raw|<div class="broadcast-blue"><b>${side.name}'s team code: ${code.name}</b></div>`);
 				this.hint(`${code.name}: ${code.desc}`);
@@ -485,21 +491,16 @@ export const Scripts: ModdedBattleScriptsData = {
 
 			for (const pokemon of side.pokemon) {
 				const maybeCode = pokemon.moveSlots.map(m => m.id.charAt(0)).join('');
-				const code = codesOfType('set').includes(maybeCode) ? CodeInfo[maybeCode] : null;
-				if (code) pokemon.m.setCode = code.id;
+				const code = getCodes('set').includes(maybeCode) ? CodeInfo[maybeCode] : null;
+				if (code) pokemon.m.codes['set'] = code.id;
 				this.debug(`SET code for ${side.name}'s ${pokemon.species.name}: '${maybeCode}' (${code ? '' : 'in'}valid)`);
-
-				// prepare .m data to escape non-array `any`
-				pokemon.m.innates = [];
-				pokemon.m.effectCodes = [];
-				pokemon.m.codeEffects = {};
 			};
 		};
 
 		// Team codes (read from slot 0)
 		for (const side of this.sides) {
-			const teamCode = side.pokemon[0].m.teamCode;
-			const foeTeamCode = side.foe.pokemon[0].m.teamCode;
+			const teamCode = side.pokemon[0].m.codes['team'];
+			const foeTeamCode = side.foe.pokemon[0].m.codes['team'];
 
 			switch (foeTeamCode) {
 				case 'four':
@@ -518,8 +519,8 @@ export const Scripts: ModdedBattleScriptsData = {
 					for (const p of side.pokemon) {
 						p.m.effectCodes.push(foeTeamCode);
 						const name = p.species.name;
-						const item = 
-							p.m.teamCode === 'quetta' ?
+						const item =
+							p.m.codes['team'] === 'quetta' ?
 							`None ${p.set.item ? `(was ${this.dex.items.get(p.set.item).name})` : ''}` :
 							p.set.item ? this.dex.items.get(p.set.item).name : `No Item`;
 						const moves = p.set.moves
@@ -546,7 +547,7 @@ export const Scripts: ModdedBattleScriptsData = {
 				const codePkmn = side.addPokemon(BONUS_POKEMON_CODES[teamCode]);
 				if (codePkmn) {
 					codePkmn.m.codeGenerated = true;
-					codePkmn.m.teamCode = teamCode;
+					codePkmn.m.codes['team'] = teamCode;
 					codePkmn.m.innates = [];
 					codePkmn.m.effectCodes = [];
 					codePkmn.m.codeEffects = {};
@@ -708,7 +709,7 @@ export const Scripts: ModdedBattleScriptsData = {
 
 		// Codes that give you an extra Ability or move
 		for (const pokemon of this.getAllPokemon()) {
-			const setCode = pokemon.m.setCode;
+			const setCode = pokemon.m.codes['set'];
 			if (BONUS_MOVE_CODES[setCode]) {
 				const move = this.dex.moves.get(BONUS_MOVE_CODES[setCode]);
 				pokemon.moveSlots[pokemon.moveSlots.length] =
@@ -724,7 +725,7 @@ export const Scripts: ModdedBattleScriptsData = {
 			if (BONUS_ABILITY_CODES[setCode]) {
 				pokemon.m.innates.push(BONUS_ABILITY_CODES[setCode]);
 			};
-			pokemon.m.moddedTypes = calculateTypes(pokemon, setCode, pokemon.m.teamCode);
+			pokemon.m.moddedTypes = calculateTypes(pokemon, setCode, pokemon.m.codes['team']);
 			if (pokemon.m.moddedTypes) pokemon.types = [...pokemon.m.moddedTypes];
 		}
 

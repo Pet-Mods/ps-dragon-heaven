@@ -6,17 +6,9 @@ by iforgetwhyimhere (programmer) and zxgzxg (organizer)
 List of codes is `const TEAM_CODES` or `const SET_CODES` in `scripts.ts`. You MUST update it to add new codes.
 Additionally, for codes that add moves, abilities, or pokemon, ensure their code corresponds to their added element in the following constants:
 `BONUS_POKEMON_CODES` (team only), `BONUS_MOVE_CODES` (set only), `BONUS_ABILITY_CODES` (both set and team).
-When the battle starts, each team and team's pokemon are assigned their code, if possible. Each code must have a corresponding condition in `conditions.ts`.
+When the battle starts, each team and team's pokemon are assigned their code, if possible. Each code must have a corresponding condition in `conditions.ts` and entry in `codes-info.json`.
 
-When your set activates, ensure you call the `activateCode` function before returning:
-```ts
-activateCode(this, pokemon.m.setCode, [source or target].side.name, [source or target]);
-```
-If you have a shortDesc, it will prefer it to the desc when printing.
-
-When activating a team code's effect, do not add a fourth argument.
-
-A team and set code are stored in each Pokemon as `pokemon.m.teamCode` and `pokemon.m.setCode`. Do not ever change them.
+A team and set code are stored in each Pokemon as `pokemon.m.codes[teamCode]` and `pokemon.m.codes[setCode]`. Do not ever change them.
 
 Some `.m` states also used for code effects:
 
@@ -34,19 +26,10 @@ Some `.m` states also used for code effects:
 
 	(number) `gofish` Boost by GOFISH.
 
-	(boolean) `pride`: This Pokemon's attacks are boosted through the PRIDE code.
+	(number) `pride`: Boost by PRIDE.
 
 	(true) `wind`: This Pokemon has set Tailwind through the WIND code.
 
 	(boolean) `zigzag`: Damage dealt and taken is boosted by ZIGZAG.
 
-Note all `.m` functions that are not `.effectCodes` require the volatile of the code to be placed on the recipient Pokemon - just having the property is not enough to use it. However, .codeEffects should not be treated as codes, instead they are interpreted _by_ codes.
-
-
-Useful debugging codes when in-battle:
-
-`>>> Object.keys(p1.active[0].volatiles)` <- Check if codes are active
-
-`>>> p1.active[0].addVolatile('<code>')` <- Add a code's condition to a pokemon for testing
-
-`>>> p1.active[0].m.<property>` <- Read a pokemon's .m property
+Note all the `.m` properties are interpreted by the battle as volatiles - just having the property is not enough to use it. Applying them is mostly handled by onSwitchIn in `formats.ts`, but some that only have start-of-battle or persistent functions are handled in `scripts.ts`. `.codeEffects` should not be treated as actual codes, instead they are interpreted _by_ the code of their label.

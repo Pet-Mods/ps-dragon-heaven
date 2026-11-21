@@ -17,7 +17,8 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				this.effectState.layers++;
 			},
 			onSwitchIn(pokemon) {
-				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') || ['noclip', 'bootie'].includes(pokemon.m.teamCode);
+				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') ||
+					pokemon.volatiles['noclip'] || pokemon.volatiles['bootie'];
 				if (!pokemon.isGrounded()) return;
 				if (pokemon.hasType('Poison')) {
 					this.add('-sideend', pokemon.side, 'move: Toxic Spikes', `[of] ${pokemon}`);
@@ -46,7 +47,8 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				this.effectState.layers++;
 			},
 			onSwitchIn(pokemon) {
-				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') || ['noclip', 'bootie'].includes(pokemon.m.teamCode);
+				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') ||
+					pokemon.volatiles['noclip'] || pokemon.volatiles['bootie'];
 				if (!pokemon.isGrounded() || pokemon.hasItem('heavydutyboots') || ignoreByCode) return;
 				const damageAmounts = [0, 3, 4, 6]; // 1/8, 1/6, 1/4
 				this.damage(damageAmounts[this.effectState.layers] * pokemon.maxhp / 24);
@@ -61,7 +63,8 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				this.add('-sidestart', side, 'move: Stealth Rock');
 			},
 			onSwitchIn(pokemon) {
-				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') || ['noclip', 'bootie'].includes(pokemon.m.teamCode);
+				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') ||
+					pokemon.volatiles['noclip'] || pokemon.volatiles['bootie'];
 				if (pokemon.hasItem('heavydutyboots') || ignoreByCode) return;
 				const typeMod = this.clampIntRange(pokemon.runEffectiveness(this.dex.getActiveMove('stealthrock')), -6, 6);
 				this.damage(pokemon.maxhp * (2 ** typeMod) / 8);
@@ -75,7 +78,8 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				this.add('-sidestart', side, 'move: Sticky Web');
 			},
 			onSwitchIn(pokemon) {
-				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') || ['noclip', 'bootie'].includes(pokemon.m.teamCode);
+				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') ||
+					pokemon.volatiles['noclip'] || pokemon.volatiles['bootie'];
 				if (!pokemon.isGrounded() || pokemon.hasItem('heavydutyboots') || ignoreByCode) return;
 				this.add('-activate', pokemon, 'move: Sticky Web');
 				this.boost({ spe: -1 }, pokemon, pokemon.side.foe.active[0], this.dex.getActiveMove('stickyweb'));
@@ -87,7 +91,8 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 		condition: {
 			inherit: true,
 			onSwitchIn(pokemon) {
-				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') || ['noclip', 'bootie'].includes(pokemon.m.teamCode);
+				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') ||
+					pokemon.volatiles['noclip'] || pokemon.volatiles['bootie'];
 				if (pokemon.hasItem('heavydutyboots') || ignoreByCode) return;
 				// Ice Face and Disguise correctly get typed damage from Stealth Rock
 				// because Stealth Rock bypasses Substitute.

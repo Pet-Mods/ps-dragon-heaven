@@ -8,10 +8,8 @@
  *
  * @license MIT
  */
-import { CodeDetails, codesOfType } from "../../data/mods/gen9cheatcodes/scripts";
+import { CodeInfo, getCodes } from "../../data/mods/gen9cheatcodes/scripts";
 
-// cheatcodes
-const CodeInfo: { [code: string]: CodeDetails } = require('../../data/mods/gen9cheatcodes/codes-info.json');
 export const commands: Chat.ChatCommands = {
 
 	// Cheat Codes
@@ -52,7 +50,7 @@ export const commands: Chat.ChatCommands = {
 			case 'search':
 				const key = term.toLowerCase();
 				const matches =
-					[...codesOfType('all')]
+					[...getCodes('all')]
 					.sort()
 					.filter(c => c.includes(key))
 					.map(c => `<button name="send" value="/cheatcodes details ${c}" style="display: inline; padding: 0; border: 0; font: inherit; cursor: pointer; background: transparent; color: currentColor; -webkit-appearance: none;">${CodeInfo[c].name}</button>`)
@@ -66,14 +64,13 @@ export const commands: Chat.ChatCommands = {
 				if (searchTerm === 'move') searchTerm = 'set';
 
 				let codes: string[] = [];
-				if (searchTerm === 'all' || searchTerm === 'set') codes.push(...codesOfType('set'));
-				if (searchTerm === 'all' || searchTerm === 'team') codes.push(...codesOfType('team'));
+				if (searchTerm === 'all' || searchTerm === 'set') codes.push(...getCodes('set').sort());
+				if (searchTerm === 'all' || searchTerm === 'team') codes.push(...getCodes('team').sort());
 
 				this.sendReplyBox(
 					`<b>All ${term ? `${searchTerm} ` : ''}codes:</b><br>` +
 					[...codes]
-						.sort()
-						.map(id => `<button name="send" value="/cheatcodes details ${id}" style="display: inline; padding: 0; border: 0; font: inherit; cursor: pointer; background: transparent; color: currentColor; -webkit-appearance: none;">${CodeInfo[id].name}</button>`)
+						.map(c => `<button name="send" value="/cheatcodes details ${c}" style="display: inline; padding: 0; border: 0; font: inherit; cursor: pointer; background: transparent; color: currentColor; -webkit-appearance: none;">${CodeInfo[c].name}</button>`)
 						.join(', ')
 				);
 				break;
