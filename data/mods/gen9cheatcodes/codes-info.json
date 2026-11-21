@@ -428,7 +428,7 @@
   "victor": {
     "id": "victor",
     "name": "VICTOR",
-    "desc": "This team gains one use of V-Create across the whole team.",
+    "desc": "This team gains one use of V-Create across the whole team, and all of its Pokemon have their accuracy multiplied by 1.1x.",
     "type": "team"
   },
   "warp": {

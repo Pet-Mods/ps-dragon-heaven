@@ -11,6 +11,25 @@ export interface CodeDetails {
 }
 export const CodeInfo: { [code: string]: CodeDetails } = require('./codes-info.json');
 
+const BONUS_ABILITY_CODES: { [k: string]: string } = {
+	// team
+	'espeon': 'synchronize',
+	'exequy': 'supremeoverlord',
+	'fluffy': 'fluffy',
+	'neuter': 'neutralizinggas',
+	// set
+	'debt': 'neutralizinggas',
+	'fam': 'parentalbond',
+	'gold': 'goodasgold',
+	'lets': 'levitate',
+	'monk': 'gorillatactics',
+}
+const BONUS_MOVE_CODES: { [k: string]: string } = {
+	'eggs': 'softboiled',
+	'fest': 'celebrate',
+	'paid': 'makeitrain',
+	'pika': 'volttackle',
+}
 const BONUS_POKEMON_CODES: { [k: string]: PokemonSet } = {
 	'apples': {
 		name: "Appletunfans Child",
@@ -64,25 +83,6 @@ const BONUS_POKEMON_CODES: { [k: string]: PokemonSet } = {
 		level: 100,
 	},
 }
-const BONUS_MOVE_CODES: { [k: string]: string } = {
-	'eggs': 'softboiled',
-	'fest': 'celebrate',
-	'paid': 'makeitrain',
-	'pika': 'volttackle',
-}
-const BONUS_ABILITY_CODES: { [k: string]: string } = {
-	// team
-	'espeon': 'synchronize',
-	'exequy': 'supremeoverlord',
-	'fluffy': 'fluffy',
-	'neuter': 'neutralizinggas',
-	// set
-	'debt': 'neutralizinggas',
-	'fam': 'parentalbond',
-	'gold': 'goodasgold',
-	'lets': 'levitate',
-	'monk': 'gorillatactics',
-}
 const BONUS_TYPE_CODES: { [c: string]: string } = {
 	// set
 	'fish': 'Water',
@@ -97,7 +97,6 @@ export function activateCode(b: Battle, n: string, p: string, s?: Pokemon | null
 	const c = CodeInfo[n];
 	b.debug(`${p}'s ${s ? `${s.name}'s set` : `team`} code ${c.name} activated${m ? ` (${m})` : ''}`);
 }
-
 
 /** Rebuild a Pokemon's types from codes that modify them. */
 function calculateTypes(p: Pokemon, s: string | undefined, t: string | undefined) {
@@ -127,8 +126,10 @@ function calculateTypes(p: Pokemon, s: string | undefined, t: string | undefined
 	return types;
 }
 
-function codesOfType(type: 'set' | 'team'): string[] {
-	if (!(type === 'set' || type === 'team')) throw new Error(`invalid type ${type} passed to codesOfType`);
+export function codesOfType(type: 'set' | 'team' | 'all'): string[] {
+	const all = type === 'all';
+	if (!(type === 'set' || type === 'team' || all)) throw new Error(`invalid type ${type} passed to codesOfType`);
+	if (all) return Object.keys(CodeInfo);
 	return Object.keys(CodeInfo).filter(id => CodeInfo[id].type === type);
 }
 
@@ -137,7 +138,7 @@ export function disableCode(b: Battle, t: 'set' | 'team', s?: Side | null, p?: P
 	switch (t) {
 		case 'team':
 			if (!s) throw new Error(`'team' disableCode passed no Side`);
-			b.debug(`${s.name}'s team code '${s.pokemon[0].m.teamCode}' cleared.`);
+			b.debug(`${s.name}'s team code '${s.pokemon[0].m.teamCode}' cleared`);
 			for (const p of s.pokemon) {
 				if (p.volatiles[p.m.teamCode]) p.removeVolatile(p.m.teamCode);
 				delete p.m.teamCode;
@@ -145,7 +146,7 @@ export function disableCode(b: Battle, t: 'set' | 'team', s?: Side | null, p?: P
 			break;
 		case 'set':
 			if (!p) throw new Error(`'set' disableCode passed no Pokemon`);
-			b.debug(`${p.name}'s set code '${p.m.setCode}' cleared.`);
+			b.debug(`${p.name}'s set code '${p.m.setCode}' cleared`);
 			if (p.volatiles[p.m.setCode]) p.removeVolatile(p.m.setcode);
 			delete p.m.setCode;
 			break;
@@ -216,12 +217,7 @@ export function validateCodes(team: PokemonSet[], dex: ModdedDex): string[] {
 	return problems;
 }
 
-interface codeEffects {
-	'gofish'?: number
-	'pride'?: number;
-	'wind'?: true,
-	'zigzag'?: boolean,
-}
+// #region end helper functions
 
 export const Scripts: ModdedBattleScriptsData = {
 	gen: 9,
@@ -389,7 +385,7 @@ export const Scripts: ModdedBattleScriptsData = {
 				if (this.m.moddedTypes) {
 					this.types = this.m.moddedTypes;
 					this.battle.add('-start', this, 'typechange', this.getTypes(true, true).join('/'),
-					'[silent]', '[from] format: Cheat Codes');
+						'[silent]', '[from] format: Cheat Codes');
 				}
 
 				this.canMegaEvo = this.battle.actions.canMegaEvo(this);
@@ -470,11 +466,7 @@ export const Scripts: ModdedBattleScriptsData = {
 			this.add(`raw|<div class="infobox"><details class="readmore"${open}><summary><strong>${format.customRules.length} custom rule${plural}:</strong></summary> ${format.customRules.join(', ')}</details></div>`);
 		}
 
-		// #region CHEAT CODES
-		/* 
-		 * Each code is lowercase alphabetical and set to either setCode or teamCode in each Pokemon's .m
-		 * properties. Some codes trigger on battle start, and take place immediately after preparing each side's codes.
-		 */
+		// #region the actual codes stuff
 
 		// Prepare codes
 		for (const side of this.sides) {
@@ -495,12 +487,12 @@ export const Scripts: ModdedBattleScriptsData = {
 				const maybeCode = pokemon.moveSlots.map(m => m.id.charAt(0)).join('');
 				const code = codesOfType('set').includes(maybeCode) ? CodeInfo[maybeCode] : null;
 				if (code) pokemon.m.setCode = code.id;
-				this.debug(`SET code for ${side.name}'s ${pokemon.name}: '${maybeCode}' (${code ? '' : 'in'}valid)`);
+				this.debug(`SET code for ${side.name}'s ${pokemon.species.name}: '${maybeCode}' (${code ? '' : 'in'}valid)`);
 
 				// prepare .m data to escape non-array `any`
 				pokemon.m.innates = [];
 				pokemon.m.effectCodes = [];
-				pokemon.m.codeEffects = {} as codeEffects;
+				pokemon.m.codeEffects = {};
 			};
 		};
 
@@ -557,6 +549,7 @@ export const Scripts: ModdedBattleScriptsData = {
 					codePkmn.m.teamCode = teamCode;
 					codePkmn.m.innates = [];
 					codePkmn.m.effectCodes = [];
+					codePkmn.m.codeEffects = {};
 				};
 			}
 
@@ -647,7 +640,7 @@ export const Scripts: ModdedBattleScriptsData = {
 						}
 						this.debug(`${side.name}'s PRIDE boost: ${Pboost}`);
 					} else {
-						this.debug(`No boost was given to ${side.name}'s PRIDE due to a gender equal.`);
+						this.debug(`No boost was given to ${side.name}'s PRIDE due to a gender equal`);
 					}
 					break;
 
@@ -734,8 +727,6 @@ export const Scripts: ModdedBattleScriptsData = {
 			pokemon.m.moddedTypes = calculateTypes(pokemon, setCode, pokemon.m.teamCode);
 			if (pokemon.m.moddedTypes) pokemon.types = [...pokemon.m.moddedTypes];
 		}
-
-		// #endregion
 
 		// Wrap up and begin battle
 		this.runPickTeam();

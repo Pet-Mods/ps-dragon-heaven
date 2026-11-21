@@ -29,7 +29,7 @@ export const Formats: FormatData[] = [
 					delete code.setCode;
 				};
 				if (c.banlist?.includes(pokemon.baseSpecies.id)) {
-					this.debug(`Code ${code.setCode} failed to activate: ${pokemon.baseSpecies.name} is banned from using it.`);
+					this.debug(`Code ${code.setCode} failed to activate: ${pokemon.baseSpecies.name} is banned from using it`);
 					this.add(`raw|<div class="broadcast-red"><b>${pokemon.baseSpecies.name} is banned from using ${code.teamCode}.</b></div>`);
 				} else {
 					pokemon.addVolatile(code.setCode);
