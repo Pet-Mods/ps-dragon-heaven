@@ -2,7 +2,7 @@ import { FormatData } from '../../../sim/dex-formats';
 
 export const Formats: FormatData[] = [
 	{
-		name: "[Gen 9 NatDex] Ch34t C0d3z",
+		name: "[Gen 9 NatDex] Cheat Codes",
 		desc: `The first letter of each Pokemon on your team, and each of their moves, form Codes that give your Pokemon and Team special effects.`,
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3789229/">Smogon Thread</a>`,
@@ -38,9 +38,8 @@ export const Formats: FormatData[] = [
 				}
 			}
 
-			if (code.effectCodes) {
-				for (const effect of code.effectCodes) {
-					if (pokemon.hasAbility(effect)) continue;
+			if (code['effect']) {
+				for (const effect of code['effect']) {
 					pokemon.addVolatile(effect);
 				}
 			}

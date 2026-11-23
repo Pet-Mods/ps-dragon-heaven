@@ -99,9 +99,12 @@ export function activateCode(b: Battle, n: string, p: string, s?: Pokemon | null
 }
 
 /** Rebuild a Pokemon's types from codes that modify them. */
-function calculateTypes(p: Pokemon, s: string | undefined, t: string | undefined) {
+function calculateTypes(p: Pokemon) {
 	const baseTypes = [...p.species.types];
 	let types: string[] = [...(baseTypes || [])];
+
+	const s = p.m.codes['set'];
+	const t = p.m.codes['team'];
 
 	if (s && s === 'star') {
 		const sType = p.species.types[1];
@@ -380,7 +383,7 @@ export const Scripts: ModdedBattleScriptsData = {
 					this.apparentType = this.terastallized;
 				}
 
-				this.m.moddedTypes = calculateTypes(this, this.m.codes['set'], this.m.codes['team']);
+				this.m.moddedTypes = calculateTypes(this);
 				if (this.m.moddedTypes) {
 					this.types = this.m.moddedTypes;
 					this.battle.add('-start', this, 'typechange', this.getTypes(true, true).join('/'),
@@ -472,8 +475,11 @@ export const Scripts: ModdedBattleScriptsData = {
 			for (const p of side.pokemon) {
 				// prepare .m data to escape non-array `any`
 				p.m.innates = [];
-				p.m.codes = {};
-				p.m.effectCodes = [];
+				p.m.codes = {
+					'set': null,
+					'team': null,
+					'effect': [],
+				};
 				p.m.codeEffects = {};
 			}
 			const maybeCode = side.pokemon.map(p => p.species.name.charAt(0).toLowerCase()).join('');
@@ -511,13 +517,13 @@ export const Scripts: ModdedBattleScriptsData = {
 				case 'noclip':
 				case 'tracks':
 					for (const p of side.pokemon) {
-						p.m.effectCodes.push(foeTeamCode);
+						p.m.codes['effect'].push(foeTeamCode);
 					}
 					break;
 				case 'sleuth':
 					let buf = `<div class="infobox"><details><summary>${side.name}'s team info:</summary>`;
 					for (const p of side.pokemon) {
-						p.m.effectCodes.push(foeTeamCode);
+						p.m.codes['effect'].push(foeTeamCode);
 						const name = p.species.name;
 						const item =
 							p.m.codes['team'] === 'quetta' ?
@@ -536,7 +542,7 @@ export const Scripts: ModdedBattleScriptsData = {
 					break;
 				case 'survey':
 					for (const p of side.pokemon) {
-						p.m.effectCodes.push(foeTeamCode);
+						p.m.codes['effect'].push(foeTeamCode);
 					};
 					disableCode(this, 'team', side.foe);
 					break;
@@ -547,9 +553,12 @@ export const Scripts: ModdedBattleScriptsData = {
 				const codePkmn = side.addPokemon(BONUS_POKEMON_CODES[teamCode]);
 				if (codePkmn) {
 					codePkmn.m.codeGenerated = true;
-					codePkmn.m.codes['team'] = teamCode;
+					codePkmn.m.codes = {
+						'set': null,
+						'team': teamCode,
+						'effect': codePkmn.side.pokemon[0].m.codes['effect'],
+					}
 					codePkmn.m.innates = [];
-					codePkmn.m.effectCodes = [];
 					codePkmn.m.codeEffects = {};
 				};
 			}
@@ -725,7 +734,7 @@ export const Scripts: ModdedBattleScriptsData = {
 			if (BONUS_ABILITY_CODES[setCode]) {
 				pokemon.m.innates.push(BONUS_ABILITY_CODES[setCode]);
 			};
-			pokemon.m.moddedTypes = calculateTypes(pokemon, setCode, pokemon.m.codes['team']);
+			pokemon.m.moddedTypes = calculateTypes(pokemon);
 			if (pokemon.m.moddedTypes) pokemon.types = [...pokemon.m.moddedTypes];
 		}
 

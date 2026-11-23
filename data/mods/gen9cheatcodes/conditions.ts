@@ -68,10 +68,10 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	bees: {
 		name: "BEES",
-		onResidual(target, source, effect) {
+		onResidual(pokemon) {
 			const move = this.dex.moves.get(this.sample(['Attack Order', 'Heal Order']));
-			activateCode(this, 'bees', source.side.name, null, `using ${move}`);
-			this.actions.useMove(move, move.id === 'attackorder' ? target.foes()[0] : target);
+			activateCode(this, 'bees', pokemon.side.name, null, `using ${move}`);
+			this.actions.useMove(move, pokemon);
 		},
 	},
 	block: {
@@ -313,12 +313,13 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		name: "SCREEN",
 		onStart(pokemon) {
 			let cond;
-			const stat = pokemon.getBestStat(true, true);
-			if (pokemon.maxhp > pokemon.getStat(stat)) cond = 'Aurora Veil';
+			const stat = pokemon.getBestStat(true);
 			if (stat === "def")	cond = "Reflect";
 			if (stat === "spd") cond = 'Light Screen';
 			if (cond) {
 				activateCode(this, 'screen', pokemon.side.name);
+				pokemon.side.removeSideCondition('reflect');
+				pokemon.side.removeSideCondition('lightscreen');
 				// debug is hack to prevent Light Clay from being passed
 				pokemon.side.addSideCondition(cond, "debug", CheatCodes);
 			};
@@ -406,27 +407,27 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	zigzag: {
 		name: "ZIGZAG",
 		onBeforeMove(source, target, move) {
-			if (!source.lastMoveUsed) return;
+			if (source.newlySwitched || !source.lastMoveUsed) return;
 			if (move.id === source.lastMoveUsed.id) {
+				if (source.m.codeEffects['zigzag'] === 'false') return;
 				source.m.codeEffects['zigzag'] = false;
 				this.debug(`${source.side.name}'s ZIGZAG deactivated`);
-				return;
 			} else {
+				if (source.m.codeEffects['zigzag'] === 'true') return;
 				source.m.codeEffects['zigzag'] = true;
 				this.debug(`${source.side.name}'s ZIGZAG activated`);
-				return;
 			}
 		},
 		onSwitchOut(pokemon) {
 			pokemon.m.codeEffects['zigzag'] = false;
 		},
 		onModifyDamage(dmg, source, target, move) {
-			if (!source.m.zigzagBuff) return;
+			if (!source.m.codeEffects['zigzag']) return;
 			activateCode(this, 'zigzag', source.side.name, source);
 			return this.chainModify(1.2);
 		},
 		onSourceModifyDamage(dmg, source, target, move) {
-			if (!source.m.zigzagBuff) return;
+			if (!source.m.codeEffects['zigzag']) return;
 			activateCode(this, 'zigzag', source.side.name, source);
 			return this.chainModify(0.75);
 		},
@@ -598,10 +599,10 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			return false;
 		},
 		onEffectiveness(effectiveness, target, type, move) {
-			return 1;
+			return 0;
 		},
 		onSourceEffectiveness(effectiveness, target, type, move) {
-			return 1;
+			return 0;
 		},
 	},
 	paid: {
@@ -736,8 +737,8 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			if (status.id === 'mustrecharge') return false;
 		},
 		onModifyMove(move, pokemon, target) {
-			const spa = pokemon.getStat('spa');
-			const atk = pokemon.getStat('atk');
+			const spa = pokemon.getStat('spa', false, true);
+			const atk = pokemon.getStat('atk', false, true);
 			if (atk > spa && move.category === 'Special') {
 				activateCode(this, 'what', pokemon.side.name, null, "Atk used in place of SpA");
 				move.category = 'Physical';

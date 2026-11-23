@@ -17,7 +17,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				this.effectState.layers++;
 			},
 			onSwitchIn(pokemon) {
-				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') ||
+				const ignoreByCode = pokemon.m.codes['effect'].includes('noclip') ||
 					pokemon.volatiles['noclip'] || pokemon.volatiles['bootie'];
 				if (!pokemon.isGrounded()) return;
 				if (pokemon.hasType('Poison')) {
@@ -47,7 +47,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				this.effectState.layers++;
 			},
 			onSwitchIn(pokemon) {
-				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') ||
+				const ignoreByCode = pokemon.m.codes['effect'].includes('noclip') ||
 					pokemon.volatiles['noclip'] || pokemon.volatiles['bootie'];
 				if (!pokemon.isGrounded() || pokemon.hasItem('heavydutyboots') || ignoreByCode) return;
 				const damageAmounts = [0, 3, 4, 6]; // 1/8, 1/6, 1/4
@@ -63,7 +63,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				this.add('-sidestart', side, 'move: Stealth Rock');
 			},
 			onSwitchIn(pokemon) {
-				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') ||
+				const ignoreByCode = pokemon.m.codes['effect'].includes('noclip') ||
 					pokemon.volatiles['noclip'] || pokemon.volatiles['bootie'];
 				if (pokemon.hasItem('heavydutyboots') || ignoreByCode) return;
 				const typeMod = this.clampIntRange(pokemon.runEffectiveness(this.dex.getActiveMove('stealthrock')), -6, 6);
@@ -78,7 +78,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 				this.add('-sidestart', side, 'move: Sticky Web');
 			},
 			onSwitchIn(pokemon) {
-				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') ||
+				const ignoreByCode = pokemon.m.codes['effect'].includes('noclip') ||
 					pokemon.volatiles['noclip'] || pokemon.volatiles['bootie'];
 				if (!pokemon.isGrounded() || pokemon.hasItem('heavydutyboots') || ignoreByCode) return;
 				this.add('-activate', pokemon, 'move: Sticky Web');
@@ -91,7 +91,7 @@ export const Moves: import('../../../sim/dex-moves').ModdedMoveDataTable = {
 		condition: {
 			inherit: true,
 			onSwitchIn(pokemon) {
-				const ignoreByCode = pokemon.m.effectCodes.includes('noclip') ||
+				const ignoreByCode = pokemon.m.codes['effect'].includes('noclip') ||
 					pokemon.volatiles['noclip'] || pokemon.volatiles['bootie'];
 				if (pokemon.hasItem('heavydutyboots') || ignoreByCode) return;
 				// Ice Face and Disguise correctly get typed damage from Stealth Rock

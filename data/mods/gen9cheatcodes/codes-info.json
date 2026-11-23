@@ -342,7 +342,7 @@
   "screen": {
     "id": "screen",
     "name": "SCREEN",
-    "desc": "When a team member switches in, if its highest raw stat is Defense, it will summon Reflect, and Light Screen if SpD is the highest raw stat. If HP is the highest raw stat, it will use Aurora Veil. These screens cannot be extended by Light Clay.",
+    "desc": "When a team member switches in, if its highest raw stat is Defense, it will summon Reflect, and Light Screen if SpD is the highest raw stat. When it does this, it will remove the previous screens. These screens cannot be extended by Light Clay.",
     "type": "team"
   },
   "shower": {

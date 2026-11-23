@@ -18,8 +18,6 @@ Some `.m` states also used for code effects:
 
 (string[]) `.m.innates`: Abilities added through codes.
 
-(string[]) `.m.effectCodes`: Various code effectCodes keyed by cause code: SURVEY, NOCLIP, VICTOR.
-
 (string[]) `.m.moddedTypes`: A string of replacement types to be merged with its baseTypes.
 
 (Map<>) `.m.codeEffects`: Effects of codes:
