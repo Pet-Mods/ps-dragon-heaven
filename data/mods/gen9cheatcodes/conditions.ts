@@ -308,6 +308,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			}
 		},
 	},
+	petmod: {
+		name: "PETMOD",
+	},
 	pride: {
 		name: "PRIDE",
 		onModifyDamage(dmg, source, target, move) {
@@ -359,6 +362,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	shower: {
 		name: "SHOWER",
+	},
+	silent: {
+		name: "SILENT",
 	},
 	sleuth: {
 		name: "SLEUTH",
@@ -433,6 +439,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			if (typeof accuracy === 'number') return accuracy * 1.1;
 		},
 	},
+	walker: {
+		name: "WALKER",
+	},
 	wizard: {
 		name: "WIZARD",
 	},
@@ -492,6 +501,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			this.field.removePseudoWeather('Trick Room');
 		},
 	},
+	burp: {
+		name: "BURP",
+	},
 	burn: {
 		name: "BURN",
 		effectType: 'Condition',
@@ -514,6 +526,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	debt: {
 		name: "DEBT",
 	},
+	eels: {
+		name: "EELS",
+	},
 	eggs: {
 		name: "EGGS",
 	},
@@ -529,6 +544,23 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		},
 	fish: {
 		name: "FISH",
+	},
+	fist: {
+		name: "FIST",
+		onModifyMove(move, pokemon, target) {
+			if (move.flags['punch']) {
+				delete move.flags['contact'];
+			}
+		},
+		onBasePower(basePower, attacker, defender, move) {
+			if (move.flags['punch']) {
+				activateCode(this, 'fist', attacker.side.name, attacker, `1.3x power & no contact on ${move.name}`);
+				return this.chainModify(1.3);
+			}
+		},
+	},
+	gatr: {
+		name: "GATR",
 	},
 	gene: {
 		name: "GENE",
@@ -659,6 +691,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	pika: {
 		name: "PIKA",
 	},
+	rest: {
+		name: "REST",
+	},
 	rise: {
 		name: "RISE",
 		onSourceAfterFaint(length, target, source, effect) {
@@ -752,6 +787,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 				activateCode(this, 'trap', source.side.name, source);
 			}
 		},
+	},
+	trek: {
+		name: "TREK",
 	},
 	true: {
 		name: "TRUE",
