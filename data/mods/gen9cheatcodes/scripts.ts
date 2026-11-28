@@ -25,10 +25,9 @@ const BONUS_ABILITY_CODES: { [k: string]: string } = {
 	'lets': 'levitate',
 	'monk': 'gorillatactics',
 	'eels': 'eelevate',
-	'gatr': 'sheerforce',
-	// The codes below have not been fully coded yet 
-	//'volt': 'teravolt', // "desc": "This Pokemon gains Teravolt as an additional ability, and its Electric-type moves have 1.1x power.",
-	//'ski': 'slushrush', // "desc": "This Pokemon gains Slush Rush as an additional ability, and its successful attacks summon Snowscape.",
+	'gatr': 'sheerforce', 
+	'volt': 'teravolt', 
+	//'ski': 'slushrush', // Second effect not coded yet //"desc": "This Pokemon gains Slush Rush as an additional ability, and its successful attacks summon Snowscape.",
 }
 const BONUS_MOVE_CODES: { [k: string]: string } = {
 	'eggs': 'softboiled',
