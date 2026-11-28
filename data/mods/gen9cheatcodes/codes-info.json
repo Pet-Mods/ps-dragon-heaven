@@ -481,4 +481,274 @@
     "desc": "If a Pokemon on this team selects a different move than the previous turn, it gains 25% damage reduction and a 20% damage boost.",
     "type": "team"
   }
+
+// Adding Cheat Codes from the Spreadsheet
+  "arctic": {
+    "id": "arctic",
+    "name": "ARCTIC",
+    "desc": "Ice-type Pokemon on this team treat neutral hits as resisted. Pokemon with Snow Warning also take 33% less damage from super effective hits.",
+    "type": "team"
+  },
+  "chaos": {
+    "id": "chaos",
+    "name": "CHAOS",
+    "desc": "Pokemon on this team use Metronome at the end of each of their turns.",
+    "type": "team"
+  },
+  "chroma": {
+    "id": "chroma",
+    "name": "CHROMA",
+    "desc": "Pokemon on this team have their stats (except Speed) multiplied by 1 + (0.5 * number of allies sharing their Pokedex color).",
+    "type": "team"
+  },
+  "climax": {
+    "id": "climax",
+    "name": "CLIMAX",
+    "desc": "When this team has 1 Pokemon remaining, it gains +1 Attack, Sp. Atk, and Speed on switch-in.",
+    "type": "team"
+  },
+  "cobras": {
+    "id": "cobras",
+    "name": "COBRAS",
+    "desc": "All active Pokemon gain Poison-type and the effects of Corrosion.",
+    "type": "team"
+  },
+  "coven": {
+    "id": "coven",
+    "name": "COVEN",
+    "desc": "Pokemon on this team gain Magic Guard and Mystical Fire as an extra move.",
+    "type": "team",
+    "behavior": "ability"
+  },
+  "cowboy": {
+    "id": "cowboy",
+    "name": "COWBOY",
+    "desc": "This team's ballistic moves have 1.3x power and accuracy, and all team members gain Milk Drink as an extra move.",
+    "type": "team"
+  },
+  "forest": {
+    "id": "forest",
+    "name": "FOREST",
+    "desc": "This team's Grass-type moves inflict Forest's Curse on targets.",
+    "type": "team"
+  },
+  "god": {
+    "id": "god",
+    "name": "GOD",
+    "desc": "Fills the final 3 team slots with Arceus forms copying the primary type and moveset (without set codes) of the first 3 Pokemon. Normal Arceus copies the slot's item (excluding Mega Stones and Z-Crystals), while other types hold their matching Plate. All Arceus have 31 IVs and 84 EVs in every stat.",
+    "type": "team",
+    "behavior": "unique"
+  },
+  "groovy": {
+    "id": "groovy",
+    "name": "GROOVY",
+    "desc": "At the start of every 3rd turn, all active Pokemon use a random Dance move (excluding Lunar Dance).",
+    "type": "team"
+  },
+  "inject": {
+    "id": "inject",
+    "name": "INJECT",
+    "desc": "The last unfainted Pokemon on this team gains the effect of a random 4-letter move code from an ally.",
+    "type": "team"
+  },
+  "latios": {
+    "id": "latios",
+    "name": "LATIOS",
+    "desc": "This team's Dragon- and Psychic-type moves deal 1.2x damage, and the first Pokemon sent out gains Levitate.",
+    "type": "team"
+  },
+  "lowest": {
+    "id": "lowest",
+    "name": "LOWEST",
+    "desc": "When a Pokemon on this team switches in, its lowest stat is raised by 1 stage.",
+    "type": "team"
+  },
+  "misty": {
+    "id": "misty",
+    "name": "MISTY",
+    "desc": "Mist is active on both sides for the duration of battle, boosting Water-type moves by 1.2x (While Mist is active). While Misty Terrain is active, Fairy-type moves are boosted by 1.2x.",
+    "type": "team"
+  },
+  "muscle": {
+    "id": "muscle",
+    "name": "MUSCLE",
+    "desc": "Fighting-type Pokemon on this team have all of their natural abilities active at once.",
+    "type": "team",
+    "behavior": "ability"
+  },
+  "papers": {
+    "id": "papers",
+    "name": "PAPERS",
+    "desc": "Pokemon on this team are immune to Stealth Rock and take 0.5x damage from Rock-type moves.",
+    "type": "team"
+  },
+  "petmod": {
+    "id": "petmod",
+    "name": "PETMOD",
+    "desc": "Sableye is added to the team as an additional Pokemon.",
+    "type": "team",
+    "behavior": "pokemon",
+    "effectDetails": "<b>Adds this Pokemon to the team:</b><br />Sableye<br />Item: Sablenite<br />Ability: Prankster<br />Nature: Impish<br />Level: 100<br />EVs: 248 HP / 252 Def / 8 SpD<br />Moves: Foul Play, Will-O-Wisp, Recover, Fake Out"
+  },
+
+  "scamp": {
+    "id": "scamp",
+    "name": "SCAMP",
+    "desc": "If this team has exactly one NFE Pokemon, its fully evolved form with the same set is added as an extra member (split evolutions pick the non-variant form with the lowest Pokedex number).",
+    "type": "team",
+   // "behavior": "unique"
+  },
+  "shift": {
+    "id": "shift",
+    "name": "SHIFT",
+    "desc": "Pokemon on this team gain +10, +20, or +30 to all non-HP base stats if they are UU, RU, or NFE/LC respectively.",
+    "type": "team"
+  },
+  "silent": {
+    "id": "silent",
+    "name": "SILENT",
+    "desc": "All Pokemon on this team gain Soundproof.",
+    "type": "team",
+    "behavior": "ability"
+  },
+  "stone": {
+    "id": "stone",
+    "name": "STONE",
+    "desc": "Pokemon on this team with a BST of 450 or less can Mega Evolve using any Mega Stone legal in Mix and Mega.",
+    "type": "team",
+   // "behavior": "unique"
+  },
+  "suivez": {
+    "id": "suivez",
+    "name": "SUIVEZ",
+    "desc": "Using a Sound move grants a non-stacking 1.2x team-wide boost to moves of that move's type. Multiple type boosts can be active simultaneously.",
+    "type": "team"
+  },
+  "sunny": {
+    "id": "sunny",
+    "name": "SUNNY",
+    "desc": "The first Pokemon sent out on this team gains Drought on top of its regular Ability.",
+    "type": "team",
+    "behavior": "ability"
+  },
+  "tackle": {
+    "id": "tackle",
+    "name": "TACKLE",
+    "desc": "Whenever a Pokemon on either side switches in, it uses Tackle.",
+    "type": "team"
+  },
+  "ubers": {
+    "id": "ubers",
+    "name": "UBERS",
+    "desc": "This team may include up to 1 Ubers-tier Pokemon.",
+    "type": "team",
+     // "behavior": "unique"
+  },
+  "voodoo": {
+    "id": "voodoo",
+    "name": "VOODOO",
+    "desc": "When a Pokemon on this team with Curse in its moveset switches in, it is affected by Trick-or-Treat and gains Hex and Shadow Sneak.",
+    "type": "team"
+  },
+  "walker": {
+    "id": "walker",
+    "name": "WALKER",
+    "desc": "This team gains Furret as an additional team member.",
+    "type": "team",
+    "behavior": "pokemon",
+    "effectDetails": "<b>Adds this Pokemon to the team:</b><br />Furret (M)<br />Item: Choice Scarf<br />Ability: Frisk<br />Tera Type: Normal<br />Nature: Jolly<br />Level: 100<br />EVs: 252 Atk / 4 SpD / 252 Spe<br />Moves: Trick, Knock Off, Tidy Up, Facade"
+  },
+  "yoink": {
+    "id": "yoink",
+    "name": "YOINK",
+    "desc": "All moves used by this team steal the target's held item.",
+    "type": "team"
+  },
+  // Moves Cheat Codes
+  "rock": {
+    "id": "rock",
+    "name": "ROCK",
+    "desc": "This Pokemon is immune to Sandstorm damage and has 1.5x Sp. Def during Sandstorm.",
+    "type": "set"
+  },
+  "coal": {
+    "id": "coal",
+    "name": "COAL",
+    "desc": "This Pokemon's damaging moves inflict the Tar Shot condition on the target.",
+    "type": "set"
+  },
+  "eels": {
+    "id": "eels",
+    "name": "EELS",
+    "desc": "This Pokemon gains the Eelevate ability.",
+    "type": "set",
+    "behavior": "ability"
+  },
+  "fat": {
+    "id": "fat",
+    "name": "FAT",
+    "desc": "This Pokemon's weight is quadrupled, and it gains Heavy Slam with its type matching the user's primary type.",
+    "type": "set",
+    "behavior": "move"
+  },
+  "rest": {
+    "id": "rest",
+    "name": "REST",
+    "desc": "This Pokemon gains Rest as an additional move.",
+    "type": "set",
+    "behavior": "move"
+  },
+  "ski": {
+    "id": "ski",
+    "name": "SKI",
+    "desc": "This Pokemon gains Slush Rush as an additional ability, and its successful attacks summon Snowscape.",
+    "type": "set",
+    "behavior": "ability"
+  },
+  "volt": {
+    "id": "volt",
+    "name": "VOLT",
+    "desc": "This Pokemon gains Teravolt as an additional ability, and its Electric-type moves have 1.1x power.",
+    "type": "set",
+    "behavior": "ability"
+  },
+  "burp": {
+    "id": "burp",
+    "name": "BURP",
+    "desc": "This Pokemon gains Stockpile, Spit Up, Swallow, and Belch as additional moves.",
+    "type": "set",
+    "behavior": "move"
+  },
+  "gatr": {
+    "id": "gatr",
+    "name": "GATR",
+    "desc": "This Pokemon gains Sheer Force as an additional Ability.",
+    "type": "set",
+    "behavior": "ability"
+  },
+  "wimp": {
+    "id": "wimp",
+    "name": "WIMP",
+    "desc": "This Pokemon switches out when its HP drops below 50%.",
+    "type": "set"
+  },
+  "fist": {
+    "id": "fist",
+    "name": "FIST",
+    "desc": "This Pokemon's punching moves deal 1.3x damage and do not make contact.",
+    "type": "set"
+  },
+  "hail": {
+    "id": "hail",
+    "name": "HAIL",
+    "desc": "This Pokemon uses Hail on switch-in.",
+    "type": "set"
+  },
+  "trek": {
+    "id": "trek",
+    "name": "TREK",
+    "desc": "This Pokemon gains Trailblaze as an additional move.",
+    "type": "set",
+    "behavior": "move"
+  }
 }
