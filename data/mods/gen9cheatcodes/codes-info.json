@@ -482,7 +482,6 @@
     "type": "team"
   }
 
-// Adding Cheat Codes from the Spreadsheet
   "arctic": {
     "id": "arctic",
     "name": "ARCTIC",
@@ -596,7 +595,7 @@
     "name": "SCAMP",
     "desc": "If this team has exactly one NFE Pokemon, its fully evolved form with the same set is added as an extra member (split evolutions pick the non-variant form with the lowest Pokedex number).",
     "type": "team",
-   // "behavior": "unique"
+    "behavior": "unique"
   },
   "shift": {
     "id": "shift",
@@ -616,7 +615,7 @@
     "name": "STONE",
     "desc": "Pokemon on this team with a BST of 450 or less can Mega Evolve using any Mega Stone legal in Mix and Mega.",
     "type": "team",
-   // "behavior": "unique"
+    "behavior": "unique"
   },
   "suivez": {
     "id": "suivez",
@@ -642,7 +641,7 @@
     "name": "UBERS",
     "desc": "This team may include up to 1 Ubers-tier Pokemon.",
     "type": "team",
-     // "behavior": "unique"
+    "behavior": "unique"
   },
   "voodoo": {
     "id": "voodoo",
@@ -664,7 +663,6 @@
     "desc": "All moves used by this team steal the target's held item.",
     "type": "team"
   },
-  // Moves Cheat Codes
   "rock": {
     "id": "rock",
     "name": "ROCK",
