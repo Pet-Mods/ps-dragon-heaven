@@ -167,6 +167,15 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	fluffy: {
 		name: "FLUFFY",
 	},
+	forest: {
+		name: "FOREST",
+		onHit(target, source, move) {
+			if (move.type === 'Grass' && !target.hasType('Grass') && target.addType('Grass')) {
+				activateCode(this, 'forest', source.side.name, null, `added Grass type to ${target.name}`);
+				this.add('-start', target, 'typeadd', 'Grass', '[from] move: Forest\'s Curse');
+			}
+		},
+	},
 	four: {
 		name: "FOUR",
 	},
@@ -284,6 +293,21 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		// terrain effect implemented in each terrain
 		// hazard immunity effect hardcoded in each hazard
 	},
+	papers: {
+		name: "PAPERS",
+		onDamage(damage, target, source, effect) {
+			if (effect && effect.id === 'stealthrock') {
+				activateCode(this, 'papers', target.side.name, null, `blocked Stealth Rock on ${target.name}`);
+				return false;
+			}
+		},
+		onSourceModifyDamage(damage, source, target, move) {
+			if (move.type === 'Rock') {
+				activateCode(this, 'papers', target.side.name, null, `halved Rock damage on ${target.name}`);
+				return this.chainModify(0.5);
+			}
+		},
+	},
 	pride: {
 		name: "PRIDE",
 		onModifyDamage(dmg, source, target, move) {
@@ -368,6 +392,14 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 				.join('<br />');
 
 			this.add('html', `<div class="infobox"><details><summary>Set for ${name}:</summary>Item: ${item}<br />Moves:<br />${moves}</details></div>`);
+		},
+	},
+	tackle: {
+		name: "TACKLE",
+		onAnySwitchIn(pokemon) {
+			if (!pokemon.hp || pokemon.fainted) return;
+			activateCode(this, 'tackle', pokemon.side.name, null, `${pokemon.name} used Tackle`);
+			this.actions.useMove('Tackle', pokemon);
 		},
 	},
 	tracks: {
@@ -498,15 +530,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	fish: {
 		name: "FISH",
 	},
-	forest: {
-		name: "FOREST",
-		onHit(target, source, move) {
-			if (move.type === 'Grass' && !target.hasType('Grass') && target.addType('Grass')) {
-				activateCode(this, 'forest', source.side.name, null, `added Grass type to ${target.name}`);
-				this.add('-start', target, 'typeadd', 'Grass', '[from] move: Forest\'s Curse');
-			}
-		},
-	},
 	gene: {
 		name: "GENE",
 		onStart(pokemon) {
@@ -633,21 +656,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	paid: {
 		name: "PAID",
 	},
-	papers: {
-		name: "PAPERS",
-		onDamage(damage, target, source, effect) {
-			if (effect && effect.id === 'stealthrock') {
-				activateCode(this, 'papers', target.side.name, null, `blocked Stealth Rock on ${target.name}`);
-				return false;
-			}
-		},
-		onSourceModifyDamage(damage, source, target, move) {
-			if (move.type === 'Rock') {
-				activateCode(this, 'papers', target.side.name, null, `halved Rock damage on ${target.name}`);
-				return this.chainModify(0.5);
-			}
-		},
-	},
 	pika: {
 		name: "PIKA",
 	},
@@ -703,14 +711,6 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 				activateCode(this, 'star', source.side.name, source, `new BP: ${bp * 1.2}`);
 				return bp * 1.2;
 			};
-		},
-	},
-	tackle: {
-		name: "TACKLE",
-		onAnySwitchIn(pokemon) {
-			if (!pokemon.hp || pokemon.fainted) return;
-			activateCode(this, 'tackle', pokemon.side.name, null, `${pokemon.name} used Tackle`);
-			this.actions.useMove('Tackle', pokemon);
 		},
 	},
 	tear: {
