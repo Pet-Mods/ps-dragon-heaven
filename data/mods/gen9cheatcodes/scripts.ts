@@ -36,6 +36,7 @@ const BONUS_MOVE_CODES: { [k: string]: string } = {
 	'paid': 'makeitrain',
 	'pika': 'volttackle',
 	'rest': 'rest', // I believe the name won't break it?
+	'trek': 'trailblaze',
 }
 const BONUS_POKEMON_CODES: { [k: string]: PokemonSet } = {
 	'apples': {
