@@ -99,6 +99,14 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	bugsy: {
 		name: "BUGSY",
 	},
+	chaos: {
+		name: "CHAOS",
+		onResidual(pokemon) {
+			const move = this.dex.moves.get('Metronome');
+			activateCode(this, 'chaos', pokemon.side.name, null, `using ${move}`);
+			this.actions.useMove(move, pokemon);
+		},
+	},
 	coffee: {
 		name: "COFFEE",
 		onSourceTryAddVolatile(status, target, source, sourceEffect) {
@@ -158,6 +166,15 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	fluffy: {
 		name: "FLUFFY",
+	},
+	forest: {
+		name: "FOREST",
+		onHit(target, source, move) {
+			if (move.type === 'Grass' && !target.hasType('Grass') && target.addType('Grass')) {
+				activateCode(this, 'forest', source.side.name, null, `added Grass type to ${target.name}`);
+				this.add('-start', target, 'typeadd', 'Grass', '[from] move: Forest\'s Curse');
+			}
+		},
 	},
 	four: {
 		name: "FOUR",
@@ -276,6 +293,24 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		// terrain effect implemented in each terrain
 		// hazard immunity effect hardcoded in each hazard
 	},
+	papers: {
+		name: "PAPERS",
+		onDamage(damage, target, source, effect) {
+			if (effect && effect.id === 'stealthrock') {
+				activateCode(this, 'papers', target.side.name, null, `blocked Stealth Rock on ${target.name}`);
+				return false;
+			}
+		},
+		onSourceModifyDamage(damage, source, target, move) {
+			if (move.type === 'Rock') {
+				activateCode(this, 'papers', target.side.name, null, `halved Rock damage on ${target.name}`);
+				return this.chainModify(0.5);
+			}
+		},
+	},
+	petmod: {
+		name: "PETMOD",
+	},
 	pride: {
 		name: "PRIDE",
 		onModifyDamage(dmg, source, target, move) {
@@ -328,6 +363,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	shower: {
 		name: "SHOWER",
 	},
+	silent: {
+		name: "SILENT",
+	},
 	sleuth: {
 		name: "SLEUTH",
 		onStart(pokemon) {
@@ -362,6 +400,14 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			this.add('html', `<div class="infobox"><details><summary>Set for ${name}:</summary>Item: ${item}<br />Moves:<br />${moves}</details></div>`);
 		},
 	},
+	tackle: {
+		name: "TACKLE",
+		onAnySwitchIn(pokemon) {
+			if (!pokemon.hp || pokemon.fainted) return;
+			activateCode(this, 'tackle', pokemon.side.name, null, `${pokemon.name} used Tackle`);
+			this.actions.useMove('Tackle', pokemon);
+		},
+	},
 	tracks: {
 		name: "TRACKS",
 		onAnyAccuracy(accuracy, target, source, move) {
@@ -392,6 +438,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		onSourceModifyAccuracy(accuracy) {
 			if (typeof accuracy === 'number') return accuracy * 1.1;
 		},
+	},
+	walker: {
+		name: "WALKER",
 	},
 	wizard: {
 		name: "WIZARD",
@@ -452,6 +501,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			this.field.removePseudoWeather('Trick Room');
 		},
 	},
+	burp: {
+		name: "BURP",
+	},
 	burn: {
 		name: "BURN",
 		effectType: 'Condition',
@@ -474,6 +526,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	debt: {
 		name: "DEBT",
 	},
+	eels: {
+		name: "EELS",
+	},
 	eggs: {
 		name: "EGGS",
 	},
@@ -489,6 +544,23 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 		},
 	fish: {
 		name: "FISH",
+	},
+	fist: {
+		name: "FIST",
+		onModifyMove(move, pokemon, target) {
+			if (move.flags['punch']) {
+				delete move.flags['contact'];
+			}
+		},
+		onBasePower(basePower, attacker, defender, move) {
+			if (move.flags['punch']) {
+				activateCode(this, 'fist', attacker.side.name, attacker, `1.3x power & no contact on ${move.name}`);
+				return this.chainModify(1.3);
+			}
+		},
+	},
+	gatr: {
+		name: "GATR",
 	},
 	gene: {
 		name: "GENE",
@@ -512,6 +584,14 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	},
 	gold: {
 		name: "GOLD",
+	},
+	hail: {
+		name: "HAIL",
+		onSwitchIn(pokemon) {
+			if (!pokemon.hp || pokemon.fainted) return;
+			activateCode(this, 'hail', pokemon.side.name, pokemon, `${pokemon.name} used Hail`);
+			this.actions.useMove('Hail', pokemon);
+		},
 	},
 	heal: {
 		name: "HEAL",
@@ -611,12 +691,27 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 	pika: {
 		name: "PIKA",
 	},
+	rest: {
+		name: "REST",
+	},
 	rise: {
 		name: "RISE",
 		onSourceAfterFaint(length, target, source, effect) {
 			if (effect?.effectType === 'Move') {
 				const bestStat = source.getBestStat(true, true);
 				this.boost({ [bestStat]: length }, source);
+			}
+		},
+	},
+	rock: {
+		name: "ROCK",
+		onImmunity(type) {
+			if (type === 'sandstorm') return false;
+		},
+		onModifySpD(spd, pokemon) {
+			if (this.field.isWeather('sandstorm')) {
+				activateCode(this, 'rock', pokemon.side.name, pokemon, `1.5x Sp. Def in Sandstorm`);
+				return this.chainModify(1.5);
 			}
 		},
 	},
@@ -693,6 +788,9 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			}
 		},
 	},
+	trek: {
+		name: "TREK",
+	},
 	true: {
 		name: "TRUE",
 		onModifyMove(move, pokemon, target) {
@@ -709,6 +807,15 @@ export const Conditions: import("../../../sim/dex-conditions").ModdedConditionDa
 			for (const pokemon of this.getAllActive()) {
 				pokemon.addVolatile('perishsong', target, CheatCodes);
 				this.add('-start', pokemon, 'perish3', '[silent]');
+			}
+		},
+	},
+	volt: {
+		name: "VOLT",
+		onBasePower(basePower, attacker, defender, move) {
+			if (move.type === 'Electric') {
+				activateCode(this, 'volt', attacker.side.name, attacker, `1.1x ${move.name}`);
+				return this.chainModify(1.1);
 			}
 		},
 	},

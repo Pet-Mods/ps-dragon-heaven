@@ -17,18 +17,25 @@ const BONUS_ABILITY_CODES: { [k: string]: string } = {
 	'exequy': 'supremeoverlord',
 	'fluffy': 'fluffy',
 	'neuter': 'neutralizinggas',
+	'silent': 'soundproof',
 	// set
 	'debt': 'neutralizinggas',
 	'fam': 'parentalbond',
 	'gold': 'goodasgold',
 	'lets': 'levitate',
 	'monk': 'gorillatactics',
+	'eels': 'eelevate',
+	'gatr': 'sheerforce', 
+	'volt': 'teravolt', 
+	//'ski': 'slushrush', // Second effect not coded yet //"desc": "This Pokemon gains Slush Rush as an additional ability, and its successful attacks summon Snowscape.",
 }
 const BONUS_MOVE_CODES: { [k: string]: string } = {
 	'eggs': 'softboiled',
 	'fest': 'celebrate',
 	'paid': 'makeitrain',
 	'pika': 'volttackle',
+	'rest': 'rest', // I believe the name won't break it?
+	'trek': 'trailblaze',
 }
 const BONUS_POKEMON_CODES: { [k: string]: PokemonSet } = {
 	'apples': {
@@ -79,6 +86,40 @@ const BONUS_POKEMON_CODES: { [k: string]: PokemonSet } = {
 		nature: 'Naive',
 		gender: 'N',
 		evs: { hp: 0, atk: 128, def: 0, spa: 128, spd: 0, spe: 252 },
+		ivs: { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 },
+		level: 100,
+	},
+	'petmod': {
+		name: "Sableye",
+		species: 'Sableye',
+		item: 'Sablenite',
+		ability: 'Prankster',
+		moves: [
+			'Foul Play',
+			'Will-O-Wisp',
+			'Recover',
+			'Fake Out',
+		],
+		nature: 'Impish',
+		evs: { hp: 248, atk: 0, def: 252, spa: 0, spd: 8, spe: 0 },
+		ivs: { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 },
+		level: 100,
+	},
+	'walker': {
+		name: "Furret",
+		species: 'Furret',
+		item: 'Choice Scarf',
+		ability: 'Frisk',
+		moves: [
+			'Trick',
+			'Knock Off',
+			'Tidy Up',
+			'Facade',
+		],
+		nature: 'Jolly',
+		gender: 'M',
+		teraType: 'Normal',
+		evs: { hp: 0, atk: 252, def: 0, spa: 0, spd: 4, spe: 252 },
 		ivs: { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 },
 		level: 100,
 	},
